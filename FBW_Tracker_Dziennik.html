@@ -1,0 +1,3276 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="FBW Tracker">
+  <title>FBW TRACKER // CLEAN LIGHT</title>
+  <link rel="manifest" href="data:application/manifest+json;utf8,%7B%22name%22%3A%22FBW%20Tracker%20-%20Dziennik%20Treningowy%22%2C%22short_name%22%3A%22FBW%20Iron%22%2C%22description%22%3A%22Dedykowany%20dziennik%20treningowy%20FBW%22%2C%22start_url%22%3A%22%2F%22%2C%22scope%22%3A%22%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23080808%22%2C%22theme_color%22%3A%22%23080808%22%2C%22orientation%22%3A%22portrait-primary%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fdzinnikfbw.pages.dev%2Ficon-192.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%2C%7B%22src%22%3A%22https%3A%2F%2Fdzinnikfbw.pages.dev%2Ficon-512.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Bebas Neue, Inter, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .font-heavy {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.05em;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+      font-variant-numeric: tabular-nums;
+      font-weight: 800 !important;
+      color: #020617 !important;
+    }
+    input[type=number]::placeholder {
+      color: #94a3b8;
+      font-weight: 600;
+      opacity: 0.8;
+    }
+
+    /* Sylwetka anatomiczna dla białego tła */
+    .muscle-path {
+      fill: #e2e8f0;
+      stroke: #cbd5e1;
+      stroke-width: 1.5;
+      transition: all 0.25s ease-out;
+    }
+    .muscle-primary {
+      fill: #f59e0b !important;
+      filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.5));
+      stroke: #d97706 !important;
+      stroke-width: 2 !important;
+    }
+    .muscle-secondary {
+      fill: #0ea5e9 !important;
+      filter: drop-shadow(0 0 4px rgba(14, 165, 233, 0.4));
+      stroke: #0284c7 !important;
+      stroke-width: 1.5 !important;
+    }
+
+    .swap-fade {
+      animation: fadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0.5; transform: translateY(-2px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Opcjonalny tryb ciemny przełączany przyciskiem */
+    body.dark-theme {
+      background-color: #0b0f19 !important;
+      color: #f1f5f9 !important;
+    }
+    body.dark-theme header,
+    body.dark-theme #bottomTimerBar {
+      background-color: rgba(15, 23, 42, 0.95) !important;
+      border-color: #334155 !important;
+    }
+    body.dark-theme .bg-white {
+      background-color: #151d2f !important;
+      border-color: #334155 !important;
+      color: #f8fafc !important;
+    }
+    body.dark-theme .bg-slate-50 {
+      background-color: #1e293b !important;
+      border-color: #334155 !important;
+    }
+    body.dark-theme .text-slate-900 {
+      color: #f8fafc !important;
+    }
+    body.dark-theme .text-slate-800 {
+      color: #e2e8f0 !important;
+    }
+    body.dark-theme .text-slate-700 {
+      color: #cbd5e1 !important;
+    }
+    body.dark-theme .text-slate-600 {
+      color: #94a3b8 !important;
+    }
+    body.dark-theme input[type=number] {
+      background-color: #0f172a !important;
+      color: #fbbf24 !important;
+      border-color: #475569 !important;
+    }
+    body.dark-theme input[type=number]::placeholder {
+      color: #64748b !important;
+    }
+    body.dark-theme .border-slate-200,
+    body.dark-theme .border-slate-300 {
+      border-color: #334155 !important;
+    }
+    body.dark-theme .bg-slate-100 {
+      background-color: #1e293b !important;
+      border-color: #475569 !important;
+      color: #f8fafc !important;
+    }
+    body.dark-theme .muscle-path {
+      fill: #1e293b;
+      stroke: #334155;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col pb-24 selection:bg-amber-400 selection:text-black relative">
+
+  <!-- POWIADOMIENIE TOAST (NA GÓRZE EKRANU) -->
+  <div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-slate-950 text-white border-2 border-amber-400 px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-4 max-w-sm w-[90%]">
+    <div id="toastIcon" class="w-8 h-8 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-bold shrink-0 text-base">✓</div>
+    <div>
+      <div id="toastTitle" class="text-xs font-heavy tracking-wide text-amber-400 uppercase">SUKCES</div>
+      <div id="toastMessage" class="text-[11px] font-mono text-slate-200 leading-tight">Trening zapisany pomyślnie!</div>
+    </div>
+  </div>
+
+  <!-- BANER INSTALACJI PWA -->
+  <div id="installBanner" class="hidden bg-amber-400 text-slate-950 px-4 py-2.5 flex items-center justify-between shadow-sm border-b border-amber-300">
+    <div class="flex items-center gap-2 text-xs font-bold font-mono uppercase">
+      <i data-lucide="download" class="w-4 h-4"></i>
+      <span>ZAINSTALUJ JAKO APLIKACJĘ NA EKRANIE</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="installAppBtn" class="px-3 py-1 bg-slate-950 text-white font-heavy text-xs uppercase rounded active:scale-95 transition shadow-sm">
+        INSTALUJ
+      </button>
+      <button onclick="dismissInstallBanner()" class="text-slate-950 hover:opacity-75">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- TOP HEADER (BIAŁY) -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 shadow-sm">
+    <div class="max-w-md md:max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded bg-slate-950 border border-slate-800 flex items-center justify-center text-amber-400 font-heavy text-xl shadow-sm">
+          FBW
+        </div>
+        <div>
+          <h1 class="text-sm font-extrabold uppercase tracking-widest text-slate-900 leading-tight">FBW TRACKER</h1>
+          <p id="currentDateStr" class="text-[10px] text-slate-500 font-mono uppercase tracking-wider"></p>
+        </div>
+      </div>
+      
+      <!-- Prawa strona: Motyw + Stoper -->
+      <div class="flex items-center gap-2">
+        <!-- PRZYCISK SYNCHRONIZACJI CHMURY W NAGŁÓWKU -->
+        <button onclick="handleManualPull()" id="headerSyncBtn" title="Pobierz najnowsze dane z telefonu (PIN: 1234)" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-mono font-extrabold shadow-sm active:scale-95 transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">SYNCHRONIZUJ</span>
+        </button>
+
+        <button onclick="toggleTheme()" id="themeBtn" title="Zmień motyw (Jasny / Ciemny)" class="flex items-center gap-1 px-2 py-1.5 rounded bg-slate-100 border border-slate-300 text-xs font-mono font-bold text-slate-800 active:scale-95 transition shadow-sm">
+          <span id="themeBtnIcon">☀️</span>
+          <span id="themeBtnTxt" class="text-[10px] hidden sm:inline">JASNY</span>
+        </button>
+        <button onclick="openTimerSheet()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-slate-100 border border-slate-300 text-xs font-mono font-bold text-slate-900 active:bg-slate-200 transition shadow-sm">
+          <i data-lucide="timer" class="w-3.5 h-3.5 text-amber-600"></i>
+          <span id="headerTimerVal">01:30</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- GŁÓWNY KONTENER -->
+  <main class="max-w-md md:max-w-6xl mx-auto w-full px-4 md:px-6 pt-3 flex-1">
+
+    <!-- ZAKŁADKI: PLAN A, B, C, ATLAS, HISTORIA -->
+    <div class="grid grid-cols-5 gap-1 md:gap-2.5 p-1 md:p-1.5 bg-white rounded-xl border border-slate-200 mb-4 text-center shadow-sm">
+      <button onclick="switchTab('A')" id="tabBtnA" class="py-2 text-xs font-heavy tracking-wider rounded uppercase transition bg-slate-950 text-white font-bold shadow-sm">
+        PLAN A
+      </button>
+      <button onclick="switchTab('B')" id="tabBtnB" class="py-2 text-xs font-heavy tracking-wider rounded uppercase transition text-slate-600 hover:text-slate-900">
+        PLAN B
+      </button>
+      <button onclick="switchTab('C')" id="tabBtnC" class="py-2 text-xs font-heavy tracking-wider rounded uppercase transition text-slate-600 hover:text-slate-900">
+        PLAN C
+      </button>
+      <button onclick="switchTab('atlas')" id="tabBtnAtlas" class="py-2 text-xs font-heavy tracking-wider rounded uppercase transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1">
+        <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+        <span>ATLAS</span>
+      </button>
+      <button onclick="switchTab('history')" id="tabBtnHistory" class="py-2 text-xs font-heavy tracking-wider rounded uppercase transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1">
+        <i data-lucide="archive" class="w-3.5 h-3.5"></i>
+        <span>LOG</span>
+      </button>
+    </div>
+
+    <!-- 1. WIDOK SESJI TRENINGOWEJ -->
+    <div id="workoutView" class="space-y-3">
+      
+      <!-- BANER INFORMACYJNY -->
+      <div class="p-3 bg-white border-l-4 border-amber-500 border-y border-r border-slate-200 rounded-r shadow-sm flex items-center justify-between">
+        <div>
+          <span id="planBadge" class="text-[9px] font-mono uppercase tracking-widest text-amber-700 font-bold bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">PLAN A // BAZA SIŁOWA</span>
+          <h2 id="planTitle" class="text-xs font-bold text-slate-900 mt-1">Wielostawy • Czworogłowe • Klatka płasko</h2>
+          <div class="text-[9px] font-mono text-slate-500 mt-0.5 flex items-center gap-1">
+            <span class="text-amber-600 font-bold">⇄</span> Przesuwaj lub klikaj strzałki, aby wybrać zamiennik maszyny
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] font-mono font-extrabold text-slate-500 uppercase">SERIE</div>
+          <div id="workoutProgressTxt" class="text-sm font-mono font-extrabold text-slate-950">0 / 20</div>
+        </div>
+      </div>
+
+      <!-- KARTY ĆWICZEŃ -->
+      <div id="exercisesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Renderowane przez JS -->
+      </div>
+
+      <div class="pt-3 pb-6 space-y-2 md:col-span-2">
+        <button id="saveWorkoutBtn" onclick="finishWorkout()" class="w-full py-3.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-heavy text-base tracking-wider uppercase flex items-center justify-center gap-2 active:scale-[0.99] transition shadow-md font-bold">
+          <i data-lucide="send" class="w-4 h-4"></i>
+          <span>ZAPISZ I WYŚLIJ NA TELEGRAM</span>
+        </button>
+        <p class="text-[10px] text-center text-slate-500 font-mono uppercase">ZAPISUJE W PAMIĘCI TELEFONU + WYSYŁA RAPORT NA TELEGRAM (PC)</p>
+      </div>
+    </div>
+
+    <!-- 2. WIDOK ATLASU ANATOMII W TELEFONIE -->
+    <div id="atlasView" class="hidden space-y-3 pb-8">
+      <div class="p-3 bg-white border border-slate-200 rounded shadow-sm">
+        <div class="text-xs font-heavy tracking-wider uppercase text-slate-900 mb-0.5">INTERAKTYWNA MAPA MIĘŚNI</div>
+        <p class="text-[10px] font-mono text-slate-500">Wybierz ćwiczenie z listy poniżej, by podświetlić pracujące partie na modelu.</p>
+      </div>
+
+      <!-- SYLWETKI SVG NA BIAŁYM TLE -->
+      <div class="bg-white border border-slate-200 rounded p-3 flex justify-around items-center shadow-sm">
+        <!-- Przód -->
+        <div class="flex flex-col items-center">
+          <span class="text-[8px] font-mono text-slate-400 uppercase mb-1">PRZÓD</span>
+          <svg viewBox="0 0 140 280" class="w-32 h-64">
+            <circle cx="70" cy="22" r="14" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5" />
+            <rect x="66" y="36" width="8" height="8" fill="#f1f5f9" />
+            <path id="at_delts_front_l" class="muscle-path" d="M46,45 C42,50 38,62 40,70 C46,65 52,58 54,48 Z" />
+            <path id="at_delts_front_r" class="muscle-path" d="M94,45 C98,50 102,62 100,70 C94,65 88,58 86,48 Z" />
+            <path id="at_chest" class="muscle-path" d="M52,48 C60,46 70,48 70,72 C58,72 50,68 48,56 Z M88,48 C80,46 70,48 70,72 C82,72 90,68 92,56 Z" />
+            <path id="at_abs" class="muscle-path" d="M62,75 C62,75 70,74 78,75 C79,95 78,115 76,125 C70,126 64,125 64,125 C62,115 61,95 62,75 Z" />
+            <path id="at_biceps_l" class="muscle-path" d="M37,72 C33,78 32,92 36,98 C40,94 42,84 41,74 Z" />
+            <path id="at_biceps_r" class="muscle-path" d="M103,72 C107,78 108,92 104,98 C100,94 98,84 99,74 Z" />
+            <path id="at_quads_l" class="muscle-path" d="M52,130 C45,150 44,185 50,205 C58,206 63,180 65,133 Z" />
+            <path id="at_quads_r" class="muscle-path" d="M88,130 C95,150 96,185 90,205 C82,206 77,180 75,133 Z" />
+          </svg>
+        </div>
+        <!-- Tył -->
+        <div class="flex flex-col items-center">
+          <span class="text-[8px] font-mono text-slate-400 uppercase mb-1">TYŁ</span>
+          <svg viewBox="0 0 140 280" class="w-32 h-64">
+            <circle cx="70" cy="22" r="14" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5" />
+            <path id="at_traps" class="muscle-path" d="M70,36 C60,40 54,46 54,48 C62,56 70,68 70,68 C70,68 78,56 86,48 C86,46 80,40 70,36 Z" />
+            <path id="at_delts_rear_l" class="muscle-path" d="M46,46 C40,52 38,64 40,70 C46,65 52,58 53,50 Z" />
+            <path id="at_delts_rear_r" class="muscle-path" d="M94,46 C100,52 102,64 100,70 C94,65 88,58 87,50 Z" />
+            <path id="at_lats" class="muscle-path" d="M54,54 C46,75 48,96 58,110 C65,110 68,90 70,68 C64,60 58,55 54,54 Z M86,54 C94,75 92,96 82,110 C75,110 72,90 70,68 C76,60 82,55 86,54 Z" />
+            <path id="at_triceps_l" class="muscle-path" d="M37,70 C33,78 33,90 37,98 C41,92 42,80 40,72 Z" />
+            <path id="at_triceps_r" class="muscle-path" d="M103,70 C107,78 107,90 103,98 C99,92 98,80 100,72 Z" />
+            <path id="at_glutes" class="muscle-path" d="M50,130 C48,150 56,164 69,164 C70,148 70,132 68,130 Z M90,130 C92,150 84,164 71,164 C70,148 70,132 72,130 Z" />
+            <path id="at_hamstrings_l" class="muscle-path" d="M50,166 C48,185 52,204 58,206 C64,204 68,185 68,166 Z" />
+            <path id="at_hamstrings_r" class="muscle-path" d="M90,166 C92,185 88,204 82,206 C76,204 72,185 72,166 Z" />
+          </svg>
+        </div>
+      </div>
+
+      <div id="atlasSelectedDesc" class="p-3 bg-white border border-slate-200 rounded text-xs font-mono shadow-sm">
+        Wybierz ćwiczenie, by sprawdzić zaangażowanie mięśni
+      </div>
+
+      <div id="atlasExercisePicker" class="space-y-1.5">
+        <!-- Renderowane przez JS -->
+      </div>
+    </div>
+
+    <!-- 3. WIDOK HISTORII -->
+    <div id="historyView" class="hidden space-y-3 pb-8">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+        <h3 class="text-xs font-heavy tracking-widest uppercase text-slate-900 flex items-center gap-2">
+          <i data-lucide="database" class="w-4 h-4 text-amber-600"></i> HISTORIA SESJI TRENINGOWYCH
+        </h3>
+        <button onclick="clearHistoryConfirm()" class="text-[10px] font-mono text-slate-500 hover:text-red-600 uppercase font-semibold">WYCZYŚĆ</button>
+      </div>
+      
+      <!-- MODUŁ SYNCHRONIZACJI Z KOMPUTEREM PC (OPCJA 1) -->
+      <div class="bg-slate-900 border-2 border-slate-700 text-white p-3.5 rounded-xl shadow-md mb-3">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 font-heavy text-lg flex items-center justify-center shrink-0">☁️</span>
+            <div>
+              <div class="font-heavy text-base tracking-wide text-amber-400 uppercase leading-tight">SYNCHRONIZACJA Z KOMPUTEREM</div>
+              <div class="text-[10px] text-slate-300 font-mono">Dostęp do treningów na ekranie PC bez otwierania Telegrama</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <div class="flex items-center bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 shrink-0">
+            <span class="text-[10px] font-mono text-slate-400 uppercase mr-1.5 font-bold">KOD PIN:</span>
+            <input id="syncPinInput" type="text" maxlength="8" value="1234" onchange="saveSyncPin(this.value)" class="w-14 bg-transparent text-amber-400 font-mono font-extrabold text-center text-sm outline-none border-b border-amber-500/50 focus:border-amber-400">
+          </div>
+          <button id="cloudPullBtn" onclick="handleManualPull()" class="flex-1 flex items-center justify-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-heavy py-2 px-3 rounded-lg text-xs uppercase tracking-wider shadow transition-all active:scale-95">
+            <i data-lucide="download-cloud" class="w-4 h-4"></i>
+            <span>POBIERZ Z CHMURY</span>
+          </button>
+          <button id="cloudPushBtn" onclick="handleManualPush()" class="flex items-center justify-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-600 font-heavy py-2 px-3 rounded-lg text-xs uppercase tracking-wider transition-all active:scale-95" title="Wyślij ręcznie do chmury">
+            <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+            <span>WYŚLIJ</span>
+          </button>
+        </div>
+
+        <div id="syncStatusMsg" class="mt-2 pt-2 border-t border-slate-800 text-[10px] font-mono text-slate-400 flex items-center justify-between">
+          <span id="syncStatusText">✓ Połączono z chmurą (PIN: 1234)</span>
+          <span class="text-slate-500">Auto-zapis w tle</span>
+        </div>
+      </div>
+
+      <div id="historyList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </div>
+
+  </main>
+
+  <!-- DOLNY PASEK STOPERA (BIAŁY) -->
+  <div id="bottomTimerBar" class="fixed bottom-0 left-0 right-0 z-50 bg-white/95 border-t border-slate-200 px-4 py-2.5 backdrop-blur-md shadow-lg">
+    <div class="max-w-md md:max-w-6xl mx-auto flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleTimer()" id="timerPlayBtn" class="w-9 h-9 rounded bg-slate-950 text-amber-400 font-bold flex items-center justify-center active:scale-95 transition shadow-sm">
+          <i id="timerPlayIcon" data-lucide="play" class="w-4 h-4"></i>
+        </button>
+        <div>
+          <div class="text-[10px] font-mono uppercase text-slate-600 font-bold tracking-wider">ODLICZANIE PRZERWY</div>
+          <div id="bottomTimerCountdown" class="text-lg font-mono font-extrabold text-slate-950">01:30</div>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-1 font-mono text-xs">
+        <button onclick="setTimerSec(60)" class="px-2 py-1 rounded bg-slate-100 border border-slate-300 text-slate-800 hover:bg-slate-200">60s</button>
+        <button onclick="setTimerSec(90)" class="px-2 py-1 rounded bg-slate-100 border border-slate-300 text-slate-800 hover:bg-slate-200">90s</button>
+        <button onclick="setTimerSec(120)" class="px-2 py-1 rounded bg-slate-100 border border-slate-300 text-slate-800 hover:bg-slate-200">120s</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP TECHNIKI I BŁĘDÓW (BIAŁY MODAL) -->
+  <div id="techModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm hidden items-end justify-center p-0 sm:p-4">
+    <div class="bg-white border-2 border-slate-300 rounded-t-2xl sm:rounded-2xl max-w-md md:max-w-2xl lg:max-w-3xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+      <div class="p-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div>
+          <span id="modalMuscleCat" class="text-[9px] font-mono uppercase tracking-wider text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 font-bold">NOGI</span>
+          <h3 id="modalExTitle" class="text-sm font-heavy tracking-wide text-slate-900 uppercase mt-0.5">PRZYSIAD ZE SZTANGĄ</h3>
+          <span id="modalEquip" class="text-[9px] font-mono text-slate-500">Sprzęt: Wolny ciężar</span>
+        </div>
+        <button onclick="closeTechModal()" class="w-7 h-7 rounded bg-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-4 overflow-y-auto space-y-3 text-xs">
+        <!-- Zdjęcie / Podgląd sprzętu w modalu -->
+        <div id="modalPhotoContainer" class="rounded overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center p-2">
+          <!-- Renderowane dynamicznie -->
+        </div>
+
+        <div class="p-3 rounded-lg bg-amber-50 border-2 border-amber-200 flex items-center justify-between">
+          <span class="text-slate-700 font-mono uppercase text-xs font-bold">ZAKRES POWTÓRZEŃ:</span>
+          <span id="modalTargetReps" class="font-extrabold text-slate-950 font-mono text-sm sm:text-base">6–8 POWT. (RIR 1-2)</span>
+        </div>
+
+        <div class="p-3 rounded bg-emerald-50/70 border border-emerald-200">
+          <div class="font-mono text-[10px] text-emerald-800 uppercase tracking-wider mb-1 flex items-center gap-1.5 font-bold">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> PRAWIDŁOWY TOR RUCHU:
+          </div>
+          <p id="modalTechnique" class="text-slate-700 leading-relaxed"></p>
+        </div>
+
+        <div class="p-3 rounded bg-red-50/70 border border-red-200">
+          <div class="font-mono text-[10px] text-red-800 uppercase tracking-wider mb-1 flex items-center gap-1.5 font-bold">
+            <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span> KRYTYCZNE BŁĘDY DO WYELIMINOWANIA:
+          </div>
+          <ul id="modalMistakes" class="space-y-1 text-slate-700 list-disc list-inside"></ul>
+        </div>
+
+        <div class="p-3 rounded bg-amber-50/70 border border-amber-200">
+          <div class="font-mono text-[10px] text-amber-800 uppercase tracking-wider mb-1 flex items-center gap-1.5 font-bold">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> AKCENT NA ROZCIĄGNIĘCIE / CZUCIE:
+          </div>
+          <p id="modalProTip" class="text-slate-700 italic"></p>
+        </div>
+      </div>
+
+      <div class="p-3 border-t border-slate-200 bg-slate-50 flex gap-2">
+        <label class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-heavy text-xs uppercase tracking-wider text-center cursor-pointer flex items-center justify-center gap-2 shadow transition active:scale-95">
+          <i data-lucide="camera" class="w-4 h-4"></i>
+          <span id="photoUploadBtnTxt">ZRÓB / WGRAJ ZDJĘCIE MASZYNY</span>
+          <input type="file" accept="image/*" class="hidden" onchange="uploadCustomImage(event)">
+        </label>
+        <button id="modalDeletePhotoBtn" onclick="deleteCustomPhoto()" class="hidden py-2 px-3 rounded-xl border border-rose-300 text-rose-600 hover:bg-rose-50 font-mono text-xs font-bold transition flex items-center gap-1">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">USUŃ ZDJĘCIE</span>
+        </button>
+        <button onclick="closeTechModal()" class="py-2.5 px-4 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-heavy text-xs uppercase tracking-wider transition">ZAMKNIJ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (const reg of registrations) {
+          reg.unregister();
+        }
+      });
+      if ('caches' in window) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+      }
+    }
+
+    let deferredPrompt;
+    const installBanner = document.getElementById('installBanner');
+    const installAppBtn = document.getElementById('installAppBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBanner.classList.remove('hidden');
+    });
+
+    installAppBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') installBanner.classList.add('hidden');
+        deferredPrompt = null;
+      }
+    });
+
+    function dismissInstallBanner() {
+      installBanner.classList.add('hidden');
+    }
+
+    // BAZA ĆWICZEŃ ZE SWIPEREM ZAMIENNIKÓW
+    const FBW_ROUTINE = {
+  "A": {
+    "badge": "PLAN A // BAZA SIŁOWA",
+    "title": "Czworogłowe • Plecy (szerokość) • Klatka płasko",
+    "slots": [
+      {
+        "slotId": "a_quads",
+        "category": "NOGI (CZWÓRKI)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "sq_barbell",
+            "name": "Przysiad ze sztangą (klasyczny)",
+            "equipment": "Sztanga olimpijska / Stojaki",
+            "iconType": "barbell",
+            "targetReps": "6–8 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r"
+            ],
+            "secondary": [
+              "at_glutes"
+            ],
+            "technique": "Stopy na szerokość barków, lekko na zewnątrz. Wdech i spięcie brzucha (tłocznia). Biodra i kolana uginają się jednocześnie. Zejście min. 90°.",
+            "mistakes": [
+              "Schodzenie się kolan do środka",
+              "Odrywanie pięt od podłogi",
+              "Podwijanie miednicy (butt wink)"
+            ],
+            "proTip": "Ciężki wielostaw: 6-8 powtórzeń daje twardy bodziec siłowy bez zadyszki tlenowej."
+          },
+          {
+            "id": "sq_legpress",
+            "name": "Wypychanie na suwnicy (Leg Press)",
+            "equipment": "Suwnica skośna 45°",
+            "iconType": "machine",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r"
+            ],
+            "secondary": [
+              "at_glutes"
+            ],
+            "technique": "Plecy i pośladki dociśnięte do oparcia. Stopy na środku platformy na szerokość bioder. Nie blokuj kolan w przeproście na górze!",
+            "mistakes": [
+              "Odrywanie pośladków od oparcia w dolnej fazie (niszczy lędźwie)",
+              "Przeprost kolan"
+            ],
+            "proTip": "Świetny zamiennik, gdy stojaki ze sztangami są zajęte. Bezpieczny dla kręgosłupa."
+          },
+          {
+            "id": "sq_smith",
+            "name": "Przysiad na maszynie Smitha",
+            "equipment": "Maszyna Smitha (prowadnica)",
+            "iconType": "smith",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r"
+            ],
+            "secondary": [
+              "at_glutes"
+            ],
+            "technique": "Ustaw stopy ok. 20–30 cm przed linią gryfu. Schodź pionowo w dół, trzymając tułów w prostej linii. Gryf stabilizuje tor ruchu.",
+            "mistakes": [
+              "Zbyt dalekie wysunięcie stóp w przód",
+              "Opieranie gryfu na kręgach szyjnych"
+            ],
+            "proTip": "Umożliwia głęboki przysiad z maksymalnym naciskiem na same czworogłowe uda bez walki o równowagę."
+          },
+          {
+            "id": "sq_hack",
+            "name": "Hack Przysiad na maszynie",
+            "equipment": "Maszyna Hack Squat",
+            "iconType": "machine",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r"
+            ],
+            "secondary": [
+              "at_glutes"
+            ],
+            "technique": "Bark oparte o poduszki, plecy płasko. Schodź powoli kontrolując ruch w kolanach.",
+            "mistakes": [
+              "Odrywanie pięt od platformy"
+            ],
+            "proTip": "Jeden z najlepszych izolatorów czwórek na świecie."
+          },
+          {
+            "id": "sq_leg_ext",
+            "name": "Wyprosty nóg siedząc na maszynie (Plate-Loaded)",
+            "equipment": "Maszyna do wyprostów na talerze",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r"
+            ],
+            "secondary": [],
+            "technique": "Piszczele pod dolne wałki, kolana w osi obrotu. Wypychaj do poziomu z 1s pauzy na szczycie.",
+            "mistakes": [
+              "Szarpanie tułowiem",
+              "Opadanie ciężaru bez kontroli"
+            ],
+            "proTip": "Najlepszy bezpośredni izolator mięśnia czworogłowego i łezki nad kolanem."
+          }
+        ]
+      },
+      {
+        "slotId": "a_back",
+        "category": "PLECY (SZEROKOŚĆ)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "lat_pulldown",
+            "name": "Ściąganie drążka wyciągu do klatki",
+            "equipment": "Wyciąg pionowy (drążek szeroki)",
+            "iconType": "cables",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_lats"
+            ],
+            "secondary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "technique": "Ruch zaczynaj ściągnięciem łopatek w dół. Prowadź łokcie pionowo ku biodrom, drążek sprowadzaj pod brodę.",
+            "mistakes": [
+              "Ściąganie za kark",
+              "Bujanie tułowiem (praca lędźwiami)"
+            ],
+            "proTip": "Dłonie traktuj jak haki – ruch wykonują same łokcie ciągnięte w dół."
+          },
+          {
+            "id": "pullups",
+            "name": "Podciąganie na drążku (nachwyt / chwyt neutralny)",
+            "equipment": "Drążek / Maszyna wspomagająca",
+            "iconType": "barbell",
+            "targetReps": "6–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_lats"
+            ],
+            "secondary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "technique": "Pełny wyprost na dole, klatka prowadzona do drążka. Jeśli brakuje siły, użyj gumy oporowej lub maszyny z przeciwwagą.",
+            "mistakes": [
+              "Szarpana praca nogami (kipping)",
+              "Brak pełnego zakresu"
+            ],
+            "proTip": "Król budowania szerokich pleców. Zawsze dostępny – drążek rzadko bywa zajęty!"
+          },
+          {
+            "id": "lat_vbar",
+            "name": "Ściąganie wyciągu chwytem neutralnym (uchwyt V)",
+            "equipment": "Wyciąg pionowy + Uchwyt trójkątny",
+            "iconType": "cables",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_lats"
+            ],
+            "secondary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "technique": "Chwyt neutralny jest łagodniejszy dla barków i pozwala na jeszcze mocniejsze ściągnięcie łokci przy ciele.",
+            "mistakes": [
+              "Odchylanie się o więcej niż 20 stopni w tył"
+            ],
+            "proTip": "Użyj, gdy szeroki drążek jest zajęty lub bolą Cię barki."
+          }
+        ]
+      },
+      {
+        "slotId": "a_chest",
+        "category": "KLATKA PIERSIOWA",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "bp_barbell",
+            "name": "Wyciskanie sztangi na ławce płaskiej",
+            "equipment": "Ławka pozioma + Sztanga",
+            "iconType": "barbell",
+            "targetReps": "6–8 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r",
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "technique": "Łopatki zablokowane i wciśnięte w ławkę. Łokcie prowadzone pod kątem 45-60° do tułowia (kształt litery V), nigdy 90°.",
+            "mistakes": [
+              "Łokcie pod kątem 90° (niszczenie barków)",
+              "Odbijanie gryfu od mostka",
+              "Wypychanie barków w przód na górze"
+            ],
+            "proTip": "Ściskaj mocno gryf dłońmi i skup się na przyciąganiu bicepsów do boków klatki."
+          },
+          {
+            "id": "bp_dumbbells",
+            "name": "Wyciskanie hantli na ławce płaskiej",
+            "equipment": "Hantle + Ławka pozioma",
+            "iconType": "dumbbells",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "technique": "Hantle dają większy zakres ruchu. W dole głębokie rozciągnięcie, w górze wyciśnięcie po łuku (bez zderzania hantli).",
+            "mistakes": [
+              "Uderzanie hantlami na górze (tracenie napięcia)",
+              "Rozszerzanie łokci"
+            ],
+            "proTip": "Gdy sztanga jest zajęta – hantle są często NAWET LEPSZE, bo pozwalają na głębsze rozciągnięcie włókien klatki!"
+          },
+          {
+            "id": "bp_machine",
+            "name": "Wyciskanie na maszynie siedząc (Chest Press)",
+            "equipment": "Maszyna Chest Press",
+            "iconType": "machine",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "technique": "Ustaw wysokość siedziska tak, by uchwyty były na wysokości środka mostka. Łopatki ściągnięte.",
+            "mistakes": [
+              "Wysuwanie barków w przód przy wyproście"
+            ],
+            "proTip": "Świetna opcja, gdy wolne ciężary są zajęte. Maszyna gwarantuje stałe napięcie."
+          }
+        ]
+      },
+      {
+        "slotId": "a_shoulders",
+        "category": "BARKI (BOK)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "lateral_db",
+            "name": "Wznosy hantli bokiem stojąc",
+            "equipment": "Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "secondary": [
+              "at_traps"
+            ],
+            "technique": "Lekkie pochylenie w przód (10°). Ruch prowadź łokciem w płaszczyźnie łopatki. Kontroluj opuszczanie.",
+            "mistakes": [
+              "Dźwiganie z kaptura (unoszenie barków do uszu)",
+              "Zarzucanie ciężaru z nóg"
+            ],
+            "proTip": "Tutaj mały ciężar i 12-15 powtórzeń z wolnym opuszczaniem buduje kuliste barki."
+          },
+          {
+            "id": "lateral_cable",
+            "name": "Wznosy bokiem na wyciągu jednorącz (linka)",
+            "equipment": "Brama / Dolny wyciąg",
+            "iconType": "cables",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "secondary": [],
+            "technique": "Linka ustawiona nisko. Ciągniesz ręką po przekątnej zza pleców lub z przodu. Stałe napięcie od samego dołu!",
+            "mistakes": [
+              "Za szybki ruch bez kontroli"
+            ],
+            "proTip": "Wyciąg daje napięcie nawet w dole ruchu, czego nie potrafią hantle. Znakomity zamiennik!"
+          },
+          {
+            "id": "lateral_machine",
+            "name": "Wznosy ramion na maszynie (Lateral Machine)",
+            "equipment": "Maszyna na boczny akton barku",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "secondary": [],
+            "technique": "Przedramiona oparte o poduszki. Wypychaj łokciami na boki do linii barków.",
+            "mistakes": [
+              "Unoszenie barków do góry"
+            ],
+            "proTip": "Całkowicie izoluje boczny akton barku bez angażowania chwytu dłoni."
+          }
+        ]
+      },
+      {
+        "slotId": "a_triceps",
+        "category": "TRICEPS",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "tri_skull",
+            "name": "Wyciskanie leżąc ze sztangą prostą (wąski chwyt / francuskie)",
+            "equipment": "Ławka pozioma + Sztanga prosta",
+            "iconType": "barbell",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "secondary": [],
+            "technique": "Opuszczaj gryf lekko za czubek głowy dla pełnego rozciągnięcia głowy długiej. Łokcie zablokowane równolegle.",
+            "mistakes": [
+              "Rozjeżdżanie się łokci na boki",
+              "Ruch całym ramieniem w przód"
+            ],
+            "proTip": "Ramię od barku do łokcia jest nieruchome – zgina się tylko staw łokciowy."
+          },
+          {
+            "id": "tri_pushdown",
+            "name": "Prostowanie ramion na wyciągu (drążek / sznur)",
+            "equipment": "Górny wyciąg + Drążek prosty lub sznur",
+            "iconType": "cables",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "secondary": [],
+            "technique": "Łokcie przyklejone do żeber. Prostuj ramiona w dół, rozszerzając końce sznura przy udach.",
+            "mistakes": [
+              "Odrywanie łokci od ciała",
+              "Pochylanie się na ciężar"
+            ],
+            "proTip": "Szybki, bezpieczny zamiennik, nie obciążający łokci tak mocno jak sztanga."
+          },
+          {
+            "id": "tri_bench_dips",
+            "name": "Dipsy na maszynie lub pompki w oparciu o ławkę",
+            "equipment": "Maszyna do dipsów / 2 ławki",
+            "iconType": "machine",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "secondary": [],
+            "technique": "Tułów pionowo, łokcie zginają się do tyłu wąsko przy ciele.",
+            "mistakes": [
+              "Wysuwanie barków w przód"
+            ],
+            "proTip": "Świetne ćwiczenie na potężną objętość tricepsa."
+          }
+        ]
+      },
+      {
+        "slotId": "a_abs",
+        "category": "BRZUCH",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "abs_allahy",
+            "name": "Allahy (spięcia na wyciągu klęcząc)",
+            "equipment": "Wyciąg górny + Sznur",
+            "iconType": "cables",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_abs"
+            ],
+            "secondary": [],
+            "technique": "Biodra nieruchome wysoko. Zwijaj kręgosłup przybliżając mostek do miednicy. Pełny wydech na dole.",
+            "mistakes": [
+              "Siadanie tyłkiem na pięty (ruch ze zginaczy bioder)"
+            ],
+            "proTip": "Zatrzymaj ruch na dole na 1 sekundę z maksymalnym spięciem."
+          },
+          {
+            "id": "abs_leg_raises",
+            "name": "Wznosy nóg w zwisie na drążku / poręczach",
+            "equipment": "Drążek / Poręcze do brzucha",
+            "iconType": "barbell",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_abs"
+            ],
+            "secondary": [],
+            "technique": "Podwijaj miednicę ku górze, unosząc kolana do klatki piersiowej. Nie bujaj tułowiem.",
+            "mistakes": [
+              "Bujanie całym ciałem",
+              "Praca samymi zginaczami bioder bez zwijania miednicy"
+            ],
+            "proTip": "Zawsze wolne – gdy wyciąg do Allahów jest zajęty, drążek jest idealnym zamiennikiem."
+          },
+          {
+            "id": "abs_machine",
+            "name": "Spięcia na maszynie do brzucha (Abdominal Crunch)",
+            "equipment": "Maszyna Ab Crunch",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_abs"
+            ],
+            "secondary": [],
+            "technique": "Ustaw ciężar i wykonuj kontrolowane zwijanie tułowia z pauzą na dole.",
+            "mistakes": [
+              "Pchanie rękami zamiast brzuchem"
+            ],
+            "proTip": "Wygodna i precyzyjna regulacja obciążenia."
+          }
+        ]
+      },
+      {
+        "slotId": "a_calves",
+        "category": "ŁYDKI",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "calves_standing",
+            "name": "Wspięcia na palce stojąc na maszynie (nr 78)",
+            "equipment": "Maszyna stojąca do wspięć na łydki (nr 78)",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r"
+            ],
+            "secondary": [],
+            "technique": "Barki pod poduszki, śródstopie na krawędzi stopnia, pięty wiszą. Zejdź głęboko w dół (2s pauzy w rozciągnięciu) i wypchnij się maksymalnie na palce.",
+            "mistakes": [
+              "Brak pauzy na dole (odbijanie ze ścięgna Achillesa)",
+              "Uginanie kolan"
+            ],
+            "proTip": "Pauza 2 sekundy w pełnym rozciągnięciu eliminuje sprężynowanie ścięgna i zmusza włókna łydki do twardego wzrostu."
+          }
+        ]
+      }
+    ]
+  },
+  "B": {
+    "badge": "PLAN B // ROZCIĄGANIE KLATKI",
+    "title": "Tył nóg (RDL) • Skos góra • Rozpiętki bramowe",
+    "slots": [
+      {
+        "slotId": "b_hamstrings",
+        "category": "NOGI (DWUGŁOWE & POŚLADKI)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "rdl_barbell",
+            "name": "Martwy ciąg rumuński (RDL) ze sztangą",
+            "equipment": "Sztanga olimpijska",
+            "iconType": "barbell",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_hamstrings_l",
+              "at_hamstrings_r",
+              "at_glutes"
+            ],
+            "secondary": [],
+            "technique": "Kolana lekko odblokowane w stałym kącie. Ruch polega na cofaniu bioder w tył (hip hinge). Gryf przy piszczelach.",
+            "mistakes": [
+              "Zginanie kolan (robienie przysiadu)",
+              "Zaokrąglanie pleców w lędźwiach"
+            ],
+            "proTip": "Pauza 1 sekunda w punkcie najmocniejszego rozciągnięcia tyłu ud."
+          },
+          {
+            "id": "rdl_dumbbells",
+            "name": "Martwy ciąg rumuński (RDL) z hantlami",
+            "equipment": "Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_hamstrings_l",
+              "at_hamstrings_r",
+              "at_glutes"
+            ],
+            "secondary": [],
+            "technique": "Hantle prowadź po zewnętrznej stronie ud/piszczeli. Cofaj biodra w tył. Hantle dają swobodniejszy chwyt dla nadgarstków.",
+            "mistakes": [
+              "Odsunięcie hantli w przód od nóg"
+            ],
+            "proTip": "Często wygodniejszy niż sztanga, bo nie obija kolan i pozwala mocniej skupić się na pośladkach i dwugłowych."
+          },
+          {
+            "id": "leg_curls",
+            "name": "Uginanie nóg leżąc lub siedząc na maszynie",
+            "equipment": "Maszyna do uginania nóg (Leg Curl)",
+            "iconType": "machine",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_hamstrings_l",
+              "at_hamstrings_r"
+            ],
+            "secondary": [],
+            "technique": "Dociśnij biodra do oparcia. Uginaj poduszkę do pośladków, z 1-sekundowym zatrzymaniem w pełnym skurczu.",
+            "mistakes": [
+              "Unoszenie bioder z ławki przy uginaniu"
+            ],
+            "proTip": "Idealny zamiennik, gdy bolą lędźwie lub wolne ciężary są zajęte. Bezpośrednia izolacja dwugłowego uda."
+          },
+          {
+            "id": "abductor_machine",
+            "name": "Odwodzenie nóg na maszynie Precor (Pośladki)",
+            "equipment": "Maszyna Precor Inner/Outer Thigh",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_glutes"
+            ],
+            "secondary": [],
+            "technique": "Poduszki na zewnątrz kolan. Rozpychaj nogi szeroko na boki, z 1-sekundowym zatrzymaniem w pełnym spięciu pośladków.",
+            "mistakes": [
+              "Zbyt gwałtowny powrót",
+              "Odrywanie pleców"
+            ],
+            "proTip": "Pochyl lekko tułów w przód (ok. 20 stopni) – zaangażujesz górny obrys pośladka jeszcze mocniej!"
+          }
+        ]
+      },
+      {
+        "slotId": "b_chest_incline",
+        "category": "KLATKA (GÓRA)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "incline_db",
+            "name": "Wyciskanie hantli na ławce skośnej dodatniej (Góra klatki)",
+            "equipment": "Ławka skośna regulowana + Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_delts_front_l",
+              "at_delts_front_r",
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "technique": "Kąt ławki ok. 30°. Łokcie pod kątem 60° do tułowia. Opuszczaj szeroko, czując rozciąganie pod obojczykami.",
+            "mistakes": [
+              "Zbyt stromy kąt ławki (praca przenosi się na barki)"
+            ],
+            "proTip": "Utrzymuj ściągnięte łopatki przez całą serię."
+          },
+          {
+            "id": "incline_smith",
+            "name": "Wyciskanie na maszynie Smitha na skosie dodatnim",
+            "equipment": "Maszyna Smitha + Ławka skośna",
+            "iconType": "smith",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "technique": "Ustaw ławkę dokładnie pod torem gryfu. Opuszczaj gryf tuż pod obojczyki. Prowadnica pozwala trenować do upadku bez asekuranta!",
+            "mistakes": [
+              "Zbyt wysoki kąt ławki"
+            ],
+            "proTip": "Genialny zamiennik hantli! Na maszynie Smitha możesz bezpiecznie dołożyć więcej ciężaru na górę klatki."
+          },
+          {
+            "id": "incline_barbell",
+            "name": "Wyciskanie sztangi na ławce skośnej dodatniej (Góra klatki)",
+            "equipment": "Ławka skośna ze stojakami + Sztanga",
+            "iconType": "barbell",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "technique": "Gryf opuszczaj do górnej części mostka pod brodą. Łokcie schowane pod gryfem.",
+            "mistakes": [
+              "Odbijanie gryfu od kości obojczyka"
+            ],
+            "proTip": "Klasyczne ćwiczenie na siłę górnego obrysu klatki piersiowej."
+          }
+        ]
+      },
+      {
+        "slotId": "b_flyes",
+        "category": "KLATKA (ROZCIĄGNIĘCIE)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "flyes_cables",
+            "name": "Rozpiętki na bramie z linek (Twoje ulubione!)",
+            "equipment": "Brama z wyciągami regulowanymi",
+            "iconType": "cables",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "technique": "Klatka wypięta, w łokciach stały lekki kąt. W pełnym rozciągnięciu zrób 2 SEKUNDY PAUZY. Zamykaj klatką piersiową.",
+            "mistakes": [
+              "Zginanie i prostowanie rąk (zamiana w wyciskanie)",
+              "Wypychanie barków w przód"
+            ],
+            "proTip": "Złote ćwiczenie na rozciągnięcie: zakres 12-15 powt. z 2-sekundowym zatrzymaniem rozrywa włókna klatki."
+          },
+          {
+            "id": "flyes_pecdeck",
+            "name": "Rozpiętki na maszynie Butterfly / Pec-Deck",
+            "equipment": "Maszyna Butterfly (Pec-Deck)",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [],
+            "technique": "Plecy dociśnięte, klatka w przód. W rozciągnięciu pauza 2 sekundy, domykaj ramionami skupiając się na środku klatki.",
+            "mistakes": [
+              "Zbyt szybkie puszczanie ciężaru",
+              "Odrywanie pleców od oparcia"
+            ],
+            "proTip": "Gdy brama wyciągów jest zajęta – Butterfly to w 100% równorzędny zamiennik o idealnym torze ruchu."
+          },
+          {
+            "id": "flyes_dumbbells",
+            "name": "Rozpiętki z hantlami na ławce poziomej lub lekkim skosie",
+            "equipment": "Ławka + Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [],
+            "technique": "Nie schodź zbyt głęboko poniżej poziomu ławki, aby chronić przednią torebkę barku. W łokciach stały kąt ok. 120 stopni.",
+            "mistakes": [
+              "Zbyt duży ciężar kosztem zakresu ruchu"
+            ],
+            "proTip": "Klasyka kulturystyki – hantle są zawsze pod ręką, gdy wszystkie wyciągi i maszyny są zajęte."
+          }
+        ]
+      },
+      {
+        "slotId": "b_rowing",
+        "category": "PLECY (GRUBOŚĆ)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "row_dumbbell",
+            "name": "Wiosłowanie hantlem jednorącz na ławce",
+            "equipment": "Hantel + Ławka pozioma",
+            "iconType": "dumbbells",
+            "targetReps": "8–10 powt. / ręka",
+            "recommendedSets": 3,
+            "primary": [
+              "at_lats"
+            ],
+            "secondary": [
+              "at_traps",
+              "at_delts_rear_l",
+              "at_delts_rear_r",
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "technique": "Tułów równoległy do podłoża. Hantel ciągnij po łuku w stronę biodra/kieszeni, nie pod pachę.",
+            "mistakes": [
+              "Rotacja i podrywanie tułowia",
+              "Ciągnięcie bicepsem"
+            ],
+            "proTip": "Na dole pozwól łopatce opaść dla pełnego rozciągnięcia najszerszego."
+          },
+          {
+            "id": "row_barbell",
+            "name": "Wiosłowanie sztangą w opadzie tułowia",
+            "equipment": "Sztanga olimpijska",
+            "iconType": "barbell",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_lats"
+            ],
+            "secondary": [
+              "at_traps",
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "technique": "Tułów pochylony pod kątem 45°. Ciągnij gryf do podbrzusza, prowadząc łokcie blisko ciała.",
+            "mistakes": [
+              "Zbyt wyprostowany tułów (wtedy pracują kaptury)",
+              "Koci grzbiet w lędźwiach"
+            ],
+            "proTip": "Buduje potężną grubość grzbietu. Wybierz nachwyt lub podchwyt."
+          },
+          {
+            "id": "row_chest_supported",
+            "name": "Wiosłowanie na maszynie z oparciem o klatkę",
+            "equipment": "Maszyna T-Bar lub Row Machine",
+            "iconType": "machine",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_lats"
+            ],
+            "secondary": [
+              "at_traps"
+            ],
+            "technique": "Klatka zaparta o poduszkę, co w 100% odciąża odcinek lędźwiowy. Przyciągaj uchwyty do bioder.",
+            "mistakes": [
+              "Odrywanie klatki od poduszki"
+            ],
+            "proTip": "Genialny zamiennik, gdy Twoje lędźwie są zmęczone po martwym ciągu."
+          }
+        ]
+      },
+      {
+        "slotId": "b_ohp",
+        "category": "BARKI (PRZÓD/GÓRA)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "ohp_standing",
+            "name": "Wyciskanie żołnierskie (OHP) ze sztangą stojąc",
+            "equipment": "Sztanga + Stojaki",
+            "iconType": "barbell",
+            "targetReps": "6–8 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "technique": "Pośladki i brzuch spięte jak skała. Wyciskaj pionowo w górę, nie odchylając się do tyłu.",
+            "mistakes": [
+              "Przeprost w lędźwiach",
+              "Wybijanie z ugięcia kolan"
+            ],
+            "proTip": "Zakres 6-8 powtórzeń buduje potężną siłę obręczy barkowej."
+          },
+          {
+            "id": "ohp_seated_db",
+            "name": "Wyciskanie hantli nad głowę siedząc",
+            "equipment": "Hantle + Ławka z oparciem 85°",
+            "iconType": "dumbbells",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "technique": "Oparcie odciąża kręgosłup. Hantle wyciskaj nad głowę, nie zderzając ich na szczycie.",
+            "mistakes": [
+              "Za głębokie opuszczanie poniżej poziomu uszu przy braku mobilności"
+            ],
+            "proTip": "Bardzo bezpieczny dla pleców zamiennik, świetny gdy nie ma wolnej sztangi."
+          },
+          {
+            "id": "ohp_shoulder_machine",
+            "name": "Wyciskanie na maszynie Shoulder Press",
+            "equipment": "Maszyna Shoulder Press",
+            "iconType": "machine",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "secondary": [],
+            "technique": "Ustaw siedzisko tak, by uchwyty były na wysokości brody. Wyciskaj płynnie do góry.",
+            "mistakes": [
+              "Przeprost w łokciach na górze"
+            ],
+            "proTip": "Maszyna gwarantuje stabilny tor ruchu – idealna do bezpiecznego dobicia barków."
+          }
+        ]
+      },
+      {
+        "slotId": "b_biceps",
+        "category": "BICEPS",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "bi_db_supination",
+            "name": "Uginanie przedramion z hantlami z supinacją",
+            "equipment": "Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "secondary": [],
+            "technique": "Łokcie przy bokach. W trakcie unoszenia rotuj dłoń na zewnątrz (mały palec wyżej niż kciuk).",
+            "mistakes": [
+              "Wysuwanie łokci do przodu",
+              "Bujanie tułowiem"
+            ],
+            "proTip": "Opuszczaj ciężar powoli przez pełne 2 sekundy."
+          },
+          {
+            "id": "bi_ez_bar",
+            "name": "Uginanie ze sztangą łamaną (gryf EZ) stojąc",
+            "equipment": "Sztanga łamana EZ",
+            "iconType": "barbell",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "secondary": [],
+            "technique": "Gryf łamany odciąża nadgarstki. Zablokuj łokcie przy ciele i uginaj do pełnego skurczu.",
+            "mistakes": [
+              "Kołysanie tułowiem w tył"
+            ],
+            "proTip": "Umożliwia założenie nieco większego obciążenia niż hantle."
+          },
+          {
+            "id": "bi_cable_curl",
+            "name": "Uginanie przedramion na wyciągu dolnym (prosty drążek)",
+            "equipment": "Dolny wyciąg + Gryf",
+            "iconType": "cables",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "secondary": [],
+            "technique": "Linka wyciągu zapewnia stałe napięcie w każdym milimetrze ruchu.",
+            "mistakes": [
+              "Zginanie nadgarstków zamiast łokci"
+            ],
+            "proTip": "Daje bezkonkurencyjną pompę mięśniową na koniec treningu."
+          }
+        ]
+      }
+    ]
+  },
+  "C": {
+    "badge": "PLAN C // ROZCIĄGANIE PLECÓW",
+    "title": "Narciarz • Wykroki • Dipsy • Wyciąg dolny",
+    "slots": [
+      {
+        "slotId": "c_lunge",
+        "category": "NOGI (JEDNOSTRONNE)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "lunge_bulgarian",
+            "name": "Przysiady bułgarskie z hantlami",
+            "equipment": "Ławka + Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt. / noga",
+            "recommendedSets": 3,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r",
+              "at_glutes"
+            ],
+            "secondary": [
+              "at_hamstrings_l",
+              "at_hamstrings_r"
+            ],
+            "technique": "Tylna noga na ławce. Lekkie pochylenie tułowia w przód. Schodź kolanem nogi zakrocznej w dół.",
+            "mistakes": [
+              "Pionowa postawa i ból lędźwi",
+              "Odrywanie przedniej pięty"
+            ],
+            "proTip": "Pochylenie tułowia o 15° przenosi obciążenie prosto w pośladek i udo."
+          },
+          {
+            "id": "lunge_walking",
+            "name": "Wykroki chodzone z hantlami",
+            "equipment": "Hantle (korytarz na siłowni)",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt. / noga",
+            "recommendedSets": 3,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r",
+              "at_glutes"
+            ],
+            "secondary": [],
+            "technique": "Kroki o średniej długości. Kolano nogi zakrocznej niemal dotyka ziemi. Tułów lekko w przód.",
+            "mistakes": [
+              "Uderzanie kolanem o podłogę",
+              "Krótkie, płytkie kroki"
+            ],
+            "proTip": "Znakomity zamiennik, gdy wszystkie ławki są zajęte – wystarczy wziąć hantle i przejść kawałek sali."
+          },
+          {
+            "id": "lunge_smith",
+            "name": "Przysiady bułgarskie na maszynie Smitha",
+            "equipment": "Maszyna Smitha + Step/Ławka",
+            "iconType": "smith",
+            "targetReps": "10–12 powt. / noga",
+            "recommendedSets": 3,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r",
+              "at_glutes"
+            ],
+            "secondary": [],
+            "technique": "Gryf Smitha eliminuje problem utraty równowagi, pozwalając na 100% skupienia na pracy nóg.",
+            "mistakes": [
+              "Złe ustawienie stopy względem osi gryfu"
+            ],
+            "proTip": "Jeśli masz problem z balansem przy hantlach – Smith jest wybawieniem!"
+          }
+        ]
+      },
+      {
+        "slotId": "c_skier",
+        "category": "PLECY (ROZCIĄGNIĘCIE)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "skier_bar",
+            "name": "'Narciarz' z prostym drążkiem na wyciągu",
+            "equipment": "Górny wyciąg + Prosty drążek",
+            "iconType": "cables",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_lats"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r",
+              "at_abs"
+            ],
+            "technique": "Tułów pochylony pod kątem 40°. Ręce sztywne z minimalnym zgięciem w łokciach. W górze pozwól wyciągowi rozciągnąć najszerszy grzbietu. Ściągaj do ud.",
+            "mistakes": [
+              "Uginanie rąk (zamiana w triceps)",
+              "Bujanie klatką góra-dół"
+            ],
+            "proTip": "Twoje ulubione ćwiczenie! Wyłącza zmęczony biceps z pracy – 12-15 powt. daje maksymalne ukrwienie."
+          },
+          {
+            "id": "skier_rope",
+            "name": "'Narciarz' ze sznurem na wyciągu",
+            "equipment": "Górny wyciąg + Sznur / Liny",
+            "iconType": "cables",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_lats"
+            ],
+            "secondary": [],
+            "technique": "Sznur pozwala pociągnąć ręce za linię bioder na dole ruchu, dając jeszcze mocniejszy skurcz najszerszego!",
+            "mistakes": [
+              "Uginanie rąk w łokciach"
+            ],
+            "proTip": "Gdy prosty drążek jest zajęty, sznur daje nawet większy zakres ruchu przy dopięciu w biodrach!"
+          },
+          {
+            "id": "skier_pullover_db",
+            "name": "Przenoszenie hantla w poprzek ławki (Dumbbell Pullover)",
+            "equipment": "Hantel + Ławka pozioma",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_lats"
+            ],
+            "secondary": [
+              "at_chest"
+            ],
+            "technique": "Oprzyj górę pleców w poprzek ławki. Trzymaj hantel oburącz nad klatką i opuszczaj za głowę z głębokim wdechem.",
+            "mistakes": [
+              "Zginanie łokci jak przy wyciskaniu francuskim"
+            ],
+            "proTip": "Legendarny klasyk starej szkoły rozciągania klatki i najszerszych grzbietu, gdy wszystkie wyciągi są zajęte."
+          }
+        ]
+      },
+      {
+        "slotId": "c_row_seated",
+        "category": "PLECY (ŚRODEK)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "seated_cable_neutral",
+            "name": "Przyciąganie uchwytu wyciągu dolnego do brzucha",
+            "equipment": "Wyciąg dolny + Uchwyt neutralny",
+            "iconType": "cables",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_lats",
+              "at_traps"
+            ],
+            "secondary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "technique": "Plecy proste. Uchwyt ciągnij do dołu brzucha, złącz łopatki na 1 sekundę.",
+            "mistakes": [
+              "Huśtanie się w przód i w tył"
+            ],
+            "proTip": "Zatrzymaj ruch w pełnym skurczu łopatek."
+          },
+          {
+            "id": "tbar_row",
+            "name": "Wiosłowanie półsztangą (T-Bar Row)",
+            "equipment": "Półsztanga w rogu (Landmine / T-Bar)",
+            "iconType": "barbell",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_lats",
+              "at_traps"
+            ],
+            "secondary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "technique": "Stań okrakiem nad sztangą, opad tułowia 45°. Ciągnij uchwyt do brzucha z mocnym złączeniem łopatek.",
+            "mistakes": [
+              "Zaokrąglanie odcinka lędźwiowego"
+            ],
+            "proTip": "Potężny budowniczy gęstości pleców, gdy wyciąg dolny jest zajęty."
+          },
+          {
+            "id": "machine_row_seated",
+            "name": "Wiosłowanie poziome na maszynie siedząc",
+            "equipment": "Maszyna Seated Row",
+            "iconType": "machine",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_lats"
+            ],
+            "secondary": [],
+            "technique": "Ustaw siedzisko tak, by ciągnąć na wysokość pępka. Przytrzymaj spięcie łopatek.",
+            "mistakes": [
+              "Brak pełnego rozciągnięcia w przód"
+            ],
+            "proTip": "Bezpieczna izolacja bez obciążania prostowników grzbietu."
+          }
+        ]
+      },
+      {
+        "slotId": "c_dips",
+        "category": "KLATKA (DÓŁ)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "dips_parallel",
+            "name": "Dipsy (pompki na poręczach z pochyleniem)",
+            "equipment": "Poręcze do dipsów",
+            "iconType": "barbell",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "technique": "Pochyl tułów w przód (30°), łokcie lekko szerzej, zejście do kąta 90°.",
+            "mistakes": [
+              "Zbyt głębokie schodzenie (ból barków)",
+              "Pionowa postawa"
+            ],
+            "proTip": "Buduje dolną krawędź klatki piersiowej."
+          },
+          {
+            "id": "chest_press_decline",
+            "name": "Wyciskanie na maszynie Chest Press (dół klatki)",
+            "equipment": "Maszyna Chest Press (skos w dół)",
+            "iconType": "machine",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [],
+            "technique": "Usiądź wyżej, by wyciskać lekko w dół. Skup się na dolnym obrysie klatki.",
+            "mistakes": [
+              "Puszczanie łopatek na końcu ruchu"
+            ],
+            "proTip": "Bezpieczna alternatywa dla dipsów, jeśli bolą Cię barki lub mostek."
+          },
+          {
+            "id": "decline_db_press",
+            "name": "Wyciskanie hantli na ławce ze skosem ujemnym",
+            "equipment": "Ławka ze skosem ujemnym + Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "technique": "Nogi zablokowane pod wałkami. Wyciskaj hantle w pionie z kontrolą.",
+            "mistakes": [
+              "Za szybkie opuszczanie hantli"
+            ],
+            "proTip": "Świetny bodziec na dolny akton klatki piersiowej."
+          }
+        ]
+      },
+      {
+        "slotId": "c_rear_delts",
+        "category": "BARKI (TYŁ & ROTATORY)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "face_pulls_rope",
+            "name": "Face-pulls na wyciągu ze sznurem",
+            "equipment": "Górny wyciąg + Sznur",
+            "iconType": "cables",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_rear_l",
+              "at_delts_rear_r"
+            ],
+            "secondary": [
+              "at_traps"
+            ],
+            "technique": "Ciągnij sznur do skroni/uszu, rozrywając go na zewnątrz. Łokcie trzymaj wysoko.",
+            "mistakes": [
+              "Zbyt duży ciężar",
+              "Wysuwanie głowy w przód"
+            ],
+            "proTip": "Najważniejsze ćwiczenie na zdrowie stawów barkowych."
+          },
+          {
+            "id": "reverse_pecdeck",
+            "name": "Odwrotne rozpiętki na maszynie (Reverse Pec-Deck)",
+            "equipment": "Maszyna Butterfly / Reverse Pec-Deck",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_rear_l",
+              "at_delts_rear_r"
+            ],
+            "secondary": [],
+            "technique": "Klatka dociśnięta do oparcia. Odwodź ramiona w tył na wysokości barków.",
+            "mistakes": [
+              "Ściąganie łopatek zamiast pracy tylnym barkiem"
+            ],
+            "proTip": "Gdy wyciąg jest zajęty – Reverse Pec-Deck jest niesamowity na tył barku!"
+          },
+          {
+            "id": "bent_over_lateral",
+            "name": "Wznosy hantli w opadzie tułowia",
+            "equipment": "Lekkie hantle + Ławka skośna (oparcie)",
+            "iconType": "dumbbells",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_rear_l",
+              "at_delts_rear_r"
+            ],
+            "secondary": [],
+            "technique": "Klatka oparta na ławce pod kątem 30°. Unosimy hantle na boki łokciami ku sufitowi.",
+            "mistakes": [
+              "Szarpany ruch z nóg"
+            ],
+            "proTip": "Oparcie na ławce eliminuje bujanie i zmusza tył barku do twardej pracy."
+          }
+        ]
+      },
+      {
+        "slotId": "c_arms_super",
+        "category": "RAMIONA",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "super_hammer_cable",
+            "name": "Superseria: Młotki z hantlami + Triceps sznur zza głowy",
+            "equipment": "Hantle + Górny wyciąg ze sznurem",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt. bez przerwy",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r",
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "secondary": [],
+            "technique": "10-12 powt. uginania młotkowego, od razu bez przerwy prostowanie sznura zza głowy na wyciągu.",
+            "mistakes": [
+              "Brak pauzy PO całej superserii"
+            ],
+            "proTip": "Zrób 90-120 sekund przerwy po obu ćwiczeniach."
+          },
+          {
+            "id": "super_preacher_pushdown",
+            "name": "Superseria: Modlitewnik + Prostowanie na wyciągu nachwytem",
+            "equipment": "Ławka modlitewnik + Wyciąg",
+            "iconType": "machine",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r",
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "secondary": [],
+            "technique": "Izolacja bicepsa na modlitewniku, a zaraz po tym prostowanie ramion na wyciągu.",
+            "mistakes": [
+              "Oderwanie ramion od poduszki modlitewnika"
+            ],
+            "proTip": "Znakomity zamiennik, gdy stanowisko hantli jest zatłoczone."
+          }
+        ]
+      }
+    ]
+  }
+};
+
+    const DEFAULT_INITIAL_HISTORY = [{"id":1731219152000,"date":"2026-11-13T17:45:46.482Z","formattedDate":"Ostatni trening (Trening A)","planType":"A","planTitle":"Czworogłowe • Plecy (szerokość) • Klatka płasko","exercises":{"sq_barbell":[{"setNum":1,"weight":80,"reps":8,"done":true},{"setNum":2,"weight":80,"reps":8,"done":true},{"setNum":3,"weight":85,"reps":6,"done":true},{"setNum":4,"weight":85,"reps":6,"done":true}],"bp_barbell":[{"setNum":1,"weight":70,"reps":8,"done":true},{"setNum":2,"weight":75,"reps":8,"done":true},{"setNum":3,"weight":75,"reps":8,"done":true},{"setNum":4,"weight":75,"reps":8,"done":true}],"lat_pulldown":[{"setNum":1,"weight":60,"reps":8,"done":true},{"setNum":2,"weight":65,"reps":8,"done":true},{"setNum":3,"weight":65,"reps":8,"done":true},{"setNum":4,"weight":65,"reps":8,"done":true}],"lateral_db":[{"setNum":1,"weight":10,"reps":12,"done":true},{"setNum":2,"weight":10,"reps":12,"done":true},{"setNum":3,"weight":12,"reps":10,"done":true}],"tri_skull":[{"setNum":1,"weight":30,"reps":10,"done":true},{"setNum":2,"weight":32.5,"reps":10,"done":true},{"setNum":3,"weight":35,"reps":8,"done":true}],"abs_allahy":[{"setNum":1,"weight":35,"reps":12,"done":true},{"setNum":2,"weight":40,"reps":12,"done":true},{"setNum":3,"weight":40,"reps":12,"done":true}],"calves_standing":[{"setNum":1,"weight":60,"reps":15,"done":true},{"setNum":2,"weight":70,"reps":12,"done":true},{"setNum":3,"weight":70,"reps":12,"done":true}]},"summaryList":[{"slotNum":1,"category":"NOGI (CZWÓRKI)","name":"Przysiad ze sztangą (klasyczny)","sets":[{"setNum":1,"weight":80,"reps":8},{"setNum":2,"weight":80,"reps":8},{"setNum":3,"weight":85,"reps":6},{"setNum":4,"weight":85,"reps":6}]},{"slotNum":2,"category":"KLATKA PIERSIOWA","name":"Wyciskanie sztangi na ławce płaskiej","sets":[{"setNum":1,"weight":70,"reps":8},{"setNum":2,"weight":75,"reps":8},{"setNum":3,"weight":75,"reps":8},{"setNum":4,"weight":75,"reps":8}]},{"slotNum":3,"category":"PLECY (SZEROKOŚĆ)","name":"Ściąganie drążka wyciągu do klatki","sets":[{"setNum":1,"weight":60,"reps":8},{"setNum":2,"weight":65,"reps":8},{"setNum":3,"weight":65,"reps":8},{"setNum":4,"weight":65,"reps":8}]},{"slotNum":4,"category":"BARKI (BOK)","name":"Wznosy hantli bokiem stojąc","sets":[{"setNum":1,"weight":10,"reps":12},{"setNum":2,"weight":10,"reps":12},{"setNum":3,"weight":12,"reps":10}]},{"slotNum":5,"category":"TRICEPS","name":"Wyciskanie leżąc ze sztangą prostą (wąski chwyt)","sets":[{"setNum":1,"weight":30,"reps":10},{"setNum":2,"weight":32.5,"reps":10},{"setNum":3,"weight":35,"reps":8}]},{"slotNum":6,"category":"BRZUCH","name":"Allahy (spięcia na wyciągu klęcząc)","sets":[{"setNum":1,"weight":35,"reps":12},{"setNum":2,"weight":40,"reps":12},{"setNum":3,"weight":40,"reps":12}]},{"slotNum":7,"category":"ŁYDKI","name":"Wspięcia na palce stojąc na maszynie (nr 78)","sets":[{"setNum":1,"weight":60,"reps":15},{"setNum":2,"weight":70,"reps":12},{"setNum":3,"weight":70,"reps":12}]}],"completedSets":23}];
+const DEFAULT_INITIAL_SESSION_A = {"sq_barbell":[{"setNum":1,"weight":80,"reps":8,"done":false},{"setNum":2,"weight":80,"reps":8,"done":false},{"setNum":3,"weight":85,"reps":6,"done":false},{"setNum":4,"weight":85,"reps":6,"done":false}],"bp_barbell":[{"setNum":1,"weight":70,"reps":8,"done":false},{"setNum":2,"weight":75,"reps":8,"done":false},{"setNum":3,"weight":75,"reps":8,"done":false},{"setNum":4,"weight":75,"reps":8,"done":false}],"lat_pulldown":[{"setNum":1,"weight":60,"reps":8,"done":false},{"setNum":2,"weight":65,"reps":8,"done":false},{"setNum":3,"weight":65,"reps":8,"done":false},{"setNum":4,"weight":65,"reps":8,"done":false}],"lateral_db":[{"setNum":1,"weight":10,"reps":12,"done":false},{"setNum":2,"weight":10,"reps":12,"done":false},{"setNum":3,"weight":12,"reps":10,"done":false}],"tri_skull":[{"setNum":1,"weight":30,"reps":10,"done":false},{"setNum":2,"weight":32.5,"reps":10,"done":false},{"setNum":3,"weight":35,"reps":8,"done":false}],"abs_allahy":[{"setNum":1,"weight":35,"reps":12,"done":false},{"setNum":2,"weight":40,"reps":12,"done":false},{"setNum":3,"weight":40,"reps":12,"done":false}],"calves_standing":[{"setNum":1,"weight":60,"reps":15,"done":false},{"setNum":2,"weight":70,"reps":12,"done":false},{"setNum":3,"weight":70,"reps":12,"done":false}]};
+
+    let customPhotos = {};
+    let modalTargetEx = null;
+
+    try {
+      customPhotos = JSON.parse(localStorage.getItem('fbw_custom_photos') || '{}');
+    } catch(e) {
+      customPhotos = {};
+    }
+
+    try {
+      const savedSelections = JSON.parse(localStorage.getItem('fbw_slot_selections') || '{}');
+      ['A', 'B', 'C'].forEach(planKey => {
+        FBW_ROUTINE[planKey].slots.forEach(slot => {
+          if (savedSelections[slot.slotId] !== undefined) {
+            slot.selectedIdx = savedSelections[slot.slotId];
+          }
+        });
+      });
+    } catch(e) {}
+
+    const now = new Date();
+    document.getElementById('currentDateStr').innerText = now.toLocaleDateString('pl-PL', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
+
+    function initSession() {
+      const saved = localStorage.getItem(`clean_session_${activeTab}`);
+      if (saved) {
+        try {
+          currentSessionData = JSON.parse(saved);
+        } catch(e) {
+          currentSessionData = (activeTab === 'A') ? JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_A)) : {};
+        }
+      } else {
+        currentSessionData = (activeTab === 'A') ? JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_A)) : {};
+      }
+      renderWorkoutView();
+    }
+
+    function switchTab(tab) {
+      document.getElementById('workoutView').classList.add('hidden');
+      document.getElementById('atlasView').classList.add('hidden');
+      document.getElementById('historyView').classList.add('hidden');
+
+      if (tab === 'history') {
+        document.getElementById('historyView').classList.remove('hidden');
+        renderHistory();
+      } else if (tab === 'atlas') {
+        document.getElementById('atlasView').classList.remove('hidden');
+        renderAtlas();
+      } else {
+        document.getElementById('workoutView').classList.remove('hidden');
+        activeTab = tab;
+        initSession();
+      }
+
+      ['A', 'B', 'C', 'Atlas', 'History'].forEach(t => {
+        const btn = document.getElementById(`tabBtn${t}`);
+        const isActive = (t.toLowerCase() === tab.toLowerCase());
+        if (isActive) {
+          btn.className = "py-2 text-xs font-heavy tracking-wider rounded uppercase transition bg-slate-950 text-white font-bold shadow-sm";
+        } else {
+          btn.className = "py-2 text-xs font-heavy tracking-wider rounded uppercase transition text-slate-600 hover:text-slate-900";
+        }
+      });
+    }
+
+    function cycleSlotVariant(slotId, dir) {
+      const plan = FBW_ROUTINE[activeTab];
+      const slot = plan.slots.find(s => s.slotId === slotId);
+      if (!slot) return;
+
+      const total = slot.variants.length;
+      slot.selectedIdx = (slot.selectedIdx + dir + total) % total;
+
+      try {
+        const saved = JSON.parse(localStorage.getItem('fbw_slot_selections') || '{}');
+        saved[slot.slotId] = slot.selectedIdx;
+        localStorage.setItem('fbw_slot_selections', JSON.stringify(saved));
+      } catch(e) {}
+
+      renderWorkoutView();
+      // Auto synchronizacja wybranej maszyny z chmurą
+      pushWorkoutsToCloud().catch(() => {});
+    }
+
+    function renderWorkoutView() {
+      const plan = FBW_ROUTINE[activeTab];
+      document.getElementById('planBadge').innerText = plan.badge;
+      document.getElementById('planTitle').innerText = plan.title;
+
+      const container = document.getElementById('exercisesContainer');
+      container.innerHTML = '';
+
+      let totalSetsCount = 0;
+      let completedSetsCount = 0;
+
+      plan.slots.forEach(slot => {
+        const curEx = slot.variants[slot.selectedIdx];
+        const totalVariants = slot.variants.length;
+
+        if (!currentSessionData[curEx.id]) {
+          const lastWeights = getLastLoggedExerciseData(curEx.id);
+          currentSessionData[curEx.id] = [];
+          for (let s = 1; s <= curEx.recommendedSets; s++) {
+            const prev = lastWeights[s-1];
+            currentSessionData[curEx.id].push({
+              setNum: s,
+              weight: (prev && prev.weight !== undefined && prev.weight !== null && prev.weight !== '') ? prev.weight : '',
+              reps: (prev && prev.reps !== undefined && prev.reps !== null && prev.reps !== '') ? prev.reps : '',
+              done: false
+            });
+          }
+        } else {
+          // Jeśli seria istnieje, ale pola są puste, wypełnij je danymi z poprzedniego treningu
+          const lastWeights = getLastLoggedExerciseData(curEx.id);
+          if (lastWeights && lastWeights.length > 0) {
+            currentSessionData[curEx.id].forEach((s, idx) => {
+              if ((s.weight === '' || s.weight === undefined || s.weight === null) && lastWeights[idx]?.weight !== undefined) {
+                s.weight = lastWeights[idx].weight;
+              }
+              if ((s.reps === '' || s.reps === undefined || s.reps === null) && lastWeights[idx]?.reps !== undefined) {
+                s.reps = lastWeights[idx].reps;
+              }
+            });
+          }
+        }
+
+        const sets = currentSessionData[curEx.id];
+        totalSetsCount += sets.length;
+        completedSetsCount += sets.filter(s => s.done).length;
+
+        const lastExData = getLastLoggedExerciseData(curEx.id);
+        const lastHint = lastExData.length > 0 
+          ? `POPRZEDNIO: ${lastExData[0].weight || 0}KG x ${lastExData[0].reps || 0}` 
+          : 'NOWE ĆWICZENIE';
+
+        const userImg = customPhotos[curEx.id] || DEFAULT_MACHINE_PHOTOS[curEx.id];
+
+        const card = document.createElement('div');
+        card.className = "bg-white border border-slate-200 rounded p-3.5 shadow-sm swap-fade transition";
+        card.id = `card_${slot.slotId}`;
+
+        let touchStartX = 0;
+        card.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+        card.addEventListener('touchend', e => {
+          const diff = e.changedTouches[0].screenX - touchStartX;
+          if (diff > 50) cycleSlotVariant(slot.slotId, -1);
+          else if (diff < -50) cycleSlotVariant(slot.slotId, 1);
+        }, { passive: true });
+
+        card.innerHTML = `
+          <!-- PASEK WYBORU ZAMIENNIKA -->
+          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+            <span class="text-[9px] font-mono uppercase font-bold text-slate-500">
+              ${slot.category}
+            </span>
+            
+            <div class="flex items-center gap-1.5 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+              <button onclick="cycleSlotVariant('${slot.slotId}', -1)" class="text-slate-600 hover:text-slate-900 px-1 font-bold text-xs">‹</button>
+              <span class="text-[9px] font-mono text-amber-700 font-bold uppercase">
+                ZAMIENNIK ${slot.selectedIdx + 1}/${totalVariants}
+              </span>
+              <button onclick="cycleSlotVariant('${slot.slotId}', 1)" class="text-slate-600 hover:text-slate-900 px-1 font-bold text-xs">›</button>
+            </div>
+          </div>
+
+          <!-- DUŻE ZDJĘCIE MASZYNY NAD ĆWICZENIEM -->
+          ${userImg ? `
+            <div class="relative w-full h-48 sm:h-56 md:h-64 rounded-xl overflow-hidden mb-3 bg-slate-950 border border-slate-200/80 shadow-sm cursor-pointer group" onclick="openTechModal('${curEx.id}')" title="Kliknij, aby otworzyć podgląd i technikę">
+              <img src="${userImg}" class="w-full h-full object-contain p-1 group-hover:scale-102 transition duration-300">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none"></div>
+              
+              <div class="absolute bottom-2 left-3 right-3 flex items-center justify-between pointer-events-none">
+                <span class="text-white text-[11px] font-mono font-bold tracking-wide uppercase drop-shadow flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                  ${curEx.equipment}
+                </span>
+                <span class="bg-black/75 backdrop-blur-md text-amber-300 border border-amber-400/40 text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase shadow">
+                  POWIĘKSZ / BŁĘDY 🔍
+                </span>
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- GŁÓWNA NAZWA I SPRZĘT -->
+          <div class="flex items-start justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-100">
+            <div class="flex items-start gap-2.5">
+              <div class="w-10 h-10 rounded bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden relative cursor-pointer" onclick="openTechModal('${curEx.id}')">
+                ${userImg 
+                  ? `<img src="${userImg}" class="w-full h-full object-cover">` 
+                  : (EQUIPMENT_ICONS[curEx.iconType] || EQUIPMENT_ICONS.barbell)}
+              </div>
+
+              <div>
+                <h4 class="text-sm font-extrabold text-slate-900 uppercase leading-tight">${curEx.name}</h4>
+                <div class="text-[11px] font-mono text-slate-600 mt-0.5">
+                  Sprzęt: <span class="text-slate-900 font-bold">${curEx.equipment}</span>
+                </div>
+                <div class="text-xs font-mono text-amber-800 font-extrabold mt-1 flex flex-wrap items-center gap-1.5">
+                  <span class="bg-amber-100 border border-amber-300 text-amber-950 px-1.5 py-0.5 rounded font-extrabold text-[11px]">CEL: ${curEx.targetReps}</span>
+                  <span class="text-slate-500 text-[10px] font-medium">${lastHint}</span>
+                </div>
+              </div>
+            </div>
+            
+            <button onclick="openTechModal('${curEx.id}')" class="px-2 py-1.5 rounded bg-slate-100 hover:bg-slate-200 text-[10px] font-mono text-slate-800 border border-slate-300 active:scale-95 transition shrink-0 font-bold">
+              BŁĘDY / FOTO
+            </button>
+          </div>
+
+          <!-- TABELA SERII -->
+          <div class="space-y-2 mt-1">
+            ${lastExData && lastExData.length > 0 ? `
+              <div class="mb-2 px-2.5 py-1.5 rounded-lg bg-amber-50/90 border border-amber-200/90 text-amber-950 font-mono text-[11px] flex flex-wrap items-center justify-between gap-1 shadow-xs">
+                <span class="font-bold flex items-center gap-1.5 text-amber-900">
+                  <i data-lucide="history" class="w-3.5 h-3.5 text-amber-600"></i> POPRZEDNI TRENING:
+                </span>
+                <span class="font-extrabold text-slate-800 text-[11px] tracking-tight">
+                  ${lastExData.map((ls, lidx) => `<span class="bg-white/80 px-1 py-0.5 rounded border border-amber-200 text-slate-900">S${lidx+1}: <strong>${ls.weight || 0}kg</strong> × <strong>${ls.reps || 0}</strong></span>`).join(' ')}
+                </span>
+              </div>
+            ` : ''}
+            <div class="grid grid-cols-12 gap-2 text-[11px] font-mono font-extrabold text-slate-700 uppercase px-1 tracking-wider items-center">
+              <div class="col-span-2 text-center">SERIA</div>
+              <div class="col-span-4 text-center">CIĘŻAR [KG]</div>
+              <div class="col-span-4 text-center">POWTÓRZENIA</div>
+              <div class="col-span-2 text-center">STATUS</div>
+            </div>
+
+            <div class="space-y-1.5">
+              ${sets.map((s, idx) => `
+                <div class="grid grid-cols-12 gap-2 items-center p-1.5 rounded-lg transition-all ${s.done ? 'bg-amber-100/60 border-2 border-amber-400' : 'bg-slate-100/90 border-2 border-slate-200'}">
+                  <div class="col-span-2 flex items-center justify-center">
+                    <span class="w-8 h-8 rounded-md font-heavy text-base flex items-center justify-center font-extrabold shadow-xs ${s.done ? 'bg-amber-500 text-slate-950 border border-amber-600' : 'bg-white text-slate-900 border-2 border-slate-300'}">
+                      #${s.setNum}
+                    </span>
+                  </div>
+                  <div class="col-span-4">
+                    <input type="number" step="0.5" placeholder="${lastExData[idx]?.weight || 0}" value="${s.weight}" 
+                      oninput="updateSetData('${curEx.id}', ${idx}, 'weight', this.value)"
+                      onchange="updateSetData('${curEx.id}', ${idx}, 'weight', this.value)"
+                      class="w-full bg-white border-2 ${s.done ? 'border-amber-300 bg-amber-50/50' : 'border-slate-300'} focus:border-amber-500 focus:ring-2 focus:ring-amber-200 rounded-md py-2 px-1 text-base sm:text-lg font-mono font-extrabold text-slate-950 text-center shadow-inner tracking-tight">
+                  </div>
+                  <div class="col-span-4">
+                    <input type="number" placeholder="${lastExData[idx]?.reps || 8}" value="${s.reps}" 
+                      oninput="updateSetData('${curEx.id}', ${idx}, 'reps', this.value)"
+                      onchange="updateSetData('${curEx.id}', ${idx}, 'reps', this.value)"
+                      class="w-full bg-white border-2 ${s.done ? 'border-amber-300 bg-amber-50/50' : 'border-slate-300'} focus:border-amber-500 focus:ring-2 focus:ring-amber-200 rounded-md py-2 px-1 text-base sm:text-lg font-mono font-extrabold text-slate-950 text-center shadow-inner tracking-tight">
+                  </div>
+                  <div class="col-span-2 flex justify-center">
+                    <button onclick="toggleSetDone('${curEx.id}', ${idx})" 
+                      class="w-8 h-8 rounded-md flex items-center justify-center transition shadow-sm ${s.done ? 'bg-amber-500 text-slate-950 font-extrabold border-2 border-amber-600' : 'bg-white text-slate-400 hover:text-slate-900 border-2 border-slate-300'}">
+                      <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="flex items-center justify-between pt-1.5 px-0.5">
+              <span class="text-[10px] font-mono font-medium text-slate-500">⇄ Przesuń, by zmienić maszynę</span>
+              <button onclick="addSet('${curEx.id}')" class="text-xs font-mono text-slate-800 hover:text-amber-600 font-extrabold flex items-center gap-1 uppercase bg-white border border-slate-300 px-2 py-1 rounded shadow-xs active:scale-95 transition">
+                + DODAJ SERIĘ
+              </button>
+            </div>
+          </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      document.getElementById('workoutProgressTxt').innerText = `${completedSetsCount} / ${totalSetsCount}`;
+      lucide.createIcons();
+    }
+
+    function updateSetData(exId, setIdx, field, val) {
+      if (currentSessionData[exId] && currentSessionData[exId][setIdx]) {
+        currentSessionData[exId][setIdx][field] = val;
+        saveActiveSession();
+      }
+    }
+
+    function toggleSetDone(exId, setIdx) {
+      if (currentSessionData[exId] && currentSessionData[exId][setIdx]) {
+        const set = currentSessionData[exId][setIdx];
+        set.done = !set.done;
+        
+        if (set.done && !set.reps) {
+          set.reps = 8;
+        }
+
+        saveActiveSession();
+        renderWorkoutView();
+
+        if (set.done) {
+          resetTimerWith(90);
+          startTimer();
+        }
+      }
+    }
+
+    function addSet(exId) {
+      if (currentSessionData[exId]) {
+        const nextNum = currentSessionData[exId].length + 1;
+        const prev = currentSessionData[exId][currentSessionData[exId].length - 1];
+        currentSessionData[exId].push({
+          setNum: nextNum,
+          weight: prev ? prev.weight : '',
+          reps: prev ? prev.reps : '',
+          done: false
+        });
+        saveActiveSession();
+        renderWorkoutView();
+      }
+    }
+
+    function saveActiveSession() {
+      localStorage.setItem(`clean_session_${activeTab}`, JSON.stringify(currentSessionData));
+    }
+
+    function getLastLoggedExerciseData(exId) {
+      const history = getHistory();
+      for (const entry of history) {
+        if (entry.exercises && entry.exercises[exId] && Array.isArray(entry.exercises[exId]) && entry.exercises[exId].length > 0) {
+          const valid = entry.exercises[exId].filter(s => (s.weight > 0 || s.reps > 0));
+          if (valid.length > 0) return entry.exercises[exId];
+        }
+        if (entry.summaryList && Array.isArray(entry.summaryList)) {
+          const sum = entry.summaryList.find(s => s.sets && s.sets.length > 0 && (s.id === exId || s.name));
+          if (sum && sum.sets && sum.sets.length > 0) {
+            return sum.sets;
+          }
+        }
+      }
+      return [];
+    }
+
+    function getHistory() {
+      try {
+        const raw = localStorage.getItem('clean_workout_history');
+        if (!raw) return DEFAULT_INITIAL_HISTORY;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_INITIAL_HISTORY;
+        return parsed;
+      } catch(e) {
+        return DEFAULT_INITIAL_HISTORY;
+      }
+    }
+
+    function showToast(message, title = "SUKCES", isSuccess = true) {
+      const toast = document.getElementById('toastNotification');
+      const msg = document.getElementById('toastMessage');
+      const tTitle = document.getElementById('toastTitle');
+      const icon = document.getElementById('toastIcon');
+      if (!toast) return;
+
+      msg.innerText = message;
+      tTitle.innerText = title;
+      icon.innerText = isSuccess ? '✓' : 'ℹ️';
+      icon.className = isSuccess 
+        ? 'w-8 h-8 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-bold shrink-0 text-base'
+        : 'w-8 h-8 rounded-full bg-slate-700 text-amber-400 flex items-center justify-center font-bold shrink-0 text-base';
+
+      toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-4');
+      }, 4000);
+    }
+
+    async function sendWorkoutToTelegram(logEntry) {
+      const botToken = '9255845790:AAGTTE9-HllXitYiIb0AyCwhHaLAPXBEckk';
+      const chatId = '8829738364';
+
+      let msg = `🏋️ RAPORT Z TRENINGU // FBW IRON\n`;
+      msg += `📋 PLAN ${logEntry.planType} (${logEntry.planTitle})\n`;
+      msg += `📅 Data: ${logEntry.formattedDate}\n`;
+      msg += `⚡ Zrobione serie: ${logEntry.completedSets || 0}\n`;
+      msg += `━━━━━━━━━━━━━━━━━━━━━\n`;
+
+      if (logEntry.summaryList && logEntry.summaryList.length > 0) {
+        logEntry.summaryList.forEach((item, idx) => {
+          msg += `\n${idx + 1}. ${item.name}\n`;
+          if (item.equipment) msg += `   Sprzęt: ${item.equipment}\n`;
+          item.sets.forEach(s => {
+            msg += `   • Seria #${s.setNum}: ${s.weight || 0} kg × ${s.reps || 0} powt.\n`;
+          });
+        });
+      } else {
+        msg += `\n(Sesja treningowa zapisana)\n`;
+      }
+
+      msg += `\n━━━━━━━━━━━━━━━━━━━━━\n`;
+      msg += `💪 Trening zapisany! Masz pełny podgląd na komputerze.`;
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      try {
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}`;
+        const res = await fetch(url, {
+          method: 'GET',
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        const data = await res.json();
+        return data && data.ok;
+      } catch(e) {
+        clearTimeout(timeoutId);
+        try {
+          const imgUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}`;
+          const img = new Image();
+          img.src = imgUrl;
+          return true;
+        } catch(err2) {
+          return false;
+        }
+      }
+    }
+
+    async function resendLogToTelegram(logId) {
+      try {
+        const history = getHistory();
+        const entry = history.find(h => String(h.id) === String(logId));
+        if (!entry) {
+          alert("Nie znaleziono treningu w historii.");
+          return;
+        }
+        showToast("Wysyłanie na Telegram...", "TELEGRAM", true);
+        const ok = await sendWorkoutToTelegram(entry);
+        if (ok) {
+          showToast("Raport wysłany na Twój Telegram!", "SUKCES", true);
+          alert("✅ Raport został przesłany na Twój Telegram!");
+        } else {
+          showToast("Nie udało się wysłać na Telegram.", "BŁĄD", false);
+          alert("⚠️ Nie udało się wysłać na Telegram. Sprawdź połączenie z siecią.");
+        }
+      } catch(e) {
+        alert("Błąd: " + e.message);
+      }
+    }
+
+    function finishWorkout() {
+      try {
+        const history = getHistory();
+        const plan = FBW_ROUTINE[activeTab];
+
+        let totalCompleted = 0;
+        const summaryList = [];
+
+        if (plan && plan.slots) {
+          plan.slots.forEach((slot, slotIdx) => {
+            const vIdx = slot.selectedIdx || 0;
+            const curEx = slot.variants[vIdx] || slot.variants[0];
+            let rawSets = (currentSessionData && currentSessionData[curEx.id]) ? currentSessionData[curEx.id] : [];
+
+            // Jeśli użytkownik nie dotknął ćwiczenia, weź rekomendowane serie
+            if (!rawSets || rawSets.length === 0) {
+              const lastWeights = getLastLoggedExerciseData(curEx.id);
+              rawSets = [];
+              const recCount = curEx.recommendedSets || 3;
+              for (let s = 1; s <= recCount; s++) {
+                rawSets.push({
+                  setNum: s,
+                  weight: lastWeights[s-1]?.weight || 0,
+                  reps: lastWeights[s-1]?.reps || 8,
+                  done: true
+                });
+              }
+            }
+
+            // Przetwórz każdą serię – zapewnij ciężar i powtórzenia
+            const processedSets = rawSets.map((s, sIdx) => {
+              let w = s.weight;
+              if (w === undefined || w === null || w === '') {
+                const lastWeights = getLastLoggedExerciseData(curEx.id);
+                w = lastWeights[sIdx]?.weight || 0;
+              }
+              let r = s.reps;
+              if (!r || r === '0' || r === 0) {
+                r = 8;
+              }
+              return {
+                setNum: s.setNum || (sIdx + 1),
+                weight: parseFloat(w) || 0,
+                reps: parseInt(r) || 8,
+                done: true
+              };
+            });
+
+            totalCompleted += processedSets.length;
+            summaryList.push({
+              slotNum: slotIdx + 1,
+              category: slot.category || ('ĆWICZENIE ' + (slotIdx + 1)),
+              name: curEx.name,
+              equipment: curEx.equipment || 'Wolny ciężar / Maszyna',
+              sets: processedSets
+            });
+          });
+        }
+
+        const logEntry = {
+          id: Date.now(),
+          date: new Date().toISOString(),
+          formattedDate: new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          planType: activeTab,
+          planTitle: plan ? plan.title : 'FBW',
+          exercises: (function() {
+          const map = {};
+          if (plan && plan.slots) {
+            plan.slots.forEach(slot => {
+              const curEx = slot.variants[slot.selectedIdx || 0];
+              const sets = (currentSessionData && currentSessionData[curEx.id]) || [];
+              map[curEx.id] = sets.map((s, idx) => ({
+                setNum: s.setNum || (idx + 1),
+                weight: parseFloat(s.weight) || 0,
+                reps: parseInt(s.reps) || 0,
+                done: true
+              }));
+            });
+          }
+          return map;
+        })(),
+          summaryList: summaryList,
+          completedSets: totalCompleted
+        };
+
+        // 1. NATYCHMIASTOWY ZAPIS LOKALNY
+        history.unshift(logEntry);
+        localStorage.setItem('clean_workout_history', JSON.stringify(history));
+
+        // ZACHOWAJ DANE W RUBRYKACH (ciężary i powtórzenia) na następny trening, odznacz tylko done: false!
+        if (currentSessionData) {
+          Object.keys(currentSessionData).forEach(exKey => {
+            if (Array.isArray(currentSessionData[exKey])) {
+              currentSessionData[exKey].forEach(s => { s.done = false; });
+            }
+          });
+          localStorage.setItem(`clean_session_${activeTab}`, JSON.stringify(currentSessionData));
+        }
+
+        // 2. NATYCHMIASTOWA REAKCJA PRZYCISKU (Zero czekania)
+        const btn = document.getElementById('saveWorkoutBtn');
+        if (btn) {
+          btn.innerHTML = `<span>✓ ZAPISANO PEŁNY TRENING (${summaryList.length} ĆWICZEŃ)!</span>`;
+          btn.classList.remove('bg-amber-500');
+          btn.classList.add('bg-emerald-500', 'text-white');
+        }
+
+        showToast(`Zapisano pełny trening (${summaryList.length} ćwiczeń, ${totalCompleted} serii)!`, "SUKCES", true);
+
+        // Przejdź do historii po chwili
+        setTimeout(() => {
+          switchTab('history');
+          if (btn) {
+            btn.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i><span>ZAPISZ I WYŚLIJ NA TELEGRAM</span>`;
+            btn.classList.remove('bg-emerald-500', 'text-white');
+            btn.classList.add('bg-amber-500');
+            lucide.createIcons();
+          }
+        }, 500);
+
+        // 3. AUTOMATYCZNA SYNCHRONIZACJA Z CHMURĄ PC
+        pushWorkoutsToCloud().then(synced => {
+          if (synced) console.log('Pełny trening zsynchronizowany z chmurą PC');
+        }).catch(err => console.warn('Błąd chmury:', err));
+
+        // 4. WYSYŁKA NA TELEGRAM W TLE
+        sendWorkoutToTelegram(logEntry).then(sent => {
+          if (sent) {
+            showToast("Raport z pełnego treningu wysłany na Telegram!", "TELEGRAM", true);
+          }
+        }).catch(() => {});
+
+      } catch(err) {
+        alert("Błąd zapisu: " + err.message);
+      }
+    }
+
+    function renderHistory() {
+      const history = getHistory();
+      const listEl = document.getElementById('historyList');
+      listEl.innerHTML = '';
+
+      if (history.length === 0) {
+        listEl.innerHTML = `
+          <div class="col-span-full text-center py-10 bg-white border-2 border-dashed border-slate-300 rounded-xl p-6 text-slate-400 font-mono text-xs uppercase shadow-sm">
+            <i data-lucide="dumbbell" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+            <div class="font-bold text-slate-700">BRAK ZAPISANYCH TRENINGÓW</div>
+            <div class="text-[10px] text-slate-400 mt-1">Wykonaj i zapisz trening lub kliknij „POBIERZ Z CHMURY”.</div>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      history.forEach((item, itemIdx) => {
+        const itemEl = document.createElement('div');
+        itemEl.className = "bg-white border-2 border-slate-200 rounded-xl p-4 space-y-3 shadow-sm hover:border-slate-300 transition";
+
+        let badgeColor = 'bg-slate-950 text-amber-400';
+        if (item.planType === 'A') badgeColor = 'bg-blue-600 text-white';
+        if (item.planType === 'B') badgeColor = 'bg-emerald-600 text-white';
+        if (item.planType === 'C') badgeColor = 'bg-purple-600 text-white';
+
+        let exListHtml = '';
+
+        if (item.summaryList && item.summaryList.length > 0) {
+          item.summaryList.forEach((ex, exIdx) => {
+            const setsPills = (ex.sets || []).map((s, sIdx) => `
+              <span class="inline-flex items-center gap-1 bg-slate-100 border border-slate-300 px-2 py-0.5 rounded text-[11px] font-mono font-bold text-slate-800 shadow-xs">
+                <span class="text-slate-400 text-[9px]">S${sIdx + 1}:</span>
+                <span class="text-amber-600 font-extrabold">${s.weight || 0}kg</span>
+                <span class="text-slate-400 text-[9px]">×</span>
+                <span>${s.reps || 8}</span>
+                <span class="text-emerald-600">✓</span>
+              </span>
+            `).join(' ');
+
+            exListHtml += `
+              <div class="py-2 border-b border-slate-100 last:border-0">
+                <div class="flex items-center justify-between text-xs font-mono">
+                  <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                    ${ex.category || ('ĆWICZENIE ' + (exIdx + 1))}
+                  </span>
+                  <span class="text-[10px] text-slate-400 truncate max-w-[150px]">${ex.equipment || ''}</span>
+                </div>
+                <div class="font-bold text-slate-950 text-xs sm:text-sm mt-0.5">${ex.name}</div>
+                <div class="flex flex-wrap gap-1.5 mt-1.5">
+                  ${setsPills || '<span class="text-[10px] font-mono text-slate-400">Wykonano serie</span>'}
+                </div>
+              </div>
+            `;
+          });
+        } else if (item.exercises) {
+          Object.keys(item.exercises).forEach(exId => {
+            const exSets = item.exercises[exId] || [];
+            const setsPills = exSets.map((s, sIdx) => `
+              <span class="inline-flex items-center gap-1 bg-slate-100 border border-slate-300 px-2 py-0.5 rounded text-[11px] font-mono font-bold text-slate-800 shadow-xs">
+                <span class="text-slate-400 text-[9px]">S${sIdx + 1}:</span>
+                <span class="text-amber-600 font-extrabold">${s.weight || 0}kg</span>
+                <span class="text-slate-400 text-[9px]">×</span>
+                <span>${s.reps || 8}</span>
+                <span class="text-emerald-600">✓</span>
+              </span>
+            `).join(' ');
+
+            exListHtml += `
+              <div class="py-1.5 border-b border-slate-100 last:border-0">
+                <div class="font-bold text-slate-900 text-xs">${exId}</div>
+                <div class="flex flex-wrap gap-1 mt-1">${setsPills}</div>
+              </div>
+            `;
+          });
+        }
+
+        itemEl.innerHTML = `
+          <!-- NAGŁÓWEK KARTY HISTORII -->
+          <div class="flex items-center justify-between pb-2.5 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <span class="font-heavy text-xs px-2 py-0.5 rounded ${badgeColor}">
+                PLAN ${item.planType || 'FBW'}
+              </span>
+              <div>
+                <div class="text-xs font-heavy tracking-wider uppercase text-slate-900 leading-tight">
+                  ${item.planTitle || 'SESJA FBW'}
+                </div>
+                <div class="text-[10px] font-mono text-slate-400 flex items-center gap-1.5 mt-0.5">
+                  <i data-lucide="calendar" class="w-3 h-3 text-amber-600"></i>
+                  <span>${item.formattedDate || item.date}</span>
+                  <span>•</span>
+                  <strong class="text-slate-700 font-bold">${item.completedSets || 0} serii</strong>
+                  <span>(${item.summaryList ? item.summaryList.length : 0} ćwiczeń)</span>
+                </div>
+              </div>
+            </div>
+
+            <button onclick="resendLogToTelegram(${item.id})" class="px-2.5 py-1 rounded bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 text-[10px] font-mono font-bold flex items-center gap-1 active:scale-95 transition shadow-xs" title="Wyślij kopię na Telegram">
+              <i data-lucide="send" class="w-3 h-3 text-amber-600"></i>
+              <span>TELEGRAM</span>
+            </button>
+          </div>
+
+          <!-- LISTA WSZYSTKICH ĆWICZEŃ W TRENINGU -->
+          <div class="pt-1">
+            ${exListHtml || '<div class="text-xs font-mono text-slate-400">Brak szczegółów</div>'}
+          </div>
+        `;
+        listEl.appendChild(itemEl);
+      });
+      lucide.createIcons();
+    }
+
+    function clearHistoryConfirm() {
+      if (confirm("Usunąć całą historię sesji treningowych?")) {
+        localStorage.removeItem('clean_workout_history');
+        renderHistory();
+      }
+    }
+
+    // ================= ATLAS ANATOMII =================
+    function renderAtlas() {
+      const picker = document.getElementById('atlasExercisePicker');
+      picker.innerHTML = '';
+
+      const allEx = [];
+      ['A', 'B', 'C'].forEach(d => {
+        FBW_ROUTINE[d].slots.forEach(slot => {
+          slot.variants.forEach(v => allEx.push({ ...v, plan: d, cat: slot.category }));
+        });
+      });
+
+      allEx.forEach(ex => {
+        const item = document.createElement('div');
+        item.className = "p-2.5 bg-white border border-slate-200 rounded cursor-pointer hover:border-amber-500 transition flex items-center justify-between shadow-sm";
+        item.onclick = () => highlightAtlas(ex);
+        item.innerHTML = `
+          <div>
+            <div class="text-xs font-bold text-slate-900 uppercase">${ex.name}</div>
+            <div class="text-[9px] font-mono text-slate-500">PLAN ${ex.plan} • ${ex.cat} • ${ex.equipment}</div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+        `;
+        picker.appendChild(item);
+      });
+
+      highlightAtlas(allEx[0]);
+      lucide.createIcons();
+    }
+
+    function highlightAtlas(ex) {
+      document.querySelectorAll('#atlasView .muscle-path').forEach(p => {
+        p.classList.remove('muscle-primary', 'muscle-secondary');
+      });
+
+      ex.primary.forEach(mid => {
+        const el = document.getElementById(mid);
+        if (el) el.classList.add('muscle-primary');
+      });
+
+      (ex.secondary || []).forEach(mid => {
+        const el = document.getElementById(mid);
+        if (el) el.classList.add('muscle-secondary');
+      });
+
+      document.getElementById('atlasSelectedDesc').innerHTML = `
+        <div class="text-slate-900 font-bold uppercase mb-0.5">${ex.name}</div>
+        <div class="text-slate-500 text-[10px] mb-1">Sprzęt: <span class="text-amber-700 font-semibold">${ex.equipment}</span></div>
+        <div class="text-slate-700 text-[10px] leading-relaxed">${ex.technique}</div>
+      `;
+    }
+
+    // ================= MODAL TECHNIKI I WŁASNYCH ZDJĘĆ =================
+    function findExerciseById(exId) {
+      for (const p of ['A', 'B', 'C']) {
+        for (const slot of FBW_ROUTINE[p].slots) {
+          const found = slot.variants.find(v => v.id === exId);
+          if (found) return { ex: found, slot };
+        }
+      }
+      return null;
+    }
+
+    function openTechModal(exId) {
+      const data = findExerciseById(exId);
+      if (!data) return;
+
+      const ex = data.ex;
+      const slot = data.slot;
+      modalTargetEx = ex;
+
+      document.getElementById('modalMuscleCat').innerText = slot.category;
+      document.getElementById('modalExTitle').innerText = ex.name;
+      document.getElementById('modalEquip').innerText = `Wymagany sprzęt: ${ex.equipment}`;
+      document.getElementById('modalTargetReps').innerText = `${ex.targetReps} (RIR 1-2)`;
+      document.getElementById('modalTechnique').innerText = ex.technique;
+      document.getElementById('modalProTip').innerText = ex.proTip;
+
+      const userImg = customPhotos[ex.id] || DEFAULT_MACHINE_PHOTOS[ex.id];
+      const photoEl = document.getElementById('modalPhotoContainer');
+      const delBtn = document.getElementById('modalDeletePhotoBtn');
+      const uploadTxt = document.getElementById('photoUploadBtnTxt');
+
+      if (userImg) {
+        photoEl.innerHTML = `
+          <div class="relative w-full group">
+            <img src="${userImg}" class="w-full max-h-[380px] md:max-h-[500px] object-contain rounded-xl shadow-sm mx-auto cursor-zoom-in bg-slate-950/5 transition hover:opacity-95" onclick="openFullscreenPhoto('${userImg}')" title="Kliknij, aby powiększyć na cały ekran">
+            <div class="absolute bottom-2 right-2 bg-slate-950/75 text-white text-[10px] font-mono px-2.5 py-1 rounded-lg backdrop-blur-sm pointer-events-none flex items-center gap-1.5 shadow">
+              <i data-lucide="maximize-2" class="w-3.5 h-3.5 text-amber-400"></i> Kliknij, aby powiększyć
+            </div>
+          </div>
+        `;
+        if (delBtn) delBtn.classList.remove('hidden');
+        if (uploadTxt) uploadTxt.innerText = 'ZMIEŃ ZDJĘCIE';
+      } else {
+        photoEl.innerHTML = `
+          <div class="py-8 text-center">
+            <div class="mx-auto w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mb-2 shadow-xs">
+              ${EQUIPMENT_ICONS[ex.iconType] || EQUIPMENT_ICONS.barbell}
+            </div>
+            <div class="text-xs font-heavy tracking-wider text-slate-800 uppercase mb-0.5">BRAK ZDJĘCIA TEJ MASZYNY</div>
+            <p class="text-[10px] font-mono text-slate-400">Zrób zdjęcie telefonem lub wgraj z dysku, a pojawi się tutaj i na komputerze!</p>
+          </div>
+        `;
+        if (delBtn) delBtn.classList.add('hidden');
+        if (uploadTxt) uploadTxt.innerText = 'ZRÓB / WGRAJ ZDJĘCIE MASZYNY';
+      }
+      lucide.createIcons();
+
+      const mistakesList = document.getElementById('modalMistakes');
+      mistakesList.innerHTML = ex.mistakes.map(m => `<li>${m}</li>`).join('');
+
+      const modal = document.getElementById('techModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeTechModal() {
+      const modal = document.getElementById('techModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // ==========================================
+    // ZARZĄDZANIE I SYNCHRONIZACJA ZDJĘĆ
+    // ==========================================
+    let photoDB = null;
+
+    function initPhotoDB() {
+      return new Promise((resolve) => {
+        try {
+          const req = indexedDB.open('fbw_photos_db', 1);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains('photos')) {
+              db.createObjectStore('photos');
+            }
+          };
+          req.onsuccess = (e) => {
+            photoDB = e.target.result;
+            loadPhotosFromIDB().then(resolve);
+          };
+          req.onerror = () => resolve();
+        } catch(e) {
+          resolve();
+        }
+      });
+    }
+
+    function loadPhotosFromIDB() {
+      return new Promise((resolve) => {
+        if (!photoDB) return resolve();
+        try {
+          const tx = photoDB.transaction('photos', 'readonly');
+          const store = tx.objectStore('photos');
+          const req = store.getAllKeys();
+          req.onsuccess = () => {
+            const keys = req.result;
+            let count = keys.length;
+            if (count === 0) return resolve();
+            keys.forEach(k => {
+              const getReq = store.get(k);
+              getReq.onsuccess = () => {
+                if (getReq.result) {
+                  customPhotos[k] = getReq.result;
+                }
+                count--;
+                if (count === 0) {
+                  renderWorkoutView();
+                  resolve();
+                }
+              };
+            });
+          };
+          req.onerror = () => resolve();
+        } catch(e) {
+          resolve();
+        }
+      });
+    }
+
+    function savePhotoToIDB(exId, photoData) {
+      if (photoDB) {
+        try {
+          const tx = photoDB.transaction('photos', 'readwrite');
+          const store = tx.objectStore('photos');
+          store.put(photoData, exId);
+        } catch(e) {}
+      }
+    }
+
+    function deletePhotoFromIDB(exId) {
+      if (photoDB) {
+        try {
+          const tx = photoDB.transaction('photos', 'readwrite');
+          const store = tx.objectStore('photos');
+          store.delete(exId);
+        } catch(e) {}
+      }
+    }
+
+    // Kompresja zdjęcia (zmniejsza 15MB do ~70KB bez utraty ostrości)
+    function compressImage(file, maxDim = 1200, quality = 0.82) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = function(e) {
+          const img = new Image();
+          img.onerror = reject;
+          img.onload = function() {
+            let w = img.width;
+            let h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) {
+                h = Math.round((h * maxDim) / w);
+                w = maxDim;
+              } else {
+                w = Math.round((w * maxDim) / h);
+                h = maxDim;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+            resolve(compressedBase64);
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Wysyłka zdjęcia do chmury Telegram Bot API (zwraca stały URL dla PC)
+    async function uploadPhotoToTelegramCloud(base64Data, caption = 'FBW_PHOTO') {
+      const botToken = '9255845790:AAGTTE9-HllXitYiIb0AyCwhHaLAPXBEckk';
+      const chatId = '8829738364';
+
+      try {
+        const arr = base64Data.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        formData.append('caption', caption);
+        formData.append('photo', blob, 'photo.jpg');
+
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.ok && data.result.photo && data.result.photo.length > 0) {
+          const largest = data.result.photo[data.result.photo.length - 1];
+          const fileRes = await fetch(`https://api.telegram.org/bot${botToken}/getFile?file_id=${largest.file_id}`);
+          const fileData = await fileRes.json();
+          if (fileData.ok && fileData.result.file_path) {
+            return `https://api.telegram.org/file/bot${botToken}/${fileData.result.file_path}`;
+          }
+        }
+      } catch(e) {
+        console.warn('Telegram photo upload error:', e);
+      }
+      return null;
+    }
+
+    async function uploadCustomImage(event) {
+      const file = event.target.files[0];
+      if (!file || !modalTargetEx) return;
+
+      const targetId = modalTargetEx.id;
+      const targetName = modalTargetEx.name;
+
+      const photoEl = document.getElementById('modalPhotoContainer');
+      if (photoEl) {
+        photoEl.innerHTML = `
+          <div class="py-12 text-center">
+            <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto text-amber-500 mb-2"></i>
+            <div class="font-bold text-xs uppercase font-mono text-slate-800">OPTYMALIZACJA I ZAPIS ZDJĘCIA...</div>
+          </div>
+        `;
+        lucide.createIcons();
+      }
+
+      try {
+        // 1. Kompresja z 15MB do ~70KB (trwa 0.1s)
+        const compressedBase64 = await compressImage(file, 1200, 0.82);
+
+        // 2. Natychmiastowy trwały zapis lokalny (IndexedDB + localStorage)
+        customPhotos[targetId] = compressedBase64;
+        savePhotoToIDB(targetId, compressedBase64);
+        try {
+          localStorage.setItem('fbw_custom_photos', JSON.stringify(customPhotos));
+        } catch(err) {
+          console.warn('LocalStorage limit reached, saved in IndexedDB');
+        }
+
+        openTechModal(targetId);
+        renderWorkoutView();
+        showToast("Zdjęcie maszyny zapisane trwale!", "ZDJĘCIE ZAPISANE", true);
+
+        // 3. W tle wyślij do chmury (aby komputer też je od razu pobrał)
+        uploadPhotoToTelegramCloud(compressedBase64, `MASZYNA: ${targetName}`).then(cloudUrl => {
+          if (cloudUrl) {
+            customPhotos[targetId] = cloudUrl;
+            savePhotoToIDB(targetId, cloudUrl);
+            try {
+              localStorage.setItem('fbw_custom_photos', JSON.stringify(customPhotos));
+            } catch(e) {}
+            console.log('Photo cloud URL created:', cloudUrl);
+            pushWorkoutsToCloud().catch(() => {});
+          }
+        }).catch(() => {});
+
+      } catch(err) {
+        alert("Błąd podczas wgrywania zdjęcia: " + err.message);
+      }
+    }
+
+    function deleteCustomPhoto() {
+      if (!modalTargetEx) return;
+      if (confirm(`Usunąć zdjęcie dla ćwiczenia: "${modalTargetEx.name}"?`)) {
+        const id = modalTargetEx.id;
+        delete customPhotos[id];
+        deletePhotoFromIDB(id);
+        try {
+          localStorage.setItem('fbw_custom_photos', JSON.stringify(customPhotos));
+        } catch(e) {}
+        openTechModal(id);
+        renderWorkoutView();
+        pushWorkoutsToCloud().catch(() => {});
+        showToast("Zdjęcie zostało usunięte", "USUWANIE", true);
+      }
+    }
+
+    function openFullscreenPhoto(src) {
+      const box = document.getElementById('photoLightbox');
+      const img = document.getElementById('lightboxImg');
+      if (box && img) {
+        img.src = src;
+        box.classList.remove('hidden');
+        box.classList.add('flex');
+      }
+    }
+
+    function closeFullscreenPhoto() {
+      const box = document.getElementById('photoLightbox');
+      if (box) {
+        box.classList.add('hidden');
+        box.classList.remove('flex');
+      }
+    }
+
+    // ================= TIMER =================
+    let timerDuration = 90;
+    let timerRemaining = 90;
+    let timerInterval = null;
+    let isTimerRunning = false;
+
+    function formatTime(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    function updateTimerUI() {
+      const str = formatTime(timerRemaining);
+      document.getElementById('bottomTimerCountdown').innerText = str;
+      document.getElementById('headerTimerVal').innerText = str;
+    }
+
+    function setTimerSec(sec) {
+      pauseTimer();
+      timerDuration = sec;
+      timerRemaining = sec;
+      updateTimerUI();
+    }
+
+    function resetTimerWith(sec) {
+      pauseTimer();
+      timerDuration = sec;
+      timerRemaining = sec;
+      updateTimerUI();
+    }
+
+    function toggleTimer() {
+      if (isTimerRunning) pauseTimer();
+      else startTimer();
+    }
+
+    function startTimer() {
+      if (isTimerRunning) return;
+      isTimerRunning = true;
+      document.getElementById('timerPlayBtn').classList.replace('bg-slate-950', 'bg-amber-500');
+      document.getElementById('timerPlayBtn').classList.replace('text-amber-400', 'text-slate-950');
+      document.getElementById('timerPlayIcon').setAttribute('data-lucide', 'pause');
+      lucide.createIcons();
+
+      timerInterval = setInterval(() => {
+        if (timerRemaining > 0) {
+          timerRemaining--;
+          updateTimerUI();
+        } else {
+          pauseTimer();
+          timerRemaining = timerDuration;
+          updateTimerUI();
+          triggerAlarm();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      document.getElementById('timerPlayBtn').classList.replace('bg-amber-500', 'bg-slate-950');
+      document.getElementById('timerPlayBtn').classList.replace('text-slate-950', 'text-amber-400');
+      document.getElementById('timerPlayIcon').setAttribute('data-lucide', 'play');
+      lucide.createIcons();
+    }
+
+    function triggerAlarm() {
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 300]);
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      } catch(e) {}
+
+      alert("KONIEC PRZERWY // CZAS NA NASTĘPNĄ SERIĘ!");
+    }
+
+    function openTimerSheet() {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    function initTheme() {
+      const saved = localStorage.getItem('fbw_theme') || 'light';
+      applyTheme(saved);
+    }
+
+    function toggleTheme() {
+      const current = localStorage.getItem('fbw_theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      localStorage.setItem('fbw_theme', next);
+      applyTheme(next);
+    }
+
+    function applyTheme(theme) {
+      const isDark = theme === 'dark';
+      document.body.classList.toggle('dark-theme', isDark);
+      const icon = document.getElementById('themeBtnIcon');
+      const txt = document.getElementById('themeBtnTxt');
+      if (icon) icon.innerText = isDark ? '🌙' : '☀️';
+      if (txt) txt.innerText = isDark ? 'CIEMNY' : 'JASNY';
+    }
+
+    
+    // ==========================================
+    // SYNCHRONIZACJA Z CHMURĄ DLA PC (OPCJA 1)
+    // ==========================================
+    const MASTER_REGISTRY_ID = 'ff808181a09d98f701a1c1f61ad7738a';
+
+    function packWorkout(workout) {
+      if (workout.s && workout.p) return workout;
+      const p = workout.planType || 'A';
+      const plan = FBW_ROUTINE[p];
+      const v = [];
+      const s = [];
+
+      if (plan && plan.slots) {
+        plan.slots.forEach((slot, sIdx) => {
+          const vIdx = slot.selectedIdx || 0;
+          v.push(vIdx);
+
+          let setsForSlot = [];
+          if (workout.summaryList && workout.summaryList[sIdx]) {
+            setsForSlot = workout.summaryList[sIdx].sets || [];
+          } else if (workout.exercises && workout.exercises[slot.variants[vIdx]?.id]) {
+            setsForSlot = workout.exercises[slot.variants[vIdx]?.id] || [];
+          }
+
+          if (!setsForSlot || setsForSlot.length === 0) {
+            setsForSlot = [{weight: 0, reps: 8}, {weight: 0, reps: 8}, {weight: 0, reps: 8}];
+          }
+
+          s.push(setsForSlot.map(set => [parseFloat(set.weight) || 0, parseInt(set.reps) || 8]));
+        });
+      }
+
+      return {
+        id: workout.id || Date.now(),
+        p: p,
+        dt: workout.formattedDate || new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        v: v,
+        s: s
+      };
+    }
+
+    function unpackWorkout(compact) {
+      if (compact.summaryList) return compact; // Już rozpakowany
+      const plan = FBW_ROUTINE[compact.p] || FBW_ROUTINE['A'];
+      const summaryList = [];
+      let totalSets = 0;
+
+      if (plan && plan.slots) {
+        plan.slots.forEach((slot, sIdx) => {
+          const vIdx = (compact.v && compact.v[sIdx] !== undefined) ? compact.v[sIdx] : (slot.selectedIdx || 0);
+          const curEx = slot.variants[vIdx] || slot.variants[0];
+          const rawSets = (compact.s && compact.s[sIdx]) ? compact.s[sIdx] : [];
+
+          const sets = rawSets.map((s, idx) => ({
+            setNum: idx + 1,
+            weight: s[0],
+            reps: s[1],
+            done: true
+          }));
+
+          totalSets += sets.length;
+          summaryList.push({
+            slotNum: sIdx + 1,
+            category: slot.category,
+            name: curEx.name,
+            equipment: curEx.equipment,
+            sets: sets
+          });
+        });
+      }
+
+      return {
+        id: compact.id,
+        date: compact.id ? new Date(compact.id).toISOString() : new Date().toISOString(),
+        formattedDate: compact.dt,
+        planType: compact.p,
+        planTitle: plan ? plan.title : ('Plan ' + compact.p),
+        completedSets: totalSets,
+        summaryList: summaryList
+      };
+    }
+
+    function getSyncPin() {
+      return (localStorage.getItem('clean_sync_pin') || '1234').trim();
+    }
+
+    function saveSyncPin(val) {
+      const pin = (val || '1234').trim();
+      localStorage.setItem('clean_sync_pin', pin);
+      const input = document.getElementById('syncPinInput');
+      if (input) input.value = pin;
+      updateSyncStatusUI(`PIN ustawiony: ${pin}`);
+      pullWorkoutsFromCloud(pin);
+    }
+
+    function updateSyncStatusUI(msg, isSuccess = true) {
+      const pin = getSyncPin();
+      const txt = document.getElementById('syncStatusText');
+      if (txt) {
+        txt.innerHTML = msg || `✓ Połączono z chmurą (PIN: ${pin})`;
+        txt.className = isSuccess ? 'text-amber-400 font-bold' : 'text-rose-400 font-bold';
+      }
+    }
+
+    function applySlotSelections() {
+      try {
+        const savedSelections = JSON.parse(localStorage.getItem('fbw_slot_selections') || '{}');
+        ['A', 'B', 'C'].forEach(planKey => {
+          if (FBW_ROUTINE[planKey] && FBW_ROUTINE[planKey].slots) {
+            FBW_ROUTINE[planKey].slots.forEach(slot => {
+              if (savedSelections[slot.slotId] !== undefined) {
+                slot.selectedIdx = savedSelections[slot.slotId];
+              }
+            });
+          }
+        });
+      } catch(e) {}
+    }
+
+    async function pushWorkoutsToCloud(customPin) {
+      const pin = (customPin || getSyncPin()).trim();
+      const localHistory = getHistory();
+      const slotSelections = JSON.parse(localStorage.getItem('fbw_slot_selections') || '{}');
+      let dataId = localStorage.getItem('clean_sync_data_id_' + pin);
+
+      // Spakuj ostatnie treningi (kompaktowy format mieści się w limitach chmury)
+      const packedHistory = localHistory.slice(0, 3).map(packWorkout);
+
+      const payload = {
+        pin: pin,
+        updatedAt: new Date().toISOString(),
+        h: packedHistory,
+        sel: slotSelections,
+        photos: customPhotos
+      };
+
+      try {
+        if (!dataId) {
+          const mRes = await fetch('https://api.restful-api.dev/objects/' + MASTER_REGISTRY_ID);
+          if (mRes.ok) {
+            const mObj = await mRes.json();
+            if (mObj && mObj.data && mObj.data.pins && mObj.data.pins[pin]) {
+              dataId = mObj.data.pins[pin];
+              localStorage.setItem('clean_sync_data_id_' + pin, dataId);
+            }
+          }
+        }
+
+        if (dataId) {
+          await fetch('https://api.restful-api.dev/objects/' + dataId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: 'FBW_DATA_PIN_' + pin,
+              data: payload
+            })
+          });
+        } else {
+          const cRes = await fetch('https://api.restful-api.dev/objects', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: 'FBW_DATA_PIN_' + pin,
+              data: payload
+            })
+          });
+          if (cRes.ok) {
+            const cObj = await cRes.json();
+            dataId = cObj.id;
+            localStorage.setItem('clean_sync_data_id_' + pin, dataId);
+
+            try {
+              const mRes = await fetch('https://api.restful-api.dev/objects/' + MASTER_REGISTRY_ID);
+              if (mRes.ok) {
+                const mObj = await mRes.json();
+                if (!mObj.data) mObj.data = { pins: {} };
+                if (!mObj.data.pins) mObj.data.pins = {};
+                mObj.data.pins[pin] = dataId;
+                await fetch('https://api.restful-api.dev/objects/' + MASTER_REGISTRY_ID, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    name: 'FBW_TRACKER_MASTER_REGISTRY',
+                    data: mObj.data
+                  })
+                });
+              }
+            } catch(e) {}
+          }
+        }
+
+        const nowStr = new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+        updateSyncStatusUI(`✓ Zsynchronizowano pełne treningi o ${nowStr} (PIN: ${pin})`, true);
+        return true;
+      } catch (err) {
+        console.warn('Push error:', err);
+        updateSyncStatusUI(`Błąd chmury: ${err.message}`, false);
+        return false;
+      }
+    }
+
+    async function pullWorkoutsFromCloud(customPin) {
+      const pin = (customPin || getSyncPin()).trim();
+      let dataId = localStorage.getItem('clean_sync_data_id_' + pin);
+
+      try {
+        if (!dataId) {
+          const mRes = await fetch('https://api.restful-api.dev/objects/' + MASTER_REGISTRY_ID);
+          if (mRes.ok) {
+            const mObj = await mRes.json();
+            if (mObj && mObj.data && mObj.data.pins && mObj.data.pins[pin]) {
+              dataId = mObj.data.pins[pin];
+              localStorage.setItem('clean_sync_data_id_' + pin, dataId);
+            }
+          }
+        }
+
+        if (!dataId) {
+          updateSyncStatusUI(`Brak danych w chmurze dla PIN: ${pin}`, false);
+          return { success: false, message: 'Brak danych w chmurze dla tego PINu.' };
+        }
+
+        const dRes = await fetch('https://api.restful-api.dev/objects/' + dataId);
+        if (!dRes.ok) throw new Error('Błąd pobierania danych');
+        const dObj = await dRes.json();
+
+        if (dObj && dObj.data) {
+          // 1. Odtwórz wybrane maszyny z telefonu
+          const sel = dObj.data.sel || dObj.data.slotSelections;
+          if (sel && typeof sel === 'object') {
+            localStorage.setItem('fbw_slot_selections', JSON.stringify(sel));
+            applySlotSelections();
+          }
+
+          // 2. Odtwórz zdjęcia maszyn z telefonu na komputerze
+          const photos = dObj.data.photos || (sel && sel.photos);
+          if (photos && typeof photos === 'object') {
+            Object.keys(photos).forEach(exId => {
+              if (photos[exId]) {
+                customPhotos[exId] = photos[exId];
+                savePhotoToIDB(exId, photos[exId]);
+              }
+            });
+            try {
+              localStorage.setItem('fbw_custom_photos', JSON.stringify(customPhotos));
+            } catch(e) {}
+          }
+
+          // 2. Odtwórz pełną historię
+          const rawH = dObj.data.h || dObj.data.history || [];
+          if (Array.isArray(rawH) && rawH.length > 0) {
+            const unpackedCloud = rawH.map(unpackWorkout);
+            const localHistory = getHistory();
+
+            const map = new Map();
+            localHistory.forEach(h => { const k = String(h.id || h.date); map.set(k, h); });
+            unpackedCloud.forEach(h => { const k = String(h.id || h.date); map.set(k, h); });
+
+            const merged = Array.from(map.values()).sort((a, b) => new Date(b.date || b.id) - new Date(a.date || a.id));
+            localStorage.setItem('clean_workout_history', JSON.stringify(merged));
+          }
+
+          renderWorkoutView();
+          renderHistory();
+
+          const nowStr = new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+          updateSyncStatusUI(`✓ Zsynchronizowano całą aplikację o ${nowStr} (PIN: ${pin})`, true);
+          return { success: true, count: getHistory().length };
+        } else {
+          updateSyncStatusUI(`Pusta chmura dla PIN: ${pin}`, false);
+          return { success: false, message: 'Pusty zapis w chmurze.' };
+        }
+      } catch (err) {
+        console.warn('Pull error:', err);
+        updateSyncStatusUI(`Błąd chmury: ${err.message}`, false);
+        return { success: false, message: err.message };
+      }
+    }
+
+    async function handleManualPull() {
+      const btn = document.getElementById('cloudPullBtn');
+      const hBtn = document.getElementById('headerSyncBtn');
+      if (btn) btn.innerHTML = `<span>POBIERANIE...</span>`;
+      if (hBtn) hBtn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i>`;
+
+      const res = await pullWorkoutsFromCloud();
+
+      if (btn) {
+        btn.innerHTML = `<i data-lucide="download-cloud" class="w-4 h-4"></i><span>POBIERZ Z CHMURY</span>`;
+        lucide.createIcons();
+      }
+      if (hBtn) {
+        hBtn.innerHTML = `<i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i><span class="hidden sm:inline">SYNCHRONIZUJ</span>`;
+        lucide.createIcons();
+      }
+
+      if (res.success) {
+        showToast(`Pobrano pełne treningi z chmury! Łącznie sesji: ${res.count}`, "CHMURA PC", true);
+      } else {
+        showToast(res.message || "Błąd pobierania z chmury", "BŁĄD CHMURY", false);
+      }
+    }
+
+    async function handleManualPush() {
+      const btn = document.getElementById('cloudPushBtn');
+      if (btn) btn.innerHTML = `<span>...</span>`;
+      const ok = await pushWorkoutsToCloud();
+      if (btn) {
+        btn.innerHTML = `<i data-lucide="upload-cloud" class="w-4 h-4"></i><span>WYŚLIJ</span>`;
+        lucide.createIcons();
+      }
+      if (ok) {
+        showToast("Pełny trening wysłany do chmury PC!", "CHMURA PC", true);
+      } else {
+        showToast("Nie udało się wysłać do chmury", "BŁĄD", false);
+      }
+    }
+
+    function initCloudSync() {
+      const pin = getSyncPin();
+      const input = document.getElementById('syncPinInput');
+      if (input) input.value = pin;
+      updateSyncStatusUI(`✓ Gotowy do synchronizacji (PIN: ${pin})`);
+
+      pullWorkoutsFromCloud(pin).catch(err => {
+        console.log('Initial sync check:', err.message);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initPhotoDB();
+      initTheme();
+      initSession();
+      initCloudSync();
+      updateTimerUI();
+      lucide.createIcons();
+    });
+  </script>
+
+  <!-- PEŁNOEKRANOWY PODGLĄD ZDJĘCIA (LIGHTBOX) -->
+  <div id="photoLightbox" class="fixed inset-0 z-[100] bg-black/95 hidden items-center justify-center p-4 cursor-zoom-out" onclick="closeFullscreenPhoto()">
+    <img id="lightboxImg" src="" class="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl border border-white/20">
+    <button onclick="closeFullscreenPhoto()" class="absolute top-4 right-4 text-white text-3xl font-bold bg-white/20 hover:bg-white/30 rounded-full w-12 h-12 flex items-center justify-center transition shadow-lg">
+      &times;
+    </button>
+    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white font-mono text-xs px-4 py-1.5 rounded-full backdrop-blur-sm pointer-events-none">
+      Kliknij w dowolne miejsce, aby zamknąć
+    </div>
+  </div>
+
+</body>
+</html>
