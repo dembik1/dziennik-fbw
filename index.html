@@ -21,6 +21,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
   <style>
+    html, body {
+      overflow-x: hidden !important;
+      max-width: 100vw !important;
+      width: 100% !important;
+      position: relative;
+    }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-tap-highlight-color: transparent;
@@ -151,7 +157,7 @@
       <i data-lucide="download" class="w-4 h-4"></i>
       <span>ZAINSTALUJ JAKO APLIKACJĘ NA EKRANIE</span>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1 sm:gap-2 shrink-0">
       <button id="installAppBtn" class="px-3 py-1 bg-slate-950 text-white font-heavy text-xs uppercase rounded active:scale-95 transition shadow-sm">
         INSTALUJ
       </button>
@@ -162,7 +168,7 @@
   </div>
 
   <!-- TOP HEADER (BIAŁY) -->
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 shadow-sm">
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-2 sm:px-4 py-2.5 shadow-sm max-w-full overflow-hidden">
     <div class="max-w-md md:max-w-6xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-2.5">
         <div class="w-8 h-8 rounded bg-slate-950 border border-slate-800 flex items-center justify-center text-amber-400 font-heavy text-xl shadow-sm">
