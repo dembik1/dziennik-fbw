@@ -257,9 +257,29 @@
       </div>
 
       <!-- KARTY ĆWICZEŃ -->
+      <!-- GŁÓWNY PRZYCISK: DODAJ WŁASNE ĆWICZENIE (NA SAMEJ GÓRZE) -->
+      <div class="bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-amber-500/5 border-2 border-amber-500/80 rounded-xl p-2.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 shadow-xs">
+        <button onclick="openAddExerciseModal()" class="w-full sm:w-auto flex-1 py-3 px-4 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm tracking-wide uppercase flex items-center justify-center gap-2 shadow-sm active:scale-95 transition">
+          <span class="text-base font-black leading-none">➕</span>
+          <span>DODAJ WŁASNE ĆWICZENIE / MASZYNĘ (FOTO)</span>
+        </button>
+        <div id="restoreDeletedBtnContainer" class="hidden text-center sm:text-right">
+          <button onclick="restoreDeletedExercises()" class="text-[11px] font-mono text-amber-900 bg-amber-100 hover:bg-amber-200 px-3 py-2 rounded-lg font-bold border border-amber-300 flex items-center justify-center gap-1.5 transition">
+            <span>↺</span> Przywróć usunięte ćwiczenia
+          </button>
+        </div>
+      </div>
+
+      <!-- KARTY ĆWICZEŃ -->
       <div id="exercisesContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Renderowane przez JS -->
       </div>
+
+      <!-- DOLNY PRZYCISK: DODAJ KOLEJNE ĆWICZENIE -->
+      <button onclick="openAddExerciseModal()" class="w-full py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xs font-mono uppercase flex items-center justify-center gap-2 border-2 border-dashed border-amber-400/80 active:scale-98 transition shadow-xs">
+        <span class="text-amber-600 font-black text-sm">➕</span>
+        <span>+ DODAJ KOLEJNE ĆWICZENIE DO TEGO TRENINGU</span>
+      </button>
 
       <div class="pt-3 pb-6 space-y-2 md:col-span-2">
         <button id="saveWorkoutBtn" onclick="finishWorkout()" class="w-full py-3.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-heavy text-base tracking-wider uppercase flex items-center justify-center gap-2 active:scale-[0.99] transition shadow-md font-bold">
@@ -3642,10 +3662,47 @@
 
     
     function getActiveRoutine() {
+      let plan;
       if (currentProfile === 'filip') {
-        return FILIP_ROUTINE;
+        plan = FILIP_ROUTINE;
+      } else {
+        plan = FBW_ROUTINE[activeTab] || FBW_ROUTINE['A'];
       }
-      return FBW_ROUTINE[activeTab] || FBW_ROUTINE['A'];
+
+      // Restore slot selections
+      try {
+        const savedSelections = JSON.parse(localStorage.getItem('fbw_slot_selections') || '{}');
+        plan.slots.forEach(slot => {
+          if (savedSelections[slot.slotId] !== undefined) {
+            slot.selectedIdx = savedSelections[slot.slotId] % slot.variants.length;
+          }
+        });
+      } catch(e) {}
+
+      let slots = [...plan.slots];
+
+      // Remove deleted slots for this profile & tab
+      try {
+        const delKey = `fbw_deleted_slots_${currentProfile}_${activeTab}`;
+        const deletedIds = JSON.parse(localStorage.getItem(delKey) || '[]');
+        if (deletedIds && deletedIds.length > 0) {
+          slots = slots.filter(s => !deletedIds.includes(s.slotId));
+        }
+      } catch(e) {}
+
+      // Add custom slots for this profile & tab
+      try {
+        const customKey = `fbw_custom_slots_${currentProfile}_${activeTab}`;
+        const customSlots = JSON.parse(localStorage.getItem(customKey) || '[]');
+        if (customSlots && customSlots.length > 0) {
+          slots = slots.concat(customSlots);
+        }
+      } catch(e) {}
+
+      return {
+        ...plan,
+        slots: slots
+      };
     }
   
     function initSession() {
@@ -3724,6 +3781,20 @@
       document.getElementById('planBadge').innerText = plan.badge;
       document.getElementById('planTitle').innerText = plan.title;
 
+      const delKey = `fbw_deleted_slots_${currentProfile}_${activeTab}`;
+      let deletedIds = [];
+      try {
+        deletedIds = JSON.parse(localStorage.getItem(delKey) || '[]');
+      } catch(e) {}
+      const restoreBtnEl = document.getElementById('restoreDeletedBtnContainer');
+      if (restoreBtnEl) {
+        if (deletedIds && deletedIds.length > 0) {
+          restoreBtnEl.classList.remove('hidden');
+        } else {
+          restoreBtnEl.classList.add('hidden');
+        }
+      }
+
       const container = document.getElementById('exercisesContainer');
       container.innerHTML = '';
 
@@ -3785,18 +3856,27 @@
         }, { passive: true });
 
         card.innerHTML = `
-          <!-- PASEK WYBORU ZAMIENNIKA -->
+          <!-- PASEK WYBORU ZAMIENNIKA I USUWANIA -->
           <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
-            <span class="text-[9px] font-mono uppercase font-bold text-slate-500">
-              ${slot.category}
+            <span class="text-[9px] font-mono uppercase font-bold text-slate-500 flex items-center gap-1">
+              ${slot.category} ${slot.isCustom ? '<span class="text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 font-bold text-[8px]">WŁASNE</span>' : ''}
             </span>
             
-            <div class="flex items-center gap-1.5 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-              <button onclick="cycleSlotVariant('${slot.slotId}', -1)" class="text-slate-600 hover:text-slate-900 px-1 font-bold text-xs">‹</button>
-              <span class="text-[9px] font-mono text-amber-700 font-bold uppercase">
-                ZAMIENNIK ${slot.selectedIdx + 1}/${totalVariants}
-              </span>
-              <button onclick="cycleSlotVariant('${slot.slotId}', 1)" class="text-slate-600 hover:text-slate-900 px-1 font-bold text-xs">›</button>
+            <div class="flex items-center gap-1.5">
+              ${totalVariants > 1 ? `
+                <div class="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                  <button onclick="cycleSlotVariant('${slot.slotId}', -1)" class="text-slate-600 hover:text-slate-900 px-1 font-bold text-xs">‹</button>
+                  <span class="text-[9px] font-mono text-amber-700 font-bold uppercase">
+                    ZAMIENNIK ${slot.selectedIdx + 1}/${totalVariants}
+                  </span>
+                  <button onclick="cycleSlotVariant('${slot.slotId}', 1)" class="text-slate-600 hover:text-slate-900 px-1 font-bold text-xs">›</button>
+                </div>
+              ` : ''}
+              <button onclick="deleteExercise('${slot.slotId}', '${curEx.id}', ${Boolean(slot.isCustom)})" 
+                class="px-2 py-0.5 rounded bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 border border-rose-300 text-[10px] font-mono font-bold flex items-center gap-1 transition active:scale-95 shadow-2xs" 
+                title="Usuń to ćwiczenie z treningu">
+                <span>🗑️ USUŃ</span>
+              </button>
             </div>
           </div>
 
@@ -4408,6 +4488,14 @@
 
     // ================= MODAL TECHNIKI I WŁASNYCH ZDJĘĆ =================
     function findExerciseById(exId) {
+      // 0. Sprawdź aktywny plan (w tym własne ćwiczenia)
+      const activePlan = getActiveRoutine();
+      if (activePlan && activePlan.slots) {
+        for (const slot of activePlan.slots) {
+          const found = slot.variants.find(v => v.id === exId);
+          if (found) return { ex: found, slot };
+        }
+      }
       // 1. Sprawdź rutynę Filipa
       if (typeof FILIP_ROUTINE !== 'undefined' && FILIP_ROUTINE.slots) {
         for (const slot of FILIP_ROUTINE.slots) {
@@ -4928,20 +5016,46 @@
       renderWorkoutView();
     }
 
-    function deleteCustomExercise(slotId, exId) {
-      if (!confirm("Czy na pewno chcesz usunąć to własne ćwiczenie z planu?")) return;
-      try {
-        const key = `fbw_custom_slots_${currentProfile}_${activeTab}`;
-        let saved = JSON.parse(localStorage.getItem(key) || '[]');
-        saved = saved.filter(s => s.slotId !== slotId);
-        localStorage.setItem(key, JSON.stringify(saved));
-      } catch(e) {}
+    function deleteExercise(slotId, exId, isCustom) {
+      if (!confirm("Czy na pewno chcesz usunąć to ćwiczenie z obecnego treningu?")) return;
+      
+      if (isCustom) {
+        try {
+          const key = `fbw_custom_slots_${currentProfile}_${activeTab}`;
+          let saved = JSON.parse(localStorage.getItem(key) || '[]');
+          saved = saved.filter(s => s.slotId !== slotId);
+          localStorage.setItem(key, JSON.stringify(saved));
+        } catch(e) {}
+      } else {
+        try {
+          const delKey = `fbw_deleted_slots_${currentProfile}_${activeTab}`;
+          const deletedIds = JSON.parse(localStorage.getItem(delKey) || '[]');
+          if (!deletedIds.includes(slotId)) {
+            deletedIds.push(slotId);
+            localStorage.setItem(delKey, JSON.stringify(deletedIds));
+          }
+        } catch(e) {}
+      }
 
       if (currentSessionData[exId]) {
         delete currentSessionData[exId];
         saveActiveSession();
       }
-      showToast("Usunięto ćwiczenie z planu", "USUNIĘTO", true);
+      showToast("Usunięto ćwiczenie z treningu", "USUNIĘTO", true);
+      renderWorkoutView();
+    }
+
+    function deleteCustomExercise(slotId, exId) {
+      deleteExercise(slotId, exId, true);
+    }
+
+    function restoreDeletedExercises() {
+      if (!confirm("Czy chcesz przywrócić wszystkie usunięte ćwiczenia dla tego planu?")) return;
+      try {
+        const delKey = `fbw_deleted_slots_${currentProfile}_${activeTab}`;
+        localStorage.removeItem(delKey);
+      } catch(e) {}
+      showToast("Przywrócono domyślne ćwiczenia", "PRZYWRÓCONO", true);
       renderWorkoutView();
     }
 
