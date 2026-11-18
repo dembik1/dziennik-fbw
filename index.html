@@ -557,6 +557,19 @@
             "proTip": "Umożliwia głęboki przysiad z maksymalnym naciskiem na same czworogłowe uda bez walki o równowagę."
           },
           {
+            "id": "lunge_walking",
+            "name": "Wykroki chodzone z hantlami",
+            "equipment": "Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt. / noga",
+            "recommendedSets": 3,
+            "primary": ["at_quads_l", "at_quads_r", "at_glutes"],
+            "secondary": [],
+            "technique": "Krok w przód, zejdź kolanem nogi zakrocznej nad podłogę. Płynne tempo.",
+            "mistakes": ["Schodzenie się kolana do środka"],
+            "proTip": "Świetna opcja jednostronna na czwórki i pośladki."
+          },
+          {
             "id": "sq_hack",
             "name": "Hack Przysiad na maszynie",
             "equipment": "Maszyna Hack Squat",
@@ -1510,13 +1523,79 @@
   },
   "C": {
     "badge": "PLAN C // ROZCIĄGANIE PLECÓW",
-    "title": "Izolacja Nóg (Wyprosty + Uginanie + Łydki) • Plecy • Klatka • Ramiona",
+    "title": "Nogi (Wykroki chodzone / Bułgary / Wyprosty) • Plecy (Narciarz) • Dipsy • Ramiona",
     "slots": [
       {
-        "slotId": "c_quads_ext",
-        "category": "NOGI (CZWÓRKI - MASZYNA)",
+        "slotId": "c_lunge",
+        "category": "NOGI (WYKROKI / JEDNOSTRONNE)",
         "selectedIdx": 0,
         "variants": [
+          {
+            "id": "lunge_walking",
+            "name": "Wykroki chodzone z hantlami",
+            "equipment": "Hantle (korytarz / wolna przestrzeń)",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt. / noga",
+            "recommendedSets": 3,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r",
+              "at_glutes"
+            ],
+            "secondary": [
+              "at_hamstrings_l",
+              "at_hamstrings_r"
+            ],
+            "technique": "Krok w przód, zejdź kolanem nogi zakrocznej tuż nad podłogę (kąt 90° w kolanie wykrocznym). Tułów stabilny, lekko pochylony, kolano nie ucieka do środka. Płynne przejście do kolejnego kroku.",
+            "mistakes": [
+              "Zbyt krótki krok i odrywanie pięty przedniej stopy",
+              "Schodzenie się kolana do środka",
+              "Uderzanie kolanem o podłogę"
+            ],
+            "proTip": "Genialne ćwiczenie budujące pośladki, stabilizację bioder i siłę jednonóż. Pilnuj stałego tempa bez szarpania!"
+          },
+          {
+            "id": "lunge_bulgarian",
+            "name": "Przysiady bułgarskie z hantlami (Bulgarian Split Squat)",
+            "equipment": "Ławka płaska + Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt. / noga",
+            "recommendedSets": 3,
+            "primary": [
+              "at_glutes",
+              "at_quads_l",
+              "at_quads_r"
+            ],
+            "secondary": [
+              "at_hamstrings_l",
+              "at_hamstrings_r"
+            ],
+            "technique": "Jedna stopa oparta grzbietem na ławce za Tobą. Zejdź głęboko w dół na przedniej nodze, zachowując kontrolę nad kolanem. Wypychaj się przez całą przednią stopę (głównie piętę).",
+            "mistakes": [
+              "Pchanie ciężaru z palców zamiast z pięty",
+              "Nadmierne wyginanie kręgosłupa"
+            ],
+            "proTip": "Maksymalny bodziec hipertroficzny dla pośladków i czwórek w pozycji rozciągnięcia."
+          },
+          {
+            "id": "lunge_smith",
+            "name": "Wykroki w miejscu na maszynie Smitha",
+            "equipment": "Maszyna Smitha",
+            "iconType": "smith",
+            "targetReps": "10–12 powt. / noga",
+            "recommendedSets": 3,
+            "primary": [
+              "at_glutes",
+              "at_quads_l",
+              "at_quads_r"
+            ],
+            "secondary": [],
+            "technique": "Gryf na plecach, jedna noga wysunięta w przód, druga w tył. Prowadnica eliminuje chwianie na boki, pozwalając na maksymalne skupienie na pracy nóg.",
+            "mistakes": [
+              "Zbyt wąski rozkrok"
+            ],
+            "proTip": "Idealne, gdy chcesz bezpiecznie dołożyć większy ciężar bez walki o równowagę."
+          },
           {
             "id": "c_quads_ext",
             "name": "Wyprosty nóg siedząc na maszynie (czworogłowe)",
@@ -2583,6 +2662,50 @@
   ]
 };
 
+    
+    const DEFAULT_INITIAL_SESSION_C = {
+  "lunge_walking": [
+    { "setNum": 1, "weight": 14, "reps": 12, "rir": "2", "done": false },
+    { "setNum": 2, "weight": 16, "reps": 10, "rir": "1", "done": false },
+    { "setNum": 3, "weight": 16, "reps": 10, "rir": "0", "done": false }
+  ],
+  "c_hams_curl": [
+    { "setNum": 1, "weight": 40, "reps": 12, "rir": "2", "done": false },
+    { "setNum": 2, "weight": 45, "reps": 10, "rir": "1", "done": false },
+    { "setNum": 3, "weight": 45, "reps": 10, "rir": "0", "done": false }
+  ],
+  "calves_standing": [
+    { "setNum": 1, "weight": 50, "reps": 15, "rir": "2", "done": false },
+    { "setNum": 2, "weight": 55, "reps": 15, "rir": "1", "done": false },
+    { "setNum": 3, "weight": 60, "reps": 12, "rir": "0", "done": false }
+  ],
+  "skier_bar": [
+    { "setNum": 1, "weight": 25, "reps": 12, "rir": "2", "done": false },
+    { "setNum": 2, "weight": 30, "reps": 10, "rir": "1", "done": false },
+    { "setNum": 3, "weight": 30, "reps": 10, "rir": "0", "done": false }
+  ],
+  "seated_cable_neutral": [
+    { "setNum": 1, "weight": 50, "reps": 10, "rir": "2", "done": false },
+    { "setNum": 2, "weight": 55, "reps": 8, "rir": "1", "done": false },
+    { "setNum": 3, "weight": 55, "reps": 8, "rir": "0", "done": false }
+  ],
+  "dips_parallel": [
+    { "setNum": 1, "weight": 0, "reps": 10, "rir": "2", "done": false },
+    { "setNum": 2, "weight": 0, "reps": 10, "rir": "1", "done": false },
+    { "setNum": 3, "weight": 0, "reps": 8, "rir": "0", "done": false }
+  ],
+  "face_pulls_rope": [
+    { "setNum": 1, "weight": 20, "reps": 15, "rir": "2", "done": false },
+    { "setNum": 2, "weight": 25, "reps": 12, "rir": "1", "done": false },
+    { "setNum": 3, "weight": 25, "reps": 12, "rir": "0", "done": false }
+  ],
+  "super_hammer_cable": [
+    { "setNum": 1, "weight": 14, "reps": 12, "rir": "2", "done": false },
+    { "setNum": 2, "weight": 16, "reps": 10, "rir": "1", "done": false },
+    { "setNum": 3, "weight": 16, "reps": 10, "rir": "0", "done": false }
+  ]
+};
+
     const FILIP_ROUTINE = {
   "badge": "PLAN FILIPA // FBW SIŁA & STABILIZACJA",
   "title": "Przysiady Zerchera • Wyprosty • Wiosło • Klatka & Barki (skosy) • Brzuch",
@@ -3528,14 +3651,14 @@
           if (currentProfile === 'filip') {
             currentSessionData = JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_FILIP));
           } else {
-            currentSessionData = (activeTab === 'A') ? JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_A)) : ((activeTab === 'B') ? JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_B)) : {});
+            currentSessionData = (activeTab === 'A') ? JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_A)) : ((activeTab === 'B') ? JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_B)) : ((activeTab === 'C') ? JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_C)) : {}));
           }
         }
       } else {
         if (currentProfile === 'filip') {
             currentSessionData = JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_FILIP));
           } else {
-            currentSessionData = (activeTab === 'A') ? JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_A)) : ((activeTab === 'B') ? JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_B)) : {});
+            currentSessionData = (activeTab === 'A') ? JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_A)) : ((activeTab === 'B') ? JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_B)) : ((activeTab === 'C') ? JSON.parse(JSON.stringify(DEFAULT_INITIAL_SESSION_C)) : {}));
           }
       }
       renderWorkoutView();
