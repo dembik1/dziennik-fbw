@@ -195,7 +195,7 @@
         <!-- PRZYCISK SYNCHRONIZACJI CHMURY W NAGŁÓWKU -->
         <button onclick="forceResetSessionCache()" title="Wymuś wczytanie najnowszych ćwiczeń i wyczyść stary cache" class="flex items-center gap-1 px-2 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-mono font-bold shadow-sm active:scale-95 transition">
           <i data-lucide="zap" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">NOWA WERSJA (18.11)</span>
+          <span class="text-[10px] font-bold">AKTUALIZUJ</span>
         </button>
         <button onclick="handleManualPull()" id="headerSyncBtn" title="Pobierz najnowsze dane z telefonu (PIN: 1234)" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-mono font-extrabold shadow-sm active:scale-95 transition">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
@@ -3669,34 +3669,48 @@
         plan = FBW_ROUTINE[activeTab] || FBW_ROUTINE['A'];
       }
 
-      // Restore slot selections
-      try {
-        const savedSelections = JSON.parse(localStorage.getItem('fbw_slot_selections') || '{}');
-        plan.slots.forEach(slot => {
-          if (savedSelections[slot.slotId] !== undefined) {
-            slot.selectedIdx = savedSelections[slot.slotId] % slot.variants.length;
-          }
-        });
-      } catch(e) {}
+      // Kopia planu, by nie modyfikować stałych szablonów
+      let slots = JSON.parse(JSON.stringify(plan.slots));
 
-      let slots = [...plan.slots];
-
-      // Remove deleted slots for this profile & tab
-      try {
-        const delKey = `fbw_deleted_slots_${currentProfile}_${activeTab}`;
-        const deletedIds = JSON.parse(localStorage.getItem(delKey) || '[]');
-        if (deletedIds && deletedIds.length > 0) {
-          slots = slots.filter(s => !deletedIds.includes(s.slotId));
-        }
-      } catch(e) {}
-
-      // Add custom slots for this profile & tab
+      // Dodaj własne ćwiczenia utworzone przez użytkownika
       try {
         const customKey = `fbw_custom_slots_${currentProfile}_${activeTab}`;
         const customSlots = JSON.parse(localStorage.getItem(customKey) || '[]');
         if (customSlots && customSlots.length > 0) {
           slots = slots.concat(customSlots);
         }
+      } catch(e) {}
+
+      // Filtruj usunięte pojedyncze zamienniki (usuwa tylko wybrane ćwiczenie, pozostawiając resztę zamienników!)
+      try {
+        const delVarKey = `fbw_deleted_variants_${currentProfile}_${activeTab}`;
+        const deletedVarIds = JSON.parse(localStorage.getItem(delVarKey) || '[]');
+        if (deletedVarIds && deletedVarIds.length > 0) {
+          slots.forEach(slot => {
+            slot.variants = slot.variants.filter(v => !deletedVarIds.includes(v.id));
+          });
+        }
+      } catch(e) {}
+
+      // Usuń sloty, które nie mają już żadnych zamienników lub zostały usunięte w całości
+      try {
+        const delKey = `fbw_deleted_slots_${currentProfile}_${activeTab}`;
+        const deletedIds = JSON.parse(localStorage.getItem(delKey) || '[]');
+        slots = slots.filter(s => s.variants.length > 0 && !deletedIds.includes(s.slotId));
+      } catch(e) {
+        slots = slots.filter(s => s.variants && s.variants.length > 0);
+      }
+
+      // Przypisz zapamiętany indeks zamiennika
+      try {
+        const savedSelections = JSON.parse(localStorage.getItem('fbw_slot_selections') || '{}');
+        slots.forEach(slot => {
+          if (savedSelections[slot.slotId] !== undefined) {
+            slot.selectedIdx = savedSelections[slot.slotId] % slot.variants.length;
+          } else {
+            slot.selectedIdx = 0;
+          }
+        });
       } catch(e) {}
 
       return {
@@ -3782,13 +3796,16 @@
       document.getElementById('planTitle').innerText = plan.title;
 
       const delKey = `fbw_deleted_slots_${currentProfile}_${activeTab}`;
-      let deletedIds = [];
+      const delVarKey = `fbw_deleted_variants_${currentProfile}_${activeTab}`;
+      let hasDeleted = false;
       try {
-        deletedIds = JSON.parse(localStorage.getItem(delKey) || '[]');
+        const d1 = JSON.parse(localStorage.getItem(delKey) || '[]');
+        const d2 = JSON.parse(localStorage.getItem(delVarKey) || '[]');
+        hasDeleted = (d1.length > 0 || d2.length > 0);
       } catch(e) {}
       const restoreBtnEl = document.getElementById('restoreDeletedBtnContainer');
       if (restoreBtnEl) {
-        if (deletedIds && deletedIds.length > 0) {
+        if (hasDeleted) {
           restoreBtnEl.classList.remove('hidden');
         } else {
           restoreBtnEl.classList.add('hidden');
@@ -3875,7 +3892,7 @@
               <button onclick="deleteExercise('${slot.slotId}', '${curEx.id}', ${Boolean(slot.isCustom)})" 
                 class="px-2 py-0.5 rounded bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 border border-rose-300 text-[10px] font-mono font-bold flex items-center gap-1 transition active:scale-95 shadow-2xs" 
                 title="Usuń to ćwiczenie z treningu">
-                <span>🗑️ USUŃ</span>
+                <span>🗑️ USUŃ ZAMIENNIK</span>
               </button>
             </div>
           </div>
@@ -4911,15 +4928,18 @@
 
     
     function forceResetSessionCache() {
-      if (confirm("Czy chcesz wczytać najnowsze ćwiczenia i zaktualizować widok do najnowszej wersji?")) {
+      if (confirm("Czy chcesz pobrać najnowsze ćwiczenia i odświeżyć aplikację?")) {
         localStorage.removeItem('clean_session_rafal_A');
         localStorage.removeItem('clean_session_rafal_B');
         localStorage.removeItem('clean_session_rafal_C');
         localStorage.removeItem('fbw_slot_selections');
-        showToast("Wczytano najnowszą wersję ćwiczeń!", "AKTUALIZACJA", true);
+        if ('caches' in window) {
+          caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+        }
+        showToast("Pobieranie najnowszej wersji...", "AKTUALIZACJA", true);
         setTimeout(() => {
-          location.reload();
-        }, 400);
+          window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
+        }, 300);
       }
     }
 
@@ -5017,31 +5037,45 @@
     }
 
     function deleteExercise(slotId, exId, isCustom) {
-      if (!confirm("Czy na pewno chcesz usunąć to ćwiczenie z obecnego treningu?")) return;
+      const data = findExerciseById(exId);
+      const exName = (data && data.ex && data.ex.name) ? data.ex.name : 'to ćwiczenie';
+      
+      if (!confirm(`Czy na pewno chcesz usunąć "${exName}" z listy zamienników?\n(Pozostałe zamienniki tej partii pozostaną w planie!)`)) {
+        return;
+      }
       
       if (isCustom) {
         try {
           const key = `fbw_custom_slots_${currentProfile}_${activeTab}`;
           let saved = JSON.parse(localStorage.getItem(key) || '[]');
-          saved = saved.filter(s => s.slotId !== slotId);
+          saved = saved.filter(s => s.slotId !== slotId && !s.variants.some(v => v.id === exId));
           localStorage.setItem(key, JSON.stringify(saved));
         } catch(e) {}
-      } else {
-        try {
-          const delKey = `fbw_deleted_slots_${currentProfile}_${activeTab}`;
-          const deletedIds = JSON.parse(localStorage.getItem(delKey) || '[]');
-          if (!deletedIds.includes(slotId)) {
-            deletedIds.push(slotId);
-            localStorage.setItem(delKey, JSON.stringify(deletedIds));
-          }
-        } catch(e) {}
       }
+
+      // Zapisz usunięty konkretny zamiennik (nie całą partię!)
+      try {
+        const delVarKey = `fbw_deleted_variants_${currentProfile}_${activeTab}`;
+        let deletedVarIds = JSON.parse(localStorage.getItem(delVarKey) || '[]');
+        if (!deletedVarIds.includes(exId)) {
+          deletedVarIds.push(exId);
+          localStorage.setItem(delVarKey, JSON.stringify(deletedVarIds));
+        }
+      } catch(e) {}
 
       if (currentSessionData[exId]) {
         delete currentSessionData[exId];
         saveActiveSession();
       }
-      showToast("Usunięto ćwiczenie z treningu", "USUNIĘTO", true);
+
+      // Bezpiecznie ustaw indeks wybranego zamiennika na pierwszy pozostały
+      try {
+        const savedSel = JSON.parse(localStorage.getItem('fbw_slot_selections') || '{}');
+        savedSel[slotId] = 0;
+        localStorage.setItem('fbw_slot_selections', JSON.stringify(savedSel));
+      } catch(e) {}
+
+      showToast(`Usunięto "${exName}" z zamienników`, "USUNIĘTO", true);
       renderWorkoutView();
     }
 
@@ -5050,12 +5084,14 @@
     }
 
     function restoreDeletedExercises() {
-      if (!confirm("Czy chcesz przywrócić wszystkie usunięte ćwiczenia dla tego planu?")) return;
+      if (!confirm("Czy chcesz przywrócić wszystkie usunięte ćwiczenia i zamienniki dla tego planu?")) return;
       try {
         const delKey = `fbw_deleted_slots_${currentProfile}_${activeTab}`;
+        const delVarKey = `fbw_deleted_variants_${currentProfile}_${activeTab}`;
         localStorage.removeItem(delKey);
+        localStorage.removeItem(delVarKey);
       } catch(e) {}
-      showToast("Przywrócono domyślne ćwiczenia", "PRZYWRÓCONO", true);
+      showToast("Przywrócono wszystkie ćwiczenia i zamienniki!", "PRZYWRÓCONO", true);
       renderWorkoutView();
     }
 
