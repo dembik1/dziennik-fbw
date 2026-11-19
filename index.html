@@ -4822,8 +4822,8 @@
         // 3. W tle wyślij do chmury (aby komputer też je od razu pobrał)
         uploadPhotoToTelegramCloud(compressedBase64, `MASZYNA: ${targetName}`).then(cloudUrl => {
           if (cloudUrl) {
-            customPhotos[targetId] = cloudUrl;
-            savePhotoToIDB(targetId, cloudUrl);
+            // Keep local base64 in customPhotos
+            // customPhotos[targetId] = cloudUrl;
             try {
               localStorage.setItem('fbw_custom_photos', JSON.stringify(customPhotos));
             } catch(e) {}
@@ -5047,7 +5047,7 @@
     };
 
     function getExercisePhoto(exId, exObj) {
-      if (customPhotos && customPhotos[exId]) return customPhotos[exId];
+      if (customPhotos && customPhotos[exId] && !customPhotos[exId].includes('api.telegram.org')) return customPhotos[exId];
       if (DEFAULT_MACHINE_PHOTOS && DEFAULT_MACHINE_PHOTOS[exId]) return DEFAULT_MACHINE_PHOTOS[exId];
       if (exObj) {
         const eq = (exObj.equipment || '').toLowerCase();
