@@ -3508,11 +3508,12 @@
       ['A', 'B', 'C', 'Atlas', 'History'].forEach(t => {
         const btn = document.getElementById(`tabBtn${t}`);
         if (btn) {
-          const isActive = (t.toLowerCase() === tab.toLowerCase());
+          const isActive = (t.toLowerCase() === normTab);
+          const flexClass = (t === 'Atlas' || t === 'History') ? ' flex items-center justify-center gap-1' : '';
           if (isActive) {
-            btn.className = "py-2 text-xs font-heavy tracking-wider rounded uppercase transition bg-slate-950 text-white font-bold shadow-sm";
+            btn.className = "py-2 text-xs font-heavy tracking-wider rounded uppercase transition bg-slate-950 text-white font-bold shadow-sm" + flexClass;
           } else {
-            btn.className = "py-2 text-xs font-heavy tracking-wider rounded uppercase transition text-slate-600 hover:text-slate-900";
+            btn.className = "py-2 text-xs font-heavy tracking-wider rounded uppercase transition text-slate-600 hover:text-slate-900" + flexClass;
           }
         }
       });
