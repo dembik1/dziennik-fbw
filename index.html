@@ -517,14 +517,35 @@
     // BAZA ĆWICZEŃ ZE SWIPEREM ZAMIENNIKÓW
     const FBW_ROUTINE = {
   "A": {
-    "badge": "PLAN A // BAZA SIŁOWA",
-    "title": "Czworogłowe • Plecy (szerokość) • Klatka płasko",
+    "badge": "PLAN A // SUWNICA & SKOS",
+    "title": "Nogi (Suwnica 45°) • Klatka (Skos) • Plecy (Drążek) • Barki (OHP hantle) • Biceps (Sztanga) • Triceps (Sztanga) • Brzuch",
     "slots": [
       {
         "slotId": "a_quads",
-        "category": "NOGI (CZWÓRKI)",
+        "category": "NOGI (CZWÓRKI & SUWNICA)",
         "selectedIdx": 0,
         "variants": [
+          {
+            "id": "sq_legpress",
+            "name": "Wypychanie na suwnicy (Leg Press)",
+            "equipment": "Suwnica skośna 45°",
+            "iconType": "machine",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r"
+            ],
+            "secondary": [
+              "at_glutes"
+            ],
+            "technique": "Plecy i pośladki dociśnięte do oparcia. Stopy na środku platformy na szerokość bioder. Nie blokuj kolan w przeproście na górze!",
+            "mistakes": [
+              "Odrywanie pośladków od oparcia w dolnej fazie (niszczy lędźwie)",
+              "Przeprost kolan"
+            ],
+            "proTip": "Świetny zamiennik, gdy stojaki ze sztangami są zajęte. Bezpieczny dla kręgosłupa."
+          },
           {
             "id": "sq_barbell",
             "name": "Przysiad ze sztangą (klasyczny)",
@@ -548,27 +569,6 @@
             "proTip": "Ciężki wielostaw: 6-8 powtórzeń daje twardy bodziec siłowy bez zadyszki tlenowej."
           },
           {
-            "id": "sq_legpress",
-            "name": "Wypychanie na suwnicy (Leg Press)",
-            "equipment": "Suwnica skośna 45°",
-            "iconType": "machine",
-            "targetReps": "8–10 powt.",
-            "recommendedSets": 4,
-            "primary": [
-              "at_quads_l",
-              "at_quads_r"
-            ],
-            "secondary": [
-              "at_glutes"
-            ],
-            "technique": "Plecy i pośladki dociśnięte do oparcia. Stopy na środku platformy na szerokość bioder. Nie blokuj kolan w przeproście na górze!",
-            "mistakes": [
-              "Odrywanie pośladków od oparcia w dolnej fazie (niszczy lędźwie)",
-              "Przeprost kolan"
-            ],
-            "proTip": "Świetny zamiennik, gdy stojaki ze sztangami są zajęte. Bezpieczny dla kręgosłupa."
-          },
-          {
             "id": "sq_smith",
             "name": "Przysiad na maszynie Smitha",
             "equipment": "Maszyna Smitha (prowadnica)",
@@ -588,19 +588,6 @@
               "Opieranie gryfu na kręgach szyjnych"
             ],
             "proTip": "Umożliwia głęboki przysiad z maksymalnym naciskiem na same czworogłowe uda bez walki o równowagę."
-          },
-          {
-            "id": "lunge_walking",
-            "name": "Wykroki chodzone z hantlami",
-            "equipment": "Hantle",
-            "iconType": "dumbbells",
-            "targetReps": "10–12 powt. / noga",
-            "recommendedSets": 3,
-            "primary": ["at_quads_l", "at_quads_r", "at_glutes"],
-            "secondary": [],
-            "technique": "Krok w przód, zejdź kolanem nogi zakrocznej nad podłogę. Płynne tempo.",
-            "mistakes": ["Schodzenie się kolana do środka"],
-            "proTip": "Świetna opcja jednostronna na czwórki i pośladki."
           },
           {
             "id": "sq_hack",
@@ -640,12 +627,36 @@
               "Opadanie ciężaru bez kontroli"
             ],
             "proTip": "Najlepszy bezpośredni izolator mięśnia czworogłowego i łezki nad kolanem."
+          },
+          {
+            "id": "lunge_walking",
+            "name": "Wykroki chodzone z hantlami",
+            "equipment": "Hantle (korytarz / wolna przestrzeń)",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt. / noga",
+            "recommendedSets": 3,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r",
+              "at_glutes"
+            ],
+            "secondary": [
+              "at_hamstrings_l",
+              "at_hamstrings_r"
+            ],
+            "technique": "Krok w przód, zejdź kolanem nogi zakrocznej tuż nad podłogę (kąt 90° w kolanie wykrocznym). Tułów stabilny, lekko pochylony, kolano nie ucieka do środka. Płynne przejście do kolejnego kroku.",
+            "mistakes": [
+              "Zbyt krótki krok i odrywanie pięty przedniej stopy",
+              "Schodzenie się kolana do środka",
+              "Uderzanie kolanem o podłogę"
+            ],
+            "proTip": "Genialne ćwiczenie budujące pośladki, stabilizację bioder i siłę jednonóż. Pilnuj stałego tempa bez szarpania!"
           }
         ]
       },
       {
         "slotId": "a_back",
-        "category": "PLECY (SZEROKOŚĆ)",
+        "category": "PLECY (SZEROKOŚĆ & DRĄŻEK)",
         "selectedIdx": 0,
         "variants": [
           {
@@ -714,9 +725,71 @@
       },
       {
         "slotId": "a_chest",
-        "category": "KLATKA PIERSIOWA",
+        "category": "KLATKA PIERSIOWA (SKOS GÓRA)",
         "selectedIdx": 0,
         "variants": [
+          {
+            "id": "incline_db",
+            "name": "Wyciskanie hantli na ławce skośnej dodatniej (Góra klatki)",
+            "equipment": "Ławka skośna regulowana + Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_delts_front_l",
+              "at_delts_front_r",
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "technique": "Kąt ławki ok. 30°. Łokcie pod kątem 60° do tułowia. Opuszczaj szeroko, czując rozciąganie pod obojczykami.",
+            "mistakes": [
+              "Zbyt stromy kąt ławki (praca przenosi się na barki)"
+            ],
+            "proTip": "Utrzymuj ściągnięte łopatki przez całą serię."
+          },
+          {
+            "id": "incline_smith",
+            "name": "Wyciskanie na maszynie Smitha na skosie dodatnim",
+            "equipment": "Maszyna Smitha + Ławka skośna",
+            "iconType": "smith",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "technique": "Ustaw ławkę dokładnie pod torem gryfu. Opuszczaj gryf tuż pod obojczyki. Prowadnica pozwala trenować do upadku bez asekuranta!",
+            "mistakes": [
+              "Zbyt wysoki kąt ławki"
+            ],
+            "proTip": "Genialny zamiennik hantli! Na maszynie Smitha możesz bezpiecznie dołożyć więcej ciężaru na górę klatki."
+          },
+          {
+            "id": "incline_barbell",
+            "name": "Wyciskanie sztangi na ławce skośnej dodatniej (Góra klatki)",
+            "equipment": "Ławka skośna ze stojakami + Sztanga",
+            "iconType": "barbell",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "technique": "Gryf opuszczaj do górnej części mostka pod brodą. Łokcie schowane pod gryfem.",
+            "mistakes": [
+              "Odbijanie gryfu od kości obojczyka"
+            ],
+            "proTip": "Klasyczne ćwiczenie na siłę górnego obrysu klatki piersiowej."
+          },
           {
             "id": "bp_barbell",
             "name": "Wyciskanie sztangi na ławce płaskiej",
@@ -786,9 +859,70 @@
       },
       {
         "slotId": "a_shoulders",
-        "category": "BARKI (BOK)",
+        "category": "BARKI (OHP HANTLE)",
         "selectedIdx": 0,
         "variants": [
+          {
+            "id": "ohp_seated_db",
+            "name": "Wyciskanie hantli nad głowę siedząc",
+            "equipment": "Hantle + Ławka z oparciem 85°",
+            "iconType": "dumbbells",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "technique": "Oparcie odciąża kręgosłup. Hantle wyciskaj nad głowę, nie zderzając ich na szczycie.",
+            "mistakes": [
+              "Za głębokie opuszczanie poniżej poziomu uszu przy braku mobilności"
+            ],
+            "proTip": "Bardzo bezpieczny dla pleców zamiennik, świetny gdy nie ma wolnej sztangi."
+          },
+          {
+            "id": "ohp_standing",
+            "name": "Wyciskanie żołnierskie (OHP) ze sztangą stojąc",
+            "equipment": "Sztanga + Stojaki",
+            "iconType": "barbell",
+            "targetReps": "6–8 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "technique": "Pośladki i brzuch spięte jak skała. Wyciskaj pionowo w górę, nie odchylając się do tyłu.",
+            "mistakes": [
+              "Przeprost w lędźwiach",
+              "Wybijanie z ugięcia kolan"
+            ],
+            "proTip": "Zakres 6-8 powtórzeń buduje potężną siłę obręczy barkowej."
+          },
+          {
+            "id": "ohp_shoulder_machine",
+            "name": "Wyciskanie na maszynie Shoulder Press",
+            "equipment": "Maszyna Shoulder Press",
+            "iconType": "machine",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "secondary": [],
+            "technique": "Ustaw siedzisko tak, by uchwyty były na wysokości brody. Wyciskaj płynnie do góry.",
+            "mistakes": [
+              "Przeprost w łokciach na górze"
+            ],
+            "proTip": "Maszyna gwarantuje stabilny tor ruchu – idealna do bezpiecznego dobicia barków."
+          },
           {
             "id": "lateral_db",
             "name": "Wznosy hantli bokiem stojąc",
@@ -849,8 +983,88 @@
         ]
       },
       {
+        "slotId": "a_biceps",
+        "category": "BICEPS (SZTANGA / LINKI)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "bi_ez_bar",
+            "name": "Uginanie ze sztangą łamaną (gryf EZ) stojąc",
+            "equipment": "Sztanga łamana EZ",
+            "iconType": "barbell",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "secondary": [],
+            "technique": "Gryf łamany odciąża nadgarstki. Zablokuj łokcie przy ciele i uginaj do pełnego skurczu.",
+            "mistakes": [
+              "Kołysanie tułowiem w tył"
+            ],
+            "proTip": "Umożliwia założenie nieco większego obciążenia niż hantle."
+          },
+          {
+            "id": "bi_cable_curl",
+            "name": "Uginanie przedramion na wyciągu dolnym (prosty drążek)",
+            "equipment": "Dolny wyciąg + Gryf",
+            "iconType": "cables",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "secondary": [],
+            "technique": "Linka wyciągu zapewnia stałe napięcie w każdym milimetrze ruchu.",
+            "mistakes": [
+              "Zginanie nadgarstków zamiast łokci"
+            ],
+            "proTip": "Daje bezkonkurencyjną pompę mięśniową na koniec treningu."
+          },
+          {
+            "id": "bi_preacher",
+            "name": "Uginanie ramion na modlitewniku",
+            "equipment": "Maszyna do modlitewnika / Ławka Scotta",
+            "iconType": "machine",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "secondary": [],
+            "technique": "Ramiona oparte stabilnie na pulpicie. Łokcie nieruchome.",
+            "mistakes": [
+              "Odrywanie łokci od poduszki"
+            ],
+            "proTip": "Maksymalna izolacja bicepsów."
+          },
+          {
+            "id": "bi_db_supination",
+            "name": "Uginanie przedramion z hantlami z supinacją",
+            "equipment": "Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "secondary": [],
+            "technique": "Łokcie przy bokach. W trakcie unoszenia rotuj dłoń na zewnątrz (mały palec wyżej niż kciuk).",
+            "mistakes": [
+              "Wysuwanie łokci do przodu",
+              "Bujanie tułowiem"
+            ],
+            "proTip": "Opuszczaj ciężar powoli przez pełne 2 sekundy."
+          }
+        ]
+      },
+      {
         "slotId": "a_triceps",
-        "category": "TRICEPS",
+        "category": "TRICEPS (SZTANGA FRANCUZ)",
         "selectedIdx": 0,
         "variants": [
           {
@@ -912,52 +1126,8 @@
         ]
       },
       {
-        "slotId": "a_biceps",
-        "category": "BICEPS",
-        "selectedIdx": 0,
-        "variants": [
-          {
-            "id": "bi_preacher",
-            "name": "Uginanie ramion na modlitewniku",
-            "equipment": "Maszyna do modlitewnika / Ławka Scotta",
-            "iconType": "machine",
-            "targetReps": "10–12 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_biceps_l",
-              "at_biceps_r"
-            ],
-            "secondary": [],
-            "technique": "Ramiona oparte stabilnie na pulpicie. Łokcie nieruchome, pełna kontrola ruchu bez szarpania i bez przeprostu na dole.",
-            "mistakes": [
-              "Odrywanie łokci od poduszki",
-              "Brak kontroli fazy opuszczania"
-            ],
-            "proTip": "Maksymalna izolacja bicepsów z pełnym podparciem."
-          },
-          {
-            "id": "bi_db_supination_a",
-            "id": "bi_db_supination", "name": "Uginanie przedramion z hantlami z supinacją",
-            "equipment": "Hantle",
-            "iconType": "dumbbells",
-            "targetReps": "10–12 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_biceps_l",
-              "at_biceps_r"
-            ],
-            "secondary": [],
-            "technique": "Łokcie przy bokach, rotacja nadgarstka przy unoszeniu.",
-            "mistakes": [
-              "Kołysanie tułowiem"
-            ],
-            "proTip": "Opuszczaj powoli przez 2 sekundy."
-          }
-        ]
-      },
-      {
         "slotId": "a_abs",
-        "category": "BRZUCH",
+        "category": "BRZUCH (ALLAHY)",
         "selectedIdx": 0,
         "variants": [
           {
@@ -978,6 +1148,23 @@
             "proTip": "Zatrzymaj ruch na dole na 1 sekundę z maksymalnym spięciem."
           },
           {
+            "id": "abs_machine",
+            "name": "Spięcia na maszynie do brzucha (Abdominal Crunch)",
+            "equipment": "Maszyna Ab Crunch",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_abs"
+            ],
+            "secondary": [],
+            "technique": "Ustaw ciężar i wykonuj kontrolowane zwijanie tułowia z pauzą na dole.",
+            "mistakes": [
+              "Pchanie rękami zamiast brzuchem"
+            ],
+            "proTip": "Wygodna i precyzyjna regulacja obciążenia."
+          },
+          {
             "id": "abs_leg_raises",
             "name": "Wznosy nóg w zwisie na drążku / poręczach",
             "equipment": "Drążek / Poręcze do brzucha",
@@ -994,40 +1181,92 @@
               "Praca samymi zginaczami bioder bez zwijania miednicy"
             ],
             "proTip": "Zawsze wolne – gdy wyciąg do Allahów jest zajęty, drążek jest idealnym zamiennikiem."
-          },
-          {
-            "id": "abs_machine",
-            "name": "Spięcia na maszynie do brzucha (Abdominal Crunch)",
-            "equipment": "Maszyna Ab Crunch",
-            "iconType": "machine",
-            "targetReps": "12–15 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_abs"
-            ],
-            "secondary": [],
-            "technique": "Ustaw ciężar i wykonuj kontrolowane zwijanie tułowia z pauzą na dole.",
-            "mistakes": [
-              "Pchanie rękami zamiast brzuchem"
-            ],
-            "proTip": "Wygodna i precyzyjna regulacja obciążenia."
           }
         ]
       }
     ]
   },
   "B": {
-    "badge": "PLAN B // ROZCIĄGANIE KLATKI",
-    "title": "Tył nóg (RDL) • Skos góra • Rozpiętki bramowe",
+    "badge": "PLAN B // WOLNE CIĘŻARY & PŁASKA",
+    "title": "Nogi (Przysiad/Wykroki) • Plecy (Wiosło hantlem) • Klatka (Płaska) • Barki (Wznosy bokiem) • Biceps (Młotki) • Triceps • Brzuch",
     "slots": [
       {
         "slotId": "b_hamstrings",
-        "category": "NOGI (DWUGŁOWE & POŚLADKI)",
+        "category": "NOGI (PRZYSIAD / WYKROKI / RDL)",
         "selectedIdx": 0,
         "variants": [
           {
+            "id": "sq_barbell",
+            "name": "Przysiad ze sztangą (klasyczny)",
+            "equipment": "Sztanga olimpijska / Stojaki",
+            "iconType": "barbell",
+            "targetReps": "6–8 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r"
+            ],
+            "secondary": [
+              "at_glutes"
+            ],
+            "technique": "Stopy na szerokość barków, lekko na zewnątrz. Wdech i spięcie brzucha (tłocznia). Biodra i kolana uginają się jednocześnie. Zejście min. 90°.",
+            "mistakes": [
+              "Schodzenie się kolan do środka",
+              "Odrywanie pięt od podłogi",
+              "Podwijanie miednicy (butt wink)"
+            ],
+            "proTip": "Ciężki wielostaw: 6-8 powtórzeń daje twardy bodziec siłowy bez zadyszki tlenowej."
+          },
+          {
+            "id": "lunge_walking",
+            "name": "Wykroki chodzone z hantlami",
+            "equipment": "Hantle (korytarz / wolna przestrzeń)",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt. / noga",
+            "recommendedSets": 3,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r",
+              "at_glutes"
+            ],
+            "secondary": [
+              "at_hamstrings_l",
+              "at_hamstrings_r"
+            ],
+            "technique": "Krok w przód, zejdź kolanem nogi zakrocznej tuż nad podłogę (kąt 90° w kolanie wykrocznym). Tułów stabilny, lekko pochylony, kolano nie ucieka do środka. Płynne przejście do kolejnego kroku.",
+            "mistakes": [
+              "Zbyt krótki krok i odrywanie pięty przedniej stopy",
+              "Schodzenie się kolana do środka",
+              "Uderzanie kolanem o podłogę"
+            ],
+            "proTip": "Genialne ćwiczenie budujące pośladki, stabilizację bioder i siłę jednonóż. Pilnuj stałego tempa bez szarpania!"
+          },
+          {
+            "id": "lunge_bulgarian",
+            "name": "Przysiady bułgarskie z hantlami (Bulgarian Split Squat)",
+            "equipment": "Ławka płaska + Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt. / noga",
+            "recommendedSets": 3,
+            "primary": [
+              "at_glutes",
+              "at_quads_l",
+              "at_quads_r"
+            ],
+            "secondary": [
+              "at_hamstrings_l",
+              "at_hamstrings_r"
+            ],
+            "technique": "Jedna stopa oparta grzbietem na ławce za Tobą. Zejdź głęboko w dół na przedniej nodze, zachowując kontrolę nad kolanem. Wypychaj się przez całą przednią stopę (głównie piętę).",
+            "mistakes": [
+              "Pchanie ciężaru z palców zamiast z pięty",
+              "Nadmierne wyginanie kręgosłupa"
+            ],
+            "proTip": "Maksymalny bodziec hipertroficzny dla pośladków i czwórek w pozycji rozciągnięcia."
+          },
+          {
             "id": "rdl_barbell",
-            "id": "rdl_barbell", "name": "Martwy ciąg rumuński (RDL) ze sztangą",
+            "name": "Martwy ciąg rumuński (RDL) ze sztangą",
             "equipment": "Sztanga olimpijska",
             "iconType": "barbell",
             "targetReps": "8–10 powt.",
@@ -1065,24 +1304,6 @@
             "proTip": "Często wygodniejszy niż sztanga, bo nie obija kolan i pozwala mocniej skupić się na pośladkach i dwugłowych."
           },
           {
-            "id": "leg_curls",
-            "name": "Uginanie nóg leżąc lub siedząc na maszynie",
-            "equipment": "Maszyna do uginania nóg (Leg Curl)",
-            "iconType": "machine",
-            "targetReps": "10–12 powt.",
-            "recommendedSets": 4,
-            "primary": [
-              "at_hamstrings_l",
-              "at_hamstrings_r"
-            ],
-            "secondary": [],
-            "technique": "Dociśnij biodra do oparcia. Uginaj poduszkę do pośladków, z 1-sekundowym zatrzymaniem w pełnym skurczu.",
-            "mistakes": [
-              "Unoszenie bioder z ławki przy uginaniu"
-            ],
-            "proTip": "Idealny zamiennik, gdy bolą lędźwie lub wolne ciężary są zajęte. Bezpośrednia izolacja dwugłowego uda."
-          },
-          {
             "id": "abductor_machine",
             "name": "Odwodzenie nóg na maszynie Precor (Pośladki)",
             "equipment": "Maszyna Precor Inner/Outer Thigh",
@@ -1103,138 +1324,13 @@
         ]
       },
       {
-        "slotId": "b_chest_incline",
-        "category": "KLATKA (GÓRA)",
-        "selectedIdx": 0,
-        "variants": [
-          {
-            "id": "incline_db",
-            "name": "Wyciskanie hantli na ławce skośnej dodatniej (Góra klatki)",
-            "equipment": "Ławka skośna regulowana + Hantle",
-            "iconType": "dumbbells",
-            "targetReps": "8–10 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_chest"
-            ],
-            "secondary": [
-              "at_delts_front_l",
-              "at_delts_front_r",
-              "at_triceps_l",
-              "at_triceps_r"
-            ],
-            "technique": "Kąt ławki ok. 30°. Łokcie pod kątem 60° do tułowia. Opuszczaj szeroko, czując rozciąganie pod obojczykami.",
-            "mistakes": [
-              "Zbyt stromy kąt ławki (praca przenosi się na barki)"
-            ],
-            "proTip": "Utrzymuj ściągnięte łopatki przez całą serię."
-          },
-          {
-            "id": "incline_smith",
-            "name": "Wyciskanie na maszynie Smitha na skosie dodatnim",
-            "equipment": "Maszyna Smitha + Ławka skośna",
-            "iconType": "smith",
-            "targetReps": "8–10 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_chest"
-            ],
-            "secondary": [
-              "at_delts_front_l",
-              "at_delts_front_r"
-            ],
-            "technique": "Ustaw ławkę dokładnie pod torem gryfu. Opuszczaj gryf tuż pod obojczyki. Prowadnica pozwala trenować do upadku bez asekuranta!",
-            "mistakes": [
-              "Zbyt wysoki kąt ławki"
-            ],
-            "proTip": "Genialny zamiennik hantli! Na maszynie Smitha możesz bezpiecznie dołożyć więcej ciężaru na górę klatki."
-          },
-          {
-            "id": "incline_barbell",
-            "name": "Wyciskanie sztangi na ławce skośnej dodatniej (Góra klatki)",
-            "equipment": "Ławka skośna ze stojakami + Sztanga",
-            "iconType": "barbell",
-            "targetReps": "8–10 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_chest"
-            ],
-            "secondary": [
-              "at_delts_front_l",
-              "at_delts_front_r"
-            ],
-            "technique": "Gryf opuszczaj do górnej części mostka pod brodą. Łokcie schowane pod gryfem.",
-            "mistakes": [
-              "Odbijanie gryfu od kości obojczyka"
-            ],
-            "proTip": "Klasyczne ćwiczenie na siłę górnego obrysu klatki piersiowej."
-          },
-          {
-            "id": "flyes_cables",
-            "id": "flyes_cables", "name": "Rozpiętki na bramie z linek (Twoje ulubione!)",
-            "equipment": "Brama z wyciągami regulowanymi",
-            "iconType": "cables",
-            "targetReps": "12–15 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_chest"
-            ],
-            "secondary": [
-              "at_delts_front_l",
-              "at_delts_front_r"
-            ],
-            "technique": "Klatka wypięta, w łokciach stały lekki kąt. W pełnym rozciągnięciu zrób 2 SEKUNDY PAUZY. Zamykaj klatką piersiową.",
-            "mistakes": [
-              "Zginanie i prostowanie rąk (zamiana w wyciskanie)",
-              "Wypychanie barków w przód"
-            ],
-            "proTip": "Złote ćwiczenie na rozciągnięcie: zakres 12-15 powt. z 2-sekundowym zatrzymaniem rozrywa włókna klatki."
-          },
-          {
-            "id": "flyes_pecdeck",
-            "name": "Rozpiętki na maszynie Butterfly / Pec-Deck",
-            "equipment": "Maszyna Butterfly (Pec-Deck)",
-            "iconType": "machine",
-            "targetReps": "12–15 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_chest"
-            ],
-            "secondary": [],
-            "technique": "Plecy dociśnięte, klatka w przód. W rozciągnięciu pauza 2 sekundy, domykaj ramionami skupiając się na środku klatki.",
-            "mistakes": [
-              "Zbyt szybkie puszczanie ciężaru",
-              "Odrywanie pleców od oparcia"
-            ],
-            "proTip": "Gdy brama wyciągów jest zajęta – Butterfly to w 100% równorzędny zamiennik o idealnym torze ruchu."
-          },
-          {
-            "id": "flyes_dumbbells",
-            "name": "Rozpiętki z hantlami na ławce poziomej lub lekkim skosie",
-            "equipment": "Ławka + Hantle",
-            "iconType": "dumbbells",
-            "targetReps": "12–15 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_chest"
-            ],
-            "secondary": [],
-            "technique": "Nie schodź zbyt głęboko poniżej poziomu ławki, aby chronić przednią torebkę barku. W łokciach stały kąt ok. 120 stopni.",
-            "mistakes": [
-              "Zbyt duży ciężar kosztem zakresu ruchu"
-            ],
-            "proTip": "Klasyka kulturystyki – hantle są zawsze pod ręką, gdy wszystkie wyciągi i maszyny są zajęte."
-          }
-        ]
-      },
-      {
         "slotId": "b_rowing",
-        "category": "PLECY (GRUBOŚĆ)",
+        "category": "PLECY (WIOSŁOWANIE HANTLEM)",
         "selectedIdx": 0,
         "variants": [
           {
             "id": "row_dumbbell",
-            "id": "row_dumbbell", "name": "Wiosłowanie hantlem jednorącz na ławce",
+            "name": "Wiosłowanie hantlem jednorącz na ławce",
             "equipment": "Hantel + Ławka pozioma",
             "iconType": "dumbbells",
             "targetReps": "8–10 powt. / ręka",
@@ -1296,82 +1392,267 @@
               "Odrywanie klatki od poduszki"
             ],
             "proTip": "Genialny zamiennik, gdy Twoje lędźwie są zmęczone po martwym ciągu."
+          },
+          {
+            "id": "tbar_row",
+            "name": "Wiosłowanie półsztangą (T-Bar Row)",
+            "equipment": "Półsztanga w rogu (Landmine / T-Bar)",
+            "iconType": "barbell",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_lats",
+              "at_traps"
+            ],
+            "secondary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "technique": "Stań okrakiem nad sztangą, opad tułowia 45°. Ciągnij uchwyt do brzucha z mocnym złączeniem łopatek.",
+            "mistakes": [
+              "Zaokrąglanie odcinka lędźwiowego"
+            ],
+            "proTip": "Potężny budowniczy gęstości pleców, gdy wyciąg dolny jest zajęty."
+          }
+        ]
+      },
+      {
+        "slotId": "b_chest_incline",
+        "category": "KLATKA PIERSIOWA (ŁAWKA PŁASKA)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "bp_barbell",
+            "name": "Wyciskanie sztangi na ławce płaskiej",
+            "equipment": "Ławka pozioma + Sztanga",
+            "iconType": "barbell",
+            "targetReps": "6–8 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r",
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "technique": "Łopatki zablokowane i wciśnięte w ławkę. Łokcie prowadzone pod kątem 45-60° do tułowia (kształt litery V), nigdy 90°.",
+            "mistakes": [
+              "Łokcie pod kątem 90° (niszczenie barków)",
+              "Odbijanie gryfu od mostka",
+              "Wypychanie barków w przód na górze"
+            ],
+            "proTip": "Ściskaj mocno gryf dłońmi i skup się na przyciąganiu bicepsów do boków klatki."
+          },
+          {
+            "id": "bp_dumbbells",
+            "name": "Wyciskanie hantli na ławce płaskiej",
+            "equipment": "Hantle + Ławka pozioma",
+            "iconType": "dumbbells",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "technique": "Hantle dają większy zakres ruchu. W dole głębokie rozciągnięcie, w górze wyciśnięcie po łuku (bez zderzania hantli).",
+            "mistakes": [
+              "Uderzanie hantlami na górze (tracenie napięcia)",
+              "Rozszerzanie łokci"
+            ],
+            "proTip": "Gdy sztanga jest zajęta – hantle są często NAWET LEPSZE, bo pozwalają na głębsze rozciągnięcie włókien klatki!"
+          },
+          {
+            "id": "bp_machine",
+            "name": "Wyciskanie na maszynie siedząc (Chest Press)",
+            "equipment": "Maszyna Chest Press",
+            "iconType": "machine",
+            "targetReps": "8–10 powt.",
+            "recommendedSets": 4,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "technique": "Ustaw wysokość siedziska tak, by uchwyty były na wysokości środka mostka. Łopatki ściągnięte.",
+            "mistakes": [
+              "Wysuwanie barków w przód przy wyproście"
+            ],
+            "proTip": "Świetna opcja, gdy wolne ciężary są zajęte. Maszyna gwarantuje stałe napięcie."
+          },
+          {
+            "id": "flyes_cables",
+            "name": "Rozpiętki na bramie z linek (Twoje ulubione!)",
+            "equipment": "Brama z wyciągami regulowanymi",
+            "iconType": "cables",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "technique": "Klatka wypięta, w łokciach stały lekki kąt. W pełnym rozciągnięciu zrób 2 SEKUNDY PAUZY. Zamykaj klatką piersiową.",
+            "mistakes": [
+              "Zginanie i prostowanie rąk (zamiana w wyciskanie)",
+              "Wypychanie barków w przód"
+            ],
+            "proTip": "Złote ćwiczenie na rozciągnięcie: zakres 12-15 powt. z 2-sekundowym zatrzymaniem rozrywa włókna klatki."
+          },
+          {
+            "id": "flyes_pecdeck",
+            "name": "Rozpiętki na maszynie Butterfly / Pec-Deck",
+            "equipment": "Maszyna Butterfly (Pec-Deck)",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [],
+            "technique": "Plecy dociśnięte, klatka w przód. W rozciągnięciu pauza 2 sekundy, domykaj ramionami skupiając się na środku klatki.",
+            "mistakes": [
+              "Zbyt szybkie puszczanie ciężaru",
+              "Odrywanie pleców od oparcia"
+            ],
+            "proTip": "Gdy brama wyciągów jest zajęta – Butterfly to w 100% równorzędny zamiennik o idealnym torze ruchu."
+          },
+          {
+            "id": "flyes_dumbbells",
+            "name": "Rozpiętki z hantlami na ławce poziomej lub lekkim skosie",
+            "equipment": "Ławka + Hantle",
+            "iconType": "dumbbells",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [],
+            "technique": "Nie schodź zbyt głęboko poniżej poziomu ławki, aby chronić przednią torebkę barku. W łokciach stały kąt ok. 120 stopni.",
+            "mistakes": [
+              "Zbyt duży ciężar kosztem zakresu ruchu"
+            ],
+            "proTip": "Klasyka kulturystyki – hantle są zawsze pod ręką, gdy wszystkie wyciągi i maszyny są zajęte."
           }
         ]
       },
       {
         "slotId": "b_ohp",
-        "category": "BARKI (PRZÓD/GÓRA)",
+        "category": "BARKI (WZNOSY BOKIEM)",
         "selectedIdx": 0,
         "variants": [
           {
-            "id": "ohp_standing",
-            "id": "ohp_standing", "name": "Wyciskanie żołnierskie (OHP) ze sztangą stojąc",
-            "equipment": "Sztanga + Stojaki",
-            "iconType": "barbell",
-            "targetReps": "6–8 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_delts_front_l",
-              "at_delts_front_r"
-            ],
-            "secondary": [
-              "at_triceps_l",
-              "at_triceps_r"
-            ],
-            "technique": "Pośladki i brzuch spięte jak skała. Wyciskaj pionowo w górę, nie odchylając się do tyłu.",
-            "mistakes": [
-              "Przeprost w lędźwiach",
-              "Wybijanie z ugięcia kolan"
-            ],
-            "proTip": "Zakres 6-8 powtórzeń buduje potężną siłę obręczy barkowej."
-          },
-          {
-            "id": "ohp_seated_db",
-            "name": "Wyciskanie hantli nad głowę siedząc",
-            "equipment": "Hantle + Ławka z oparciem 85°",
+            "id": "lateral_db",
+            "name": "Wznosy hantli bokiem stojąc",
+            "equipment": "Hantle",
             "iconType": "dumbbells",
-            "targetReps": "8–10 powt.",
+            "targetReps": "12–15 powt.",
             "recommendedSets": 3,
             "primary": [
               "at_delts_front_l",
               "at_delts_front_r"
             ],
             "secondary": [
-              "at_triceps_l",
-              "at_triceps_r"
+              "at_traps"
             ],
-            "technique": "Oparcie odciąża kręgosłup. Hantle wyciskaj nad głowę, nie zderzając ich na szczycie.",
+            "technique": "Lekkie pochylenie w przód (10°). Ruch prowadź łokciem w płaszczyźnie łopatki. Kontroluj opuszczanie.",
             "mistakes": [
-              "Za głębokie opuszczanie poniżej poziomu uszu przy braku mobilności"
+              "Dźwiganie z kaptura (unoszenie barków do uszu)",
+              "Zarzucanie ciężaru z nóg"
             ],
-            "proTip": "Bardzo bezpieczny dla pleców zamiennik, świetny gdy nie ma wolnej sztangi."
+            "proTip": "Tutaj mały ciężar i 12-15 powtórzeń z wolnym opuszczaniem buduje kuliste barki."
           },
           {
-            "id": "ohp_shoulder_machine",
-            "name": "Wyciskanie na maszynie Shoulder Press",
-            "equipment": "Maszyna Shoulder Press",
-            "iconType": "machine",
-            "targetReps": "8–10 powt.",
+            "id": "lateral_cable",
+            "name": "Wznosy bokiem na wyciągu jednorącz (linka)",
+            "equipment": "Brama / Dolny wyciąg",
+            "iconType": "cables",
+            "targetReps": "12–15 powt.",
             "recommendedSets": 3,
             "primary": [
               "at_delts_front_l",
               "at_delts_front_r"
             ],
             "secondary": [],
-            "technique": "Ustaw siedzisko tak, by uchwyty były na wysokości brody. Wyciskaj płynnie do góry.",
+            "technique": "Linka ustawiona nisko. Ciągniesz ręką po przekątnej zza pleców lub z przodu. Stałe napięcie od samego dołu!",
             "mistakes": [
-              "Przeprost w łokciach na górze"
+              "Za szybki ruch bez kontroli"
             ],
-            "proTip": "Maszyna gwarantuje stabilny tor ruchu – idealna do bezpiecznego dobicia barków."
+            "proTip": "Wyciąg daje napięcie nawet w dole ruchu, czego nie potrafią hantle. Znakomity zamiennik!"
+          },
+          {
+            "id": "lateral_machine",
+            "name": "Wznosy ramion na maszynie (Lateral Machine)",
+            "equipment": "Maszyna na boczny akton barku",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "secondary": [],
+            "technique": "Przedramiona oparte o poduszki. Wypychaj łokciami na boki do linii barków.",
+            "mistakes": [
+              "Unoszenie barków do góry"
+            ],
+            "proTip": "Całkowicie izoluje boczny akton barku bez angażowania chwytu dłoni."
+          },
+          {
+            "id": "bent_over_lateral",
+            "name": "Wznosy hantli w opadzie tułowia",
+            "equipment": "Lekkie hantle + Ławka skośna (oparcie)",
+            "iconType": "dumbbells",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_delts_rear_l",
+              "at_delts_rear_r"
+            ],
+            "secondary": [],
+            "technique": "Klatka oparta na ławce pod kątem 30°. Unosimy hantle na boki łokciami ku sufitowi.",
+            "mistakes": [
+              "Szarpany ruch z nóg"
+            ],
+            "proTip": "Oparcie na ławce eliminuje bujanie i zmusza tył barku do twardej pracy."
           }
         ]
       },
       {
         "slotId": "b_biceps",
-        "category": "BICEPS",
+        "category": "BICEPS (HANTLE MŁOTKI)",
         "selectedIdx": 0,
         "variants": [
+          {
+            "id": "hammer_curls",
+            "name": "Uginanie przedramion z hantlami chwytem młotkowym",
+            "equipment": "Hantle (stojąc lub siedząc)",
+            "iconType": "dumbbells",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "secondary": [
+              "at_forearms_l",
+              "at_forearms_r"
+            ],
+            "technique": "Chwyt neutralny (kciuki skierowane w górę przez cały ruch). Łokcie zablokowane przy tułowiu, unosimy hantle bez bujania tułowiem. W szczycie zatrzymaj na ułamek sekundy.",
+            "mistakes": [
+              "Bujanie tułowiem i odrywanie łokci",
+              "Zbyt szybkie opuszczanie ciężaru"
+            ],
+            "proTip": "Potężnie buduje mięsień ramienny i ramienno-promieniowy, dając optyczną grubość ramion z boku!"
+          },
           {
             "id": "bi_db_supination",
             "name": "Uginanie przedramion z hantlami z supinacją",
@@ -1392,22 +1673,22 @@
             "proTip": "Opuszczaj ciężar powoli przez pełne 2 sekundy."
           },
           {
-            "id": "bi_ez_bar",
-            "name": "Uginanie ze sztangą łamaną (gryf EZ) stojąc",
-            "equipment": "Sztanga łamana EZ",
-            "iconType": "barbell",
-            "targetReps": "8–10 powt.",
+            "id": "bi_preacher",
+            "name": "Uginanie ramion na modlitewniku",
+            "equipment": "Maszyna do modlitewnika / Ławka Scotta",
+            "iconType": "machine",
+            "targetReps": "10–12 powt.",
             "recommendedSets": 3,
             "primary": [
               "at_biceps_l",
               "at_biceps_r"
             ],
             "secondary": [],
-            "technique": "Gryf łamany odciąża nadgarstki. Zablokuj łokcie przy ciele i uginaj do pełnego skurczu.",
+            "technique": "Ramiona oparte stabilnie na pulpicie. Łokcie nieruchome.",
             "mistakes": [
-              "Kołysanie tułowiem w tył"
+              "Odrywanie łokci od poduszki"
             ],
-            "proTip": "Umożliwia założenie nieco większego obciążenia niż hantle."
+            "proTip": "Maksymalna izolacja bicepsów."
           },
           {
             "id": "bi_cable_curl",
@@ -1426,35 +1707,17 @@
               "Zginanie nadgarstków zamiast łokci"
             ],
             "proTip": "Daje bezkonkurencyjną pompę mięśniową na koniec treningu."
-          },
-          {
-            "id": "bi_preacher",
-            "name": "Uginanie ramion na modlitewniku",
-            "equipment": "Maszyna do modlitewnika / Ławka Scotta",
-            "iconType": "machine",
-            "targetReps": "10–12 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_biceps_l",
-              "at_biceps_r"
-            ],
-            "secondary": [],
-            "technique": "Ramiona oparte stabilnie na pulpicie. Łokcie nieruchome.",
-            "mistakes": [
-              "Odrywanie łokci od poduszki"
-            ],
-            "proTip": "Maksymalna izolacja bicepsów."
           }
         ]
       },
       {
         "slotId": "b_triceps",
-        "category": "TRICEPS",
+        "category": "TRICEPS (HANTEL ZZA GŁOWY / SZNURKI)",
         "selectedIdx": 0,
         "variants": [
           {
             "id": "tri_overhead_db",
-            "id": "tri_overhead_db", "name": "Wyciskanie francuskie hantlem nad głowę na triceps",
+            "name": "Wyciskanie francuskie hantlem nad głowę na triceps",
             "equipment": "Hantel jednorącz / oburącz",
             "iconType": "dumbbells",
             "targetReps": "10–12 powt.",
@@ -1512,7 +1775,7 @@
       },
       {
         "slotId": "b_abs",
-        "category": "BRZUCH",
+        "category": "BRZUCH (MASZYNA)",
         "selectedIdx": 0,
         "variants": [
           {
@@ -1549,20 +1812,97 @@
               "Siadanie na piętach"
             ],
             "proTip": "Stałe napięcie przez pełen zakres ruchu."
+          },
+          {
+            "id": "abs_leg_raises",
+            "name": "Wznosy nóg w zwisie na drążku / poręczach",
+            "equipment": "Drążek / Poręcze do brzucha",
+            "iconType": "barbell",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_abs"
+            ],
+            "secondary": [],
+            "technique": "Podwijaj miednicę ku górze, unosząc kolana do klatki piersiowej. Nie bujaj tułowiem.",
+            "mistakes": [
+              "Bujanie całym ciałem",
+              "Praca samymi zginaczami bioder bez zwijania miednicy"
+            ],
+            "proTip": "Zawsze wolne – gdy wyciąg do Allahów jest zajęty, drążek jest idealnym zamiennikiem."
           }
         ]
       }
     ]
   },
   "C": {
-    "badge": "PLAN C // ROZCIĄGANIE PLECÓW",
-    "title": "Nogi (Wykroki chodzone / Bułgary / Wyprosty) • Plecy (Narciarz) • Dipsy • Ramiona",
+    "badge": "PLAN C // MASZYNY & WYCIĄGI (PUMP)",
+    "title": "Nogi (Uginanie dwugłowe) • Plecy (Narciarz) • Klatka (Brama/Dipsy) • Tył barku (Face-pulls) • Biceps (Sznur) • Triceps (Sznur) • Brzuch/Łydki",
     "slots": [
       {
         "slotId": "c_lunge",
-        "category": "NOGI (WYKROKI / JEDNOSTRONNE)",
+        "category": "NOGI (DWUGŁOWE / WYPROSTY / ŁYDKI)",
         "selectedIdx": 0,
         "variants": [
+          {
+            "id": "c_hams_curl",
+            "name": "Uginanie nóg na maszynie (dwugłowe leżąc / siedząc)",
+            "equipment": "Maszyna do uginania nóg (leżąc lub siedząc)",
+            "iconType": "machine",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_hamstrings_l",
+              "at_hamstrings_r"
+            ],
+            "secondary": [
+              "at_glutes"
+            ],
+            "technique": "Biodra dociśnięte do ławki. Ruch uginania do pełnego skurczu mięśni kulszowo-goleniowych. Powrót powolny i kontrolowany.",
+            "mistakes": [
+              "Odrywanie bioder od podparcia",
+              "Zbyt szybki powrót"
+            ],
+            "proTip": "Świetna ochrona kolan i bezpieczna rozbudowa tyłu uda."
+          },
+          {
+            "id": "c_quads_ext",
+            "name": "Wyprosty nóg siedząc na maszynie (czworogłowe)",
+            "equipment": "Maszyna do wyprostów nóg siedząc",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_quads_l",
+              "at_quads_r"
+            ],
+            "secondary": [],
+            "technique": "Plecy dociśnięte do oparcia. Ruch unoszenia płynny, na górze zatrzymaj na 1 sekundę w pełnym spięciu czwórek. Opuszczaj powoli i z pełną kontrolą.",
+            "mistakes": [
+              "Szarpanie tułowiem w tył",
+              "Zbyt gwałtowne opuszczanie ciężaru"
+            ],
+            "proTip": "100% izolacji czwórek bez żadnego obciążenia kręgosłupa."
+          },
+          {
+            "id": "calves_standing",
+            "name": "Wspięcia na palce stojąc na maszynie (Łydki)",
+            "equipment": "Maszyna do łydek stojąc / Maszyna Smitha",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_calves_l",
+              "at_calves_r"
+            ],
+            "secondary": [],
+            "technique": "Głębokie rozciągnięcie pięt w dół na podeście, mocne wyjście w górę na palce i 1 sekunda zatrzymania na szczycie.",
+            "mistakes": [
+              "Odbijanie od dołu jak na sprężynie",
+              "Zginanie kolan"
+            ],
+            "proTip": "Tylko pełny zakres z zatrzymaniem na dole i górze zmusza łydki do wzrostu."
+          },
           {
             "id": "lunge_walking",
             "name": "Wykroki chodzone z hantlami",
@@ -1609,104 +1949,12 @@
               "Nadmierne wyginanie kręgosłupa"
             ],
             "proTip": "Maksymalny bodziec hipertroficzny dla pośladków i czwórek w pozycji rozciągnięcia."
-          },
-          {
-            "id": "lunge_smith",
-            "name": "Wykroki w miejscu na maszynie Smitha",
-            "equipment": "Maszyna Smitha",
-            "iconType": "smith",
-            "targetReps": "10–12 powt. / noga",
-            "recommendedSets": 3,
-            "primary": [
-              "at_glutes",
-              "at_quads_l",
-              "at_quads_r"
-            ],
-            "secondary": [],
-            "technique": "Gryf na plecach, jedna noga wysunięta w przód, druga w tył. Prowadnica eliminuje chwianie na boki, pozwalając na maksymalne skupienie na pracy nóg.",
-            "mistakes": [
-              "Zbyt wąski rozkrok"
-            ],
-            "proTip": "Idealne, gdy chcesz bezpiecznie dołożyć większy ciężar bez walki o równowagę."
-          },
-          {
-            "id": "c_quads_ext",
-            "name": "Wyprosty nóg siedząc na maszynie (czworogłowe)",
-            "equipment": "Maszyna do wyprostów nóg siedząc",
-            "iconType": "machine",
-            "targetReps": "12–15 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_quads_l",
-              "at_quads_r"
-            ],
-            "secondary": [],
-            "technique": "Plecy dociśnięte do oparcia. Ruch unoszenia płynny, na górze zatrzymaj na 1 sekundę w pełnym spięciu czwórek. Opuszczaj powoli i z pełną kontrolą.",
-            "mistakes": [
-              "Szarpanie tułowiem w tył",
-              "Zbyt gwałtowne opuszczanie ciężaru"
-            ],
-            "proTip": "100% izolacji czwórek bez żadnego obciążenia kręgosłupa."
-          }
-        ]
-      },
-      {
-        "slotId": "c_hams_curl",
-        "category": "NOGI (DWUGŁOWE - MASZYNA)",
-        "selectedIdx": 0,
-        "variants": [
-          {
-            "id": "c_hams_curl",
-            "name": "Uginanie nóg na maszynie (dwugłowe leżąc / siedząc)",
-            "equipment": "Maszyna do uginania nóg (leżąc lub siedząc)",
-            "iconType": "machine",
-            "targetReps": "10–12 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_hamstrings_l",
-              "at_hamstrings_r"
-            ],
-            "secondary": [
-              "at_glutes"
-            ],
-            "technique": "Biodra dociśnięte do ławki. Ruch uginania do pełnego skurczu mięśni kulszowo-goleniowych. Powrót powolny i kontrolowany.",
-            "mistakes": [
-              "Odrywanie bioder od podparcia",
-              "Zbyt szybki powrót"
-            ],
-            "proTip": "Świetna ochrona kolan i bezpieczna rozbudowa tyłu uda."
-          }
-        ]
-      },
-      {
-        "slotId": "c_calves",
-        "category": "ŁYDKI (MASZYNA)",
-        "selectedIdx": 0,
-        "variants": [
-          {
-            "id": "calves_standing",
-            "name": "Wspięcia na palce stojąc na maszynie (Łydki)",
-            "equipment": "Maszyna do łydek stojąc / Maszyna Smitha",
-            "iconType": "machine",
-            "targetReps": "12–15 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_calves_l",
-              "at_calves_r"
-            ],
-            "secondary": [],
-            "technique": "Głębokie rozciągnięcie pięt w dół na podeście, mocne wyjście w górę na palce i 1 sekunda zatrzymania na szczycie.",
-            "mistakes": [
-              "Odbijanie od dołu jak na sprężynie",
-              "Zginanie kolan"
-            ],
-            "proTip": "Tylko pełny zakres z zatrzymaniem na dole i górze zmusza łydki do wzrostu."
           }
         ]
       },
       {
         "slotId": "c_skier",
-        "category": "PLECY (ROZCIĄGNIĘCIE)",
+        "category": "PLECY (NARCIARZ NA WYCIĄGU)",
         "selectedIdx": 0,
         "variants": [
           {
@@ -1749,32 +1997,6 @@
             "proTip": "Gdy prosty drążek jest zajęty, sznur daje nawet większy zakres ruchu przy dopięciu w biodrach!"
           },
           {
-            "id": "skier_pullover_db",
-            "name": "Przenoszenie hantla w poprzek ławki (Dumbbell Pullover)",
-            "equipment": "Hantel + Ławka pozioma",
-            "iconType": "dumbbells",
-            "targetReps": "10–12 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_lats"
-            ],
-            "secondary": [
-              "at_chest"
-            ],
-            "technique": "Oprzyj górę pleców w poprzek ławki. Trzymaj hantel oburącz nad klatką i opuszczaj za głowę z głębokim wdechem.",
-            "mistakes": [
-              "Zginanie łokci jak przy wyciskaniu francuskim"
-            ],
-            "proTip": "Legendarny klasyk starej szkoły rozciągania klatki i najszerszych grzbietu, gdy wszystkie wyciągi są zajęte."
-          }
-        ]
-      },
-      {
-        "slotId": "c_row_seated",
-        "category": "PLECY (ŚRODEK)",
-        "selectedIdx": 0,
-        "variants": [
-          {
             "id": "seated_cable_neutral",
             "name": "Przyciąganie uchwytu wyciągu dolnego do brzucha",
             "equipment": "Wyciąg dolny + Uchwyt neutralny",
@@ -1794,27 +2016,6 @@
               "Huśtanie się w przód i w tył"
             ],
             "proTip": "Zatrzymaj ruch w pełnym skurczu łopatek."
-          },
-          {
-            "id": "tbar_row",
-            "name": "Wiosłowanie półsztangą (T-Bar Row)",
-            "equipment": "Półsztanga w rogu (Landmine / T-Bar)",
-            "iconType": "barbell",
-            "targetReps": "8–10 powt.",
-            "recommendedSets": 3,
-            "primary": [
-              "at_lats",
-              "at_traps"
-            ],
-            "secondary": [
-              "at_biceps_l",
-              "at_biceps_r"
-            ],
-            "technique": "Stań okrakiem nad sztangą, opad tułowia 45°. Ciągnij uchwyt do brzucha z mocnym złączeniem łopatek.",
-            "mistakes": [
-              "Zaokrąglanie odcinka lędźwiowego"
-            ],
-            "proTip": "Potężny budowniczy gęstości pleców, gdy wyciąg dolny jest zajęty."
           },
           {
             "id": "machine_row_seated",
@@ -1837,9 +2038,30 @@
       },
       {
         "slotId": "c_dips",
-        "category": "KLATKA (DÓŁ)",
+        "category": "KLATKA PIERSIOWA (ŚCIĄGANIE LINEK / DIPSY)",
         "selectedIdx": 0,
         "variants": [
+          {
+            "id": "flyes_cables",
+            "name": "Rozpiętki na bramie z linek (Twoje ulubione!)",
+            "equipment": "Brama z wyciągami regulowanymi",
+            "iconType": "cables",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [
+              "at_delts_front_l",
+              "at_delts_front_r"
+            ],
+            "technique": "Klatka wypięta, w łokciach stały lekki kąt. W pełnym rozciągnięciu zrób 2 SEKUNDY PAUZY. Zamykaj klatką piersiową.",
+            "mistakes": [
+              "Zginanie i prostowanie rąk (zamiana w wyciskanie)",
+              "Wypychanie barków w przód"
+            ],
+            "proTip": "Złote ćwiczenie na rozciągnięcie: zakres 12-15 powt. z 2-sekundowym zatrzymaniem rozrywa włókna klatki."
+          },
           {
             "id": "dips_parallel",
             "name": "Dipsy (pompki na poręczach z pochyleniem)",
@@ -1897,12 +2119,30 @@
               "Za szybkie opuszczanie hantli"
             ],
             "proTip": "Świetny bodziec na dolny akton klatki piersiowej."
+          },
+          {
+            "id": "flyes_pecdeck",
+            "name": "Rozpiętki na maszynie Butterfly / Pec-Deck",
+            "equipment": "Maszyna Butterfly (Pec-Deck)",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_chest"
+            ],
+            "secondary": [],
+            "technique": "Plecy dociśnięte, klatka w przód. W rozciągnięciu pauza 2 sekundy, domykaj ramionami skupiając się na środku klatki.",
+            "mistakes": [
+              "Zbyt szybkie puszczanie ciężaru",
+              "Odrywanie pleców od oparcia"
+            ],
+            "proTip": "Gdy brama wyciągów jest zajęta – Butterfly to w 100% równorzędny zamiennik o idealnym torze ruchu."
           }
         ]
       },
       {
         "slotId": "c_rear_delts",
-        "category": "BARKI (TYŁ & ROTATORY)",
+        "category": "BARKI (TYŁ BARKU - FACE PULLS)",
         "selectedIdx": 0,
         "variants": [
           {
@@ -1966,9 +2206,64 @@
       },
       {
         "slotId": "c_arms_super",
-        "category": "RAMIONA",
+        "category": "BICEPS (WYCIĄG DOLNY ZE SZNUREM)",
         "selectedIdx": 0,
         "variants": [
+          {
+            "id": "bi_cable_rope",
+            "name": "Uginanie przedramion ze sznurem na wyciągu dolnym",
+            "equipment": "Dolny wyciąg + Sznur",
+            "iconType": "cables",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "secondary": [],
+            "technique": "Chwyć sznur nachwytem/neutralnie, cofnij się o krok od wyciągu. Unoś przedramiona zginając łokcie i rozrywaj sznur lekko na zewnątrz w szczytowym napięciu.",
+            "mistakes": [
+              "Wysuwanie łokci do przodu",
+              "Szarpanie z bioder"
+            ],
+            "proTip": "Stałe napięcie linki przez cały tor ruchu – maksymalna pompa bicepsów!"
+          },
+          {
+            "id": "bi_cable_curl",
+            "name": "Uginanie przedramion na wyciągu dolnym (prosty drążek)",
+            "equipment": "Dolny wyciąg + Gryf",
+            "iconType": "cables",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "secondary": [],
+            "technique": "Linka wyciągu zapewnia stałe napięcie w każdym milimetrze ruchu.",
+            "mistakes": [
+              "Zginanie nadgarstków zamiast łokci"
+            ],
+            "proTip": "Daje bezkonkurencyjną pompę mięśniową na koniec treningu."
+          },
+          {
+            "id": "bi_preacher",
+            "name": "Uginanie ramion na modlitewniku",
+            "equipment": "Maszyna do modlitewnika / Ławka Scotta",
+            "iconType": "machine",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_biceps_l",
+              "at_biceps_r"
+            ],
+            "secondary": [],
+            "technique": "Ramiona oparte stabilnie na pulpicie. Łokcie nieruchome.",
+            "mistakes": [
+              "Odrywanie łokci od poduszki"
+            ],
+            "proTip": "Maksymalna izolacja bicepsów."
+          },
           {
             "id": "super_hammer_cable",
             "name": "Superseria: Młotki z hantlami + Triceps sznur zza głowy",
@@ -1988,755 +2283,152 @@
               "Brak pauzy PO całej superserii"
             ],
             "proTip": "Zrób 90-120 sekund przerwy po obu ćwiczeniach."
-          },
+          }
+        ]
+      },
+      {
+        "slotId": "c_triceps",
+        "category": "TRICEPS (WYCIĄG GÓRNY ZE SZNUREM)",
+        "selectedIdx": 0,
+        "variants": [
           {
-            "id": "super_preacher_pushdown",
-            "name": "Superseria: Modlitewnik + Prostowanie na wyciągu nachwytem",
-            "equipment": "Ławka modlitewnik + Wyciąg",
-            "iconType": "machine",
+            "id": "tri_pushdown_rope",
+            "name": "Prostowanie ramion na wyciągu ze sznurem",
+            "equipment": "Górny wyciąg + Sznur (Rope)",
+            "iconType": "cables",
             "targetReps": "10–12 powt.",
             "recommendedSets": 3,
             "primary": [
-              "at_biceps_l",
-              "at_biceps_r",
               "at_triceps_l",
               "at_triceps_r"
             ],
             "secondary": [],
-            "technique": "Izolacja bicepsa na modlitewniku, a zaraz po tym prostowanie ramion na wyciągu.",
+            "technique": "Łokcie przyklejone do żeber. Na dole ruchu rozszerzaj końce sznura na boki i zepnij triceps na 1 sekundę.",
             "mistakes": [
-              "Oderwanie ramion od poduszki modlitewnika"
+              "Bujanie tułowiem",
+              "Odrywanie łokci od ciała"
             ],
-            "proTip": "Znakomity zamiennik, gdy stanowisko hantli jest zatłoczone."
+            "proTip": "Sznur pozwala na mocniejsze spięcie głowy bocznej i bocznej części tricepsa niż sztywny gryf."
+          },
+          {
+            "id": "tri_overhead_cable",
+            "name": "Wyciskanie francuskie ze sznurem zza głowy na wyciągu",
+            "equipment": "Wyciąg + Sznur",
+            "iconType": "cables",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "secondary": [],
+            "technique": "Tułów lekko pochylony, ramiona przy uszach. Wyciskaj sznur przed siebie do pełnego wyprostu.",
+            "mistakes": [
+              "Rozszerzanie łokci na boki"
+            ],
+            "proTip": "Maksymalne rozciągnięcie głowy długiej tricepsa."
+          },
+          {
+            "id": "tri_pushdown",
+            "name": "Prostowanie ramion na wyciągu (drążek / sznur)",
+            "equipment": "Górny wyciąg + Drążek prosty lub sznur",
+            "iconType": "cables",
+            "targetReps": "10–12 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_triceps_l",
+              "at_triceps_r"
+            ],
+            "secondary": [],
+            "technique": "Łokcie przyklejone do żeber. Prostuj ramiona w dół, rozszerzając końce sznura przy udach.",
+            "mistakes": [
+              "Odrywanie łokci od ciała",
+              "Pochylanie się na ciężar"
+            ],
+            "proTip": "Szybki, bezpieczny zamiennik, nie obciążający łokci tak mocno jak sztanga."
+          }
+        ]
+      },
+      {
+        "slotId": "c_abs",
+        "category": "BRZUCH / ŁYDKI (MASZYNA)",
+        "selectedIdx": 0,
+        "variants": [
+          {
+            "id": "abs_machine",
+            "name": "Spięcia na maszynie do brzucha (Abdominal Crunch)",
+            "equipment": "Maszyna Ab Crunch",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_abs"
+            ],
+            "secondary": [],
+            "technique": "Ustaw ciężar i wykonuj kontrolowane zwijanie tułowia z pauzą na dole.",
+            "mistakes": [
+              "Pchanie rękami zamiast brzuchem"
+            ],
+            "proTip": "Wygodna i precyzyjna regulacja obciążenia."
+          },
+          {
+            "id": "abs_allahy",
+            "name": "Allahy (spięcia na wyciągu klęcząc)",
+            "equipment": "Wyciąg górny + Sznur",
+            "iconType": "cables",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_abs"
+            ],
+            "secondary": [],
+            "technique": "Biodra nieruchome wysoko. Zwijaj kręgosłup przybliżając mostek do miednicy. Pełny wydech na dole.",
+            "mistakes": [
+              "Siadanie tyłkiem na pięty (ruch ze zginaczy bioder)"
+            ],
+            "proTip": "Zatrzymaj ruch na dole na 1 sekundę z maksymalnym spięciem."
+          },
+          {
+            "id": "calves_standing",
+            "name": "Wspięcia na palce stojąc na maszynie (Łydki)",
+            "equipment": "Maszyna do łydek stojąc / Maszyna Smitha",
+            "iconType": "machine",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_calves_l",
+              "at_calves_r"
+            ],
+            "secondary": [],
+            "technique": "Głębokie rozciągnięcie pięt w dół na podeście, mocne wyjście w górę na palce i 1 sekunda zatrzymania na szczycie.",
+            "mistakes": [
+              "Odbijanie od dołu jak na sprężynie",
+              "Zginanie kolan"
+            ],
+            "proTip": "Tylko pełny zakres z zatrzymaniem na dole i górze zmusza łydki do wzrostu."
+          },
+          {
+            "id": "abs_leg_raises",
+            "name": "Wznosy nóg w zwisie na drążku / poręczach",
+            "equipment": "Drążek / Poręcze do brzucha",
+            "iconType": "barbell",
+            "targetReps": "12–15 powt.",
+            "recommendedSets": 3,
+            "primary": [
+              "at_abs"
+            ],
+            "secondary": [],
+            "technique": "Podwijaj miednicę ku górze, unosząc kolana do klatki piersiowej. Nie bujaj tułowiem.",
+            "mistakes": [
+              "Bujanie całym ciałem",
+              "Praca samymi zginaczami bioder bez zwijania miednicy"
+            ],
+            "proTip": "Zawsze wolne – gdy wyciąg do Allahów jest zajęty, drążek jest idealnym zamiennikiem."
           }
         ]
       }
     ]
   }
-};
-
-    const DEFAULT_INITIAL_HISTORY = [
-  {
-    "id": 1731948800000,
-    "date": "2026-11-18T16:45:00.000Z",
-    "formattedDate": "Środa, 18.11 // Trening B (Rozciąganie Klatki & Ramiona)",
-    "planType": "B",
-    "planTitle": "Tył nóg (RDL) • Skos góra • Rozpiętki bramowe • Triceps hantel • Brzuch",
-    "notes": "Trening B zrealizowany wzorowo. Triceps hantlem nad głowę 22.5 kg x 12 (RIR 2), 12 (RIR 2), 12 (MAX). Spięcia brzucha na maszynie 55 kg x 12 (RIR 2), 10 (RIR 1), 11 (MAX).",
-    "summaryList": [
-      {
-        "category": "NOGI (DWUGŁOWE & POŚLADKI)",
-        "equipment": "Sztanga olimpijska",
-        "name": "Martwy ciąg rumuński (RDL) ze sztangą",
-        "sets": [
-          { "weight": 70, "reps": 10, "rir": "2" },
-          { "weight": 75, "reps": 8, "rir": "1" },
-          { "weight": 75, "reps": 8, "rir": "1" }
-        ]
-      },
-      {
-        "category": "KLATKA (GÓRA)",
-        "equipment": "Ławka skośna + Hantle",
-        "id": "incline_db", "name": "Wyciskanie hantli na ławce skośnej dodatniej",
-        "sets": [
-          { "weight": 24, "reps": 10, "rir": "2" },
-          { "weight": 26, "reps": 8, "rir": "1" },
-          { "weight": 26, "reps": 8, "rir": "0" }
-        ]
-      },
-      {
-        "category": "KLATKA (ROZCIĄGANIE)",
-        "equipment": "Brama / Linki",
-        "name": "Rozpiętki na bramie z linek (Twoje ulubione!)",
-        "sets": [
-          { "weight": 35, "reps": 12, "rir": "2" },
-          { "weight": 40, "reps": 10, "rir": "1" },
-          { "weight": 40, "reps": 10, "rir": "0" }
-        ]
-      },
-      {
-        "category": "PLECY (GRUBOŚĆ)",
-        "equipment": "Hantel",
-        "name": "Wiosłowanie hantlem jednorącz na ławce",
-        "sets": [
-          { "weight": 28, "reps": 10, "rir": "2" },
-          { "weight": 30, "reps": 8, "rir": "1" },
-          { "weight": 30, "reps": 8, "rir": "0" }
-        ]
-      },
-      {
-        "category": "BARKI (PRZÓD/GÓRA)",
-        "equipment": "Sztanga stojąc",
-        "name": "Wyciskanie żołnierskie (OHP) ze sztangą stojąc",
-        "sets": [
-          { "weight": 40, "reps": 8, "rir": "2" },
-          { "weight": 45, "reps": 6, "rir": "1" },
-          { "weight": 45, "reps": 6, "rir": "0" }
-        ]
-      },
-      {
-        "category": "BICEPS",
-        "equipment": "Hantle",
-        "name": "Uginanie przedramion z hantlami z supinacją",
-        "sets": [
-          { "weight": 14, "reps": 10, "rir": "2" },
-          { "weight": 14, "reps": 10, "rir": "1" },
-          { "weight": 16, "reps": 8, "rir": "0" }
-        ]
-      },
-      {
-        "category": "TRICEPS (Z TELEGRAMA)",
-        "equipment": "Hantel jednorącz / oburącz",
-        "name": "Wyciskanie francuskie hantlem nad głowę na triceps",
-        "sets": [
-          { "weight": 22.5, "reps": 12, "rir": "2" },
-          { "weight": 22.5, "reps": 12, "rir": "2" },
-          { "weight": 22.5, "reps": 12, "rir": "0" }
-        ]
-      },
-      {
-        "category": "BRZUCH (Z TELEGRAMA)",
-        "equipment": "Maszyna do spięć brzucha",
-        "id": "b_abs_machine", "name": "Spięcia brzucha na maszynie (Ab Crunch)",
-        "sets": [
-          { "weight": 55, "reps": 12, "rir": "2" },
-          { "weight": 55, "reps": 10, "rir": "1" },
-          { "weight": 55, "reps": 11, "rir": "0" }
-        ]
-      }
-    ],
-    "exercises": {
-      "rdl_barbell": [
-        { "setNum": 1, "weight": 70, "reps": 10, "rir": "2", "done": true },
-        { "setNum": 2, "weight": 75, "reps": 8, "rir": "1", "done": true },
-        { "setNum": 3, "weight": 75, "reps": 8, "rir": "1", "done": true }
-      ],
-      "incline_db": [
-        { "setNum": 1, "weight": 24, "reps": 10, "rir": "2", "done": true },
-        { "setNum": 2, "weight": 26, "reps": 8, "rir": "1", "done": true },
-        { "setNum": 3, "weight": 26, "reps": 8, "rir": "0", "done": true }
-      ],
-      "flyes_cables": [
-        { "setNum": 1, "weight": 35, "reps": 12, "rir": "2", "done": true },
-        { "setNum": 2, "weight": 40, "reps": 10, "rir": "1", "done": true },
-        { "setNum": 3, "weight": 40, "reps": 10, "rir": "0", "done": true }
-      ],
-      "row_dumbbell": [
-        { "setNum": 1, "weight": 28, "reps": 10, "rir": "2", "done": true },
-        { "setNum": 2, "weight": 30, "reps": 8, "rir": "1", "done": true },
-        { "setNum": 3, "weight": 30, "reps": 8, "rir": "0", "done": true }
-      ],
-      "ohp_standing": [
-        { "setNum": 1, "weight": 40, "reps": 8, "rir": "2", "done": true },
-        { "setNum": 2, "weight": 45, "reps": 6, "rir": "1", "done": true },
-        { "setNum": 3, "weight": 45, "reps": 6, "rir": "0", "done": true }
-      ],
-      "bi_db_supination": [
-        { "setNum": 1, "weight": 14, "reps": 10, "rir": "2", "done": true },
-        { "setNum": 2, "weight": 14, "reps": 10, "rir": "1", "done": true },
-        { "setNum": 3, "weight": 16, "reps": 8, "rir": "0", "done": true }
-      ],
-      "tri_overhead_db": [
-        { "setNum": 1, "weight": 22.5, "reps": 12, "rir": "2", "done": true },
-        { "setNum": 2, "weight": 22.5, "reps": 12, "rir": "2", "done": true },
-        { "setNum": 3, "weight": 22.5, "reps": 12, "rir": "0", "done": true }
-      ],
-      "b_abs_machine": [
-        { "setNum": 1, "weight": 55, "reps": 12, "rir": "2", "done": true },
-        { "setNum": 2, "weight": 55, "reps": 10, "rir": "1", "done": true },
-        { "setNum": 3, "weight": 55, "reps": 11, "rir": "0", "done": true }
-      ]
-    },
-    "completedSets": 23
-  },
-  {
-    "id": 1731219152000,
-    "date": "2026-11-13T17:45:46.482Z",
-    "formattedDate": "Ostatni trening (Trening A)",
-    "planType": "A",
-    "planTitle": "Czworogłowe • Plecy (szerokość) • Klatka płasko",
-    "exercises": {
-      "sq_barbell": [
-        {
-          "setNum": 1,
-          "weight": 80,
-          "reps": 8,
-          "done": true
-        },
-        {
-          "setNum": 2,
-          "weight": 80,
-          "reps": 8,
-          "done": true
-        },
-        {
-          "setNum": 3,
-          "weight": 85,
-          "reps": 6,
-          "done": true
-        },
-        {
-          "setNum": 4,
-          "weight": 85,
-          "reps": 6,
-          "done": true
-        }
-      ],
-      "bp_barbell": [
-        {
-          "setNum": 1,
-          "weight": 70,
-          "reps": 8,
-          "done": true
-        },
-        {
-          "setNum": 2,
-          "weight": 75,
-          "reps": 8,
-          "done": true
-        },
-        {
-          "setNum": 3,
-          "weight": 75,
-          "reps": 8,
-          "done": true
-        },
-        {
-          "setNum": 4,
-          "weight": 75,
-          "reps": 8,
-          "done": true
-        }
-      ],
-      "lat_pulldown": [
-        {
-          "setNum": 1,
-          "weight": 60,
-          "reps": 8,
-          "done": true
-        },
-        {
-          "setNum": 2,
-          "weight": 65,
-          "reps": 8,
-          "done": true
-        },
-        {
-          "setNum": 3,
-          "weight": 65,
-          "reps": 8,
-          "done": true
-        },
-        {
-          "setNum": 4,
-          "weight": 65,
-          "reps": 8,
-          "done": true
-        }
-      ],
-      "lateral_db": [
-        {
-          "setNum": 1,
-          "weight": 10,
-          "reps": 12,
-          "done": true
-        },
-        {
-          "setNum": 2,
-          "weight": 10,
-          "reps": 12,
-          "done": true
-        },
-        {
-          "setNum": 3,
-          "weight": 12,
-          "reps": 10,
-          "done": true
-        }
-      ],
-      "tri_skull": [
-        {
-          "setNum": 1,
-          "weight": 27.5,
-          "reps": 12,
-          "done": true
-        },
-        {
-          "setNum": 2,
-          "weight": 27.5,
-          "reps": 12,
-          "done": true
-        },
-        {
-          "setNum": 3,
-          "weight": 27.5,
-          "reps": 10,
-          "done": true
-        }
-      ],
-      "abs_allahy": [
-        {
-          "setNum": 1,
-          "weight": 35,
-          "reps": 12,
-          "done": true
-        },
-        {
-          "setNum": 2,
-          "weight": 40,
-          "reps": 12,
-          "done": true
-        },
-        {
-          "setNum": 3,
-          "weight": 40,
-          "reps": 12,
-          "done": true
-        }
-      ],
-      "bi_preacher": [
-        {
-          "setNum": 1,
-          "weight": 15,
-          "reps": 12,
-          "done": true
-        },
-        {
-          "setNum": 2,
-          "weight": 15,
-          "reps": 12,
-          "done": true
-        },
-        {
-          "setNum": 3,
-          "weight": 15,
-          "reps": 12,
-          "done": true
-        }
-      ]
-    },
-    "summaryList": [
-      {
-        "slotNum": 1,
-        "category": "NOGI (CZWÓRKI)",
-        "name": "Przysiad ze sztangą (klasyczny)",
-        "sets": [
-          {
-            "setNum": 1,
-            "weight": 80,
-            "reps": 8
-          },
-          {
-            "setNum": 2,
-            "weight": 80,
-            "reps": 8
-          },
-          {
-            "setNum": 3,
-            "weight": 85,
-            "reps": 6
-          },
-          {
-            "setNum": 4,
-            "weight": 85,
-            "reps": 6
-          }
-        ]
-      },
-      {
-        "slotNum": 2,
-        "category": "KLATKA PIERSIOWA",
-        "name": "Wyciskanie sztangi na ławce płaskiej",
-        "sets": [
-          {
-            "setNum": 1,
-            "weight": 70,
-            "reps": 8
-          },
-          {
-            "setNum": 2,
-            "weight": 75,
-            "reps": 8
-          },
-          {
-            "setNum": 3,
-            "weight": 75,
-            "reps": 8
-          },
-          {
-            "setNum": 4,
-            "weight": 75,
-            "reps": 8
-          }
-        ]
-      },
-      {
-        "slotNum": 3,
-        "category": "PLECY (SZEROKOŚĆ)",
-        "name": "Ściąganie drążka wyciągu do klatki",
-        "sets": [
-          {
-            "setNum": 1,
-            "weight": 60,
-            "reps": 8
-          },
-          {
-            "setNum": 2,
-            "weight": 65,
-            "reps": 8
-          },
-          {
-            "setNum": 3,
-            "weight": 65,
-            "reps": 8
-          },
-          {
-            "setNum": 4,
-            "weight": 65,
-            "reps": 8
-          }
-        ]
-      },
-      {
-        "slotNum": 4,
-        "category": "BARKI (BOK)",
-        "name": "Wznosy hantli bokiem stojąc",
-        "sets": [
-          {
-            "setNum": 1,
-            "weight": 10,
-            "reps": 12
-          },
-          {
-            "setNum": 2,
-            "weight": 10,
-            "reps": 12
-          },
-          {
-            "setNum": 3,
-            "weight": 12,
-            "reps": 10
-          }
-        ]
-      },
-      {
-        "slotNum": 5,
-        "category": "TRICEPS",
-        "name": "Prostowanie ramion gryfem prostym na triceps",
-        "sets": [
-          {
-            "setNum": 1,
-            "weight": 27.5,
-            "reps": 12
-          },
-          {
-            "setNum": 2,
-            "weight": 27.5,
-            "reps": 12
-          },
-          {
-            "setNum": 3,
-            "weight": 27.5,
-            "reps": 10
-          }
-        ]
-      },
-      {
-        "slotNum": 6,
-        "category": "BRZUCH",
-        "name": "Allahy (spięcia na wyciągu klęcząc)",
-        "sets": [
-          {
-            "setNum": 1,
-            "weight": 35,
-            "reps": 12
-          },
-          {
-            "setNum": 2,
-            "weight": 40,
-            "reps": 12
-          },
-          {
-            "setNum": 3,
-            "weight": 40,
-            "reps": 12
-          }
-        ]
-      },
-      {
-        "slotNum": 6,
-        "category": "BICEPS",
-        "name": "Uginanie ramion na modlitewniku",
-        "sets": [
-          {
-            "setNum": 1,
-            "weight": 15,
-            "reps": 12
-          },
-          {
-            "setNum": 2,
-            "weight": 15,
-            "reps": 12
-          },
-          {
-            "setNum": 3,
-            "weight": 15,
-            "reps": 12
-          }
-        ]
-      }
-    ],
-    "completedSets": 23
-  }
-];
-
-    const DEFAULT_INITIAL_SESSION_A = {
-  "sq_barbell": [
-    {
-      "setNum": 1,
-      "weight": 80,
-      "reps": 8,
-      "done": false
-    },
-    {
-      "setNum": 2,
-      "weight": 80,
-      "reps": 8,
-      "done": false
-    },
-    {
-      "setNum": 3,
-      "weight": 85,
-      "reps": 6,
-      "done": false
-    },
-    {
-      "setNum": 4,
-      "weight": 85,
-      "reps": 6,
-      "done": false
-    }
-  ],
-  "bp_barbell": [
-    {
-      "setNum": 1,
-      "weight": 70,
-      "reps": 8,
-      "done": false
-    },
-    {
-      "setNum": 2,
-      "weight": 75,
-      "reps": 8,
-      "done": false
-    },
-    {
-      "setNum": 3,
-      "weight": 75,
-      "reps": 8,
-      "done": false
-    },
-    {
-      "setNum": 4,
-      "weight": 75,
-      "reps": 8,
-      "done": false
-    }
-  ],
-  "lat_pulldown": [
-    {
-      "setNum": 1,
-      "weight": 60,
-      "reps": 8,
-      "done": false
-    },
-    {
-      "setNum": 2,
-      "weight": 65,
-      "reps": 8,
-      "done": false
-    },
-    {
-      "setNum": 3,
-      "weight": 65,
-      "reps": 8,
-      "done": false
-    },
-    {
-      "setNum": 4,
-      "weight": 65,
-      "reps": 8,
-      "done": false
-    }
-  ],
-  "lateral_db": [
-    {
-      "setNum": 1,
-      "weight": 10,
-      "reps": 12,
-      "done": false
-    },
-    {
-      "setNum": 2,
-      "weight": 10,
-      "reps": 12,
-      "done": false
-    },
-    {
-      "setNum": 3,
-      "weight": 12,
-      "reps": 10,
-      "done": false
-    }
-  ],
-  "tri_skull": [
-    {
-      "setNum": 1,
-      "weight": 27.5,
-      "reps": 12,
-      "done": false
-    },
-    {
-      "setNum": 2,
-      "weight": 27.5,
-      "reps": 12,
-      "done": false
-    },
-    {
-      "setNum": 3,
-      "weight": 27.5,
-      "reps": 10,
-      "done": false
-    }
-  ],
-  "abs_allahy": [
-    {
-      "setNum": 1,
-      "weight": 35,
-      "reps": 12,
-      "done": false
-    },
-    {
-      "setNum": 2,
-      "weight": 40,
-      "reps": 12,
-      "done": false
-    },
-    {
-      "setNum": 3,
-      "weight": 40,
-      "reps": 12,
-      "done": false
-    }
-  ],
-  "bi_preacher": [
-    {
-      "setNum": 1,
-      "weight": 15,
-      "reps": 12,
-      "done": false
-    },
-    {
-      "setNum": 2,
-      "weight": 15,
-      "reps": 12,
-      "done": false
-    },
-    {
-      "setNum": 3,
-      "weight": 15,
-      "reps": 12,
-      "done": false
-    }
-  ]
-};
-
-    
-    const DEFAULT_INITIAL_SESSION_B = {
-  "rdl_barbell": [
-    { "setNum": 1, "weight": 70, "reps": 10, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 75, "reps": 8, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 75, "reps": 8, "rir": "1", "done": false }
-  ],
-  "incline_db": [
-    { "setNum": 1, "weight": 24, "reps": 10, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 26, "reps": 8, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 26, "reps": 8, "rir": "0", "done": false }
-  ],
-  "flyes_cables": [
-    { "setNum": 1, "weight": 35, "reps": 12, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 40, "reps": 10, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 40, "reps": 10, "rir": "0", "done": false }
-  ],
-  "row_dumbbell": [
-    { "setNum": 1, "weight": 28, "reps": 10, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 30, "reps": 8, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 30, "reps": 8, "rir": "0", "done": false }
-  ],
-  "ohp_standing": [
-    { "setNum": 1, "weight": 40, "reps": 8, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 45, "reps": 6, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 45, "reps": 6, "rir": "0", "done": false }
-  ],
-  "bi_db_supination": [
-    { "setNum": 1, "weight": 14, "reps": 10, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 14, "reps": 10, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 16, "reps": 8, "rir": "0", "done": false }
-  ],
-  "tri_overhead_db": [
-    { "setNum": 1, "weight": 22.5, "reps": 12, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 22.5, "reps": 12, "rir": "2", "done": false },
-    { "setNum": 3, "weight": 22.5, "reps": 12, "rir": "0", "done": false }
-  ],
-  "b_abs_machine": [
-    { "setNum": 1, "weight": 55, "reps": 12, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 55, "reps": 10, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 55, "reps": 11, "rir": "0", "done": false }
-  ]
-};
-
-    
-    const DEFAULT_INITIAL_SESSION_C = {
-  "lunge_walking": [
-    { "setNum": 1, "weight": 14, "reps": 12, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 16, "reps": 10, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 16, "reps": 10, "rir": "0", "done": false }
-  ],
-  "c_hams_curl": [
-    { "setNum": 1, "weight": 40, "reps": 12, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 45, "reps": 10, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 45, "reps": 10, "rir": "0", "done": false }
-  ],
-  "calves_standing": [
-    { "setNum": 1, "weight": 50, "reps": 15, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 55, "reps": 15, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 60, "reps": 12, "rir": "0", "done": false }
-  ],
-  "skier_bar": [
-    { "setNum": 1, "weight": 25, "reps": 12, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 30, "reps": 10, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 30, "reps": 10, "rir": "0", "done": false }
-  ],
-  "seated_cable_neutral": [
-    { "setNum": 1, "weight": 50, "reps": 10, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 55, "reps": 8, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 55, "reps": 8, "rir": "0", "done": false }
-  ],
-  "dips_parallel": [
-    { "setNum": 1, "weight": 0, "reps": 10, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 0, "reps": 10, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 0, "reps": 8, "rir": "0", "done": false }
-  ],
-  "face_pulls_rope": [
-    { "setNum": 1, "weight": 20, "reps": 15, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 25, "reps": 12, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 25, "reps": 12, "rir": "0", "done": false }
-  ],
-  "super_hammer_cable": [
-    { "setNum": 1, "weight": 14, "reps": 12, "rir": "2", "done": false },
-    { "setNum": 2, "weight": 16, "reps": 10, "rir": "1", "done": false },
-    { "setNum": 3, "weight": 16, "reps": 10, "rir": "0", "done": false }
-  ]
 };
 
     const FILIP_ROUTINE = {
@@ -3496,6 +3188,8 @@
 };
 
     const DEFAULT_MACHINE_PHOTOS = {
+      "hammer_curls": EMBEDDED_MACHINE_ASSETS["hantle_hex.jpg"] || "",
+      "bi_cable_rope": EMBEDDED_MACHINE_ASSETS["net_wyciag_wioslowanie.jpg"] || "",
       "b_abs_machine": EMBEDDED_MACHINE_ASSETS["user_brzuch_maszyna.jpg"] || "",
       "f_abs_machine": EMBEDDED_MACHINE_ASSETS["user_brzuch_maszyna.jpg"] || "",
       "abs_machine": EMBEDDED_MACHINE_ASSETS["user_brzuch_maszyna.jpg"] || "",
