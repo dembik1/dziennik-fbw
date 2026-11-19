@@ -3701,13 +3701,28 @@
       // Kopia planu, by nie modyfikować stałych szablonów
       let slots = JSON.parse(JSON.stringify(plan.slots));
 
-      // Dodaj własne ćwiczenia utworzone przez użytkownika
+      // 1. Dodaj własne ćwiczenia utworzone przez użytkownika (osobne sloty na końcu)
       try {
         const customKey = `fbw_custom_slots_${currentProfile}_${activeTab}`;
         const customSlots = JSON.parse(localStorage.getItem(customKey) || '[]');
         if (customSlots && customSlots.length > 0) {
           slots = slots.concat(customSlots);
         }
+      } catch(e) {}
+
+      // 2. Dodaj zamienniki przypisane do konkretnych partii/slotów (TRWAŁE ZAPISYWANIE)
+      try {
+        const customVarKey = `fbw_custom_variants_${currentProfile}_${activeTab}`;
+        const customVariants = JSON.parse(localStorage.getItem(customVarKey) || '{}');
+        slots.forEach(slot => {
+          if (customVariants[slot.slotId] && Array.isArray(customVariants[slot.slotId])) {
+            customVariants[slot.slotId].forEach(v => {
+              if (!slot.variants.some(existing => existing.id === v.id || existing.name === v.name)) {
+                slot.variants.push(v);
+              }
+            });
+          }
+        });
       } catch(e) {}
 
       // Filtruj usunięte pojedyncze zamienniki (usuwa tylko wybrane ćwiczenie, pozostawiając resztę zamienników!)
@@ -4986,6 +5001,7 @@
     // ================== BAZA ĆWICZEŃ, ZAMIENNIKI I SUGESTIE POWTÓRZEŃ ==================
     let tempNewExPhotoBase64 = null;
     let currentAtlasCategoryFilter = 'ALL';
+    let currentModalPlan = 'A';
 
     const COACH_REP_SUGGESTIONS = {
       "NOGI": {
@@ -5047,7 +5063,9 @@
     };
 
     function getExercisePhoto(exId, exObj) {
-      if (customPhotos && customPhotos[exId] && !customPhotos[exId].includes('api.telegram.org')) return customPhotos[exId];
+      if (customPhotos && customPhotos[exId] && !customPhotos[exId].includes('api.telegram.org')) {
+        return customPhotos[exId];
+      }
       if (DEFAULT_MACHINE_PHOTOS && DEFAULT_MACHINE_PHOTOS[exId]) return DEFAULT_MACHINE_PHOTOS[exId];
       if (exObj) {
         const eq = (exObj.equipment || '').toLowerCase();
@@ -5092,6 +5110,30 @@
       return Array.from(map.values());
     }
 
+    function selectModalPlan(plan) {
+      currentModalPlan = plan;
+      
+      const badge = document.getElementById('selectedPlanLabelBadge');
+      if (badge) {
+        badge.innerText = (plan === 'ALL') ? 'DO WSZYSTKICH (A, B, C)' : ('PLAN ' + plan);
+      }
+
+      document.querySelectorAll('#modalPlanButtons .modal-plan-btn').forEach(btn => {
+        if (btn.getAttribute('data-plan') === plan) {
+          btn.className = "modal-plan-btn py-1.5 px-1 rounded-lg font-black text-xs transition border-2 text-center bg-amber-500 border-amber-600 text-slate-950 shadow-xs";
+        } else {
+          btn.className = "modal-plan-btn py-1.5 px-1 rounded-lg font-black text-xs transition border-2 text-center bg-white border-slate-300 text-slate-700 hover:bg-slate-50";
+        }
+      });
+
+      populateTargetSlotDropdowns(plan);
+      if (document.getElementById('tabContentAtlas') && !document.getElementById('tabContentAtlas').classList.contains('hidden')) {
+        filterAtlasExerciseDb();
+      } else {
+        onCustomTargetSlotChange();
+      }
+    }
+
     function switchAddModalTab(tab) {
       const tabBtnAtlas = document.getElementById('tabBtnAtlas');
       const tabBtnCustom = document.getElementById('tabBtnCustom');
@@ -5114,25 +5156,47 @@
       lucide.createIcons();
     }
 
-    function populateTargetSlotDropdowns() {
-      const activePlan = getActiveRoutine();
+    function populateTargetSlotDropdowns(chosenPlan) {
+      chosenPlan = chosenPlan || currentModalPlan || activeTab || 'A';
       const atlasSel = document.getElementById('atlasTargetSlot');
       const customSel = document.getElementById('newExTargetSlot');
 
       let atlasOptions = '';
       let customOptions = '';
 
-      if (activePlan && activePlan.slots) {
-        activePlan.slots.forEach(slot => {
-          const cat = slot.category;
-          const currentVariant = slot.variants[slot.selectedIdx || 0];
-          const varName = currentVariant ? currentVariant.name : 'ćwiczenie';
-          atlasOptions += `<option value="${slot.slotId}">🦵 ${cat} (jako zamiennik do: ${varName})</option>`;
-          customOptions += `<option value="${slot.slotId}">➕ Jako ZAMIENNIK do partii: ${cat}</option>`;
+      if (chosenPlan === 'ALL') {
+        // Kategorie uniwersalne
+        const universalCats = [
+          { key: "NOGI", label: "🦵 NOGI (Czwórki / Przysiady / Wykroki)" },
+          { key: "KLATKA", label: "🛡️ KLATKA PIERSIOWA (Płaska / Skosy / Maszyny)" },
+          { key: "PLECY", label: "🦅 PLECY (Drążek / Wiosłowanie / Wyciąg)" },
+          { key: "BARKI", label: "🎯 BARKI (Wznosy / OHP / Face-pulls)" },
+          { key: "TRICEPS", label: "💪 TRICEPS (Wyciskanie francuskie / Wyciąg)" },
+          { key: "BICEPS", label: "💪 BICEPS (Modlitewnik / Hantle ze supinacją)" },
+          { key: "BRZUCH", label: "🔥 BRZUCH (Allahy / Spięcia na maszynie)" }
+        ];
+
+        universalCats.forEach(c => {
+          atlasOptions += `<option value="all_${c.key}">${c.label} (w planach A, B, C)</option>`;
+          customOptions += `<option value="all_${c.key}">➕ Jako zamiennik do partii: ${c.key} (we wszystkich planach)</option>`;
         });
+      } else {
+        let pRoutine = FBW_ROUTINE[chosenPlan];
+        if (currentProfile === 'filip') pRoutine = FILIP_ROUTINE;
+        if (!pRoutine) pRoutine = FBW_ROUTINE['A'];
+
+        if (pRoutine && pRoutine.slots) {
+          pRoutine.slots.forEach(slot => {
+            const cat = slot.category;
+            const currentVariant = slot.variants[slot.selectedIdx || 0];
+            const varName = currentVariant ? currentVariant.name : 'ćwiczenie';
+            atlasOptions += `<option value="${slot.slotId}">[${chosenPlan}] ${cat} (jako zamiennik do: ${varName})</option>`;
+            customOptions += `<option value="${slot.slotId}">[${chosenPlan}] Jako ZAMIENNIK do partii: ${cat}</option>`;
+          });
+        }
       }
 
-      customOptions += `<option value="new_slot">⭐ OSOBNE DODATKOWE ĆWICZENIE (na końcu treningu)</option>`;
+      customOptions += `<option value="new_slot">⭐ OSOBNE DODATKOWE ĆWICZENIE (na końcu planu ${chosenPlan})</option>`;
 
       if (atlasSel) atlasSel.innerHTML = atlasOptions;
       if (customSel) customSel.innerHTML = customOptions;
@@ -5174,11 +5238,27 @@
     }
 
     function onCustomTargetSlotChange() {
-      const slotId = document.getElementById('newExTargetSlot').value;
+      const slotVal = document.getElementById('newExTargetSlot') ? document.getElementById('newExTargetSlot').value : '';
       const catSelect = document.getElementById('newExCategory');
-      if (slotId !== 'new_slot') {
-        const plan = getActiveRoutine();
-        const slot = plan.slots.find(s => s.slotId === slotId);
+
+      if (slotVal && slotVal.startsWith('all_')) {
+        const catKey = slotVal.replace('all_', '').toUpperCase();
+        if (catSelect) {
+          for (let i = 0; i < catSelect.options.length; i++) {
+            if (catSelect.options[i].value.includes(catKey) || catKey.includes(catSelect.options[i].value)) {
+              catSelect.selectedIndex = i;
+              break;
+            }
+          }
+        }
+        updateCoachSuggestion(catKey);
+        return;
+      }
+
+      if (slotVal !== 'new_slot') {
+        const chosenPlan = currentModalPlan || activeTab || 'A';
+        const plan = (currentProfile === 'filip') ? FILIP_ROUTINE : (FBW_ROUTINE[chosenPlan] || FBW_ROUTINE['A']);
+        const slot = plan.slots.find(s => s.slotId === slotVal);
         if (slot && catSelect) {
           const cat = slot.category.toUpperCase();
           for (let i = 0; i < catSelect.options.length; i++) {
@@ -5247,9 +5327,6 @@
         return;
       }
 
-      const activePlan = getActiveRoutine();
-      const curSlotId = document.getElementById('atlasTargetSlot') ? document.getElementById('atlasTargetSlot').value : '';
-
       listEl.innerHTML = filtered.map(ex => {
         const photo = getExercisePhoto(ex.id, ex);
         return `
@@ -5282,6 +5359,48 @@
       lucide.createIcons();
     }
 
+    function saveVariantToSelectedPlans(variantObj, planTarget, targetSlotId) {
+      const plans = (planTarget === 'ALL') ? ['A', 'B', 'C'] : [planTarget];
+
+      plans.forEach(p => {
+        let finalSlotId = targetSlotId;
+        const pRoutine = (currentProfile === 'filip') ? FILIP_ROUTINE : (FBW_ROUTINE[p] || FBW_ROUTINE['A']);
+        if (!pRoutine || !pRoutine.slots) return;
+
+        if (targetSlotId && targetSlotId.startsWith('all_')) {
+          const catKey = targetSlotId.replace('all_', '').toUpperCase();
+          const matched = pRoutine.slots.find(s => s.category.toUpperCase().includes(catKey));
+          finalSlotId = matched ? matched.slotId : pRoutine.slots[0].slotId;
+        } else if (!pRoutine.slots.some(s => s.slotId === finalSlotId)) {
+          // Jeśli slotId należy do innego planu, dopasuj po kategorii mięśniowej
+          const varCat = (variantObj.category || '').toUpperCase();
+          const matched = pRoutine.slots.find(s => s.category.toUpperCase().includes(varCat));
+          finalSlotId = matched ? matched.slotId : pRoutine.slots[0].slotId;
+        }
+
+        try {
+          const varKey = `fbw_custom_variants_${currentProfile}_${p}`;
+          const savedVars = JSON.parse(localStorage.getItem(varKey) || '{}');
+          if (!savedVars[finalSlotId]) savedVars[finalSlotId] = [];
+          if (!savedVars[finalSlotId].some(v => v.name === variantObj.name)) {
+            savedVars[finalSlotId].push({ ...variantObj });
+          }
+          localStorage.setItem(varKey, JSON.stringify(savedVars));
+
+          // Jeśli to aktywny plan, ustaw ten wariant jako wybrany
+          if (p === activeTab) {
+            const routine = getActiveRoutine();
+            const slot = routine.slots.find(s => s.slotId === finalSlotId);
+            const newIdx = slot ? (slot.variants.length - 1) : 0;
+            const selKey = 'fbw_slot_selections';
+            const savedSel = JSON.parse(localStorage.getItem(selKey) || '{}');
+            savedSel[finalSlotId] = newIdx;
+            localStorage.setItem(selKey, JSON.stringify(savedSel));
+          }
+        } catch(e) {}
+      });
+    }
+
     function addExerciseFromAtlas(exId, targetSlotId) {
       const data = findExerciseById(exId);
       if (!data) {
@@ -5289,45 +5408,13 @@
         return;
       }
       const ex = data.ex;
-      const routine = getActiveRoutine();
+      targetSlotId = targetSlotId || (document.getElementById('atlasTargetSlot') ? document.getElementById('atlasTargetSlot').value : '');
 
-      let targetSlot = null;
-      if (targetSlotId && targetSlotId !== 'new_slot') {
-        targetSlot = routine.slots.find(s => s.slotId === targetSlotId);
-      }
-
-      // Jeśli nie wybrano lub nie pasuje, dopasuj automatycznie do partii
-      if (!targetSlot) {
-        const exCat = (ex.category || (data.slot && data.slot.category) || '').toUpperCase();
-        targetSlot = routine.slots.find(s => {
-          const sCat = s.category.toUpperCase();
-          return sCat === exCat || sCat.includes(exCat) || exCat.includes(sCat);
-        }) || routine.slots[0];
-      }
-
-      if (!targetSlot) {
-        showToast("Brak odpowiedniej partii w planie", "BŁĄD", false);
-        return;
-      }
-
-      // Sprawdź czy ćwiczenie już jest w tym slocie
-      const alreadyInSlot = targetSlot.variants.find(v => v.id === ex.id || v.name === ex.name);
-      if (alreadyInSlot) {
-        const idx = targetSlot.variants.indexOf(alreadyInSlot);
-        const sel = JSON.parse(localStorage.getItem('fbw_slot_selections') || '{}');
-        sel[targetSlot.slotId] = idx;
-        localStorage.setItem('fbw_slot_selections', JSON.stringify(sel));
-        closeAddExerciseModal();
-        showToast(`Wybrano "${ex.name}" jako aktywny zamiennik w partii ${targetSlot.category}!`, "AKTYWNY ZAMIENNIK", true);
-        renderWorkoutView();
-        return;
-      }
-
-      // Klon nowego wariantu
       const newVariant = {
         id: ex.id + '_custom_' + Date.now(),
         name: ex.name,
         equipment: ex.equipment,
+        category: ex.category || (data.slot && data.slot.category) || 'FBW',
         iconType: ex.iconType || 'machine',
         targetReps: ex.targetReps || '8–10 powt.',
         recommendedSets: ex.recommendedSets || 3,
@@ -5338,7 +5425,6 @@
         proTip: ex.proTip || 'Kontroluj ciężar i czucie mięśniowe.'
       };
 
-      // Powiąż zdjęcie
       const photo = getExercisePhoto(ex.id, ex);
       if (photo) {
         customPhotos[newVariant.id] = photo;
@@ -5346,30 +5432,17 @@
         try { localStorage.setItem('fbw_custom_photos', JSON.stringify(customPhotos)); } catch(e) {}
       }
 
-      // Zapisz do custom variants dla tej partii
-      try {
-        const varKey = `fbw_custom_variants_${currentProfile}_${activeTab}`;
-        const savedVars = JSON.parse(localStorage.getItem(varKey) || '{}');
-        if (!savedVars[targetSlot.slotId]) savedVars[targetSlot.slotId] = [];
-        savedVars[targetSlot.slotId].push(newVariant);
-        localStorage.setItem(varKey, JSON.stringify(savedVars));
-      } catch(e) {}
-
-      // Ustaw jako aktywny wybrany zamiennik
-      try {
-        const selKey = 'fbw_slot_selections';
-        const savedSel = JSON.parse(localStorage.getItem(selKey) || '{}');
-        savedSel[targetSlot.slotId] = targetSlot.variants.length; // nowy wariant będzie na końcu
-        localStorage.setItem(selKey, JSON.stringify(savedSel));
-      } catch(e) {}
+      const planTarget = currentModalPlan || activeTab || 'A';
+      saveVariantToSelectedPlans(newVariant, planTarget, targetSlotId);
 
       closeAddExerciseModal();
-      showToast(`Pobrano "${ex.name}" jako zamiennik do partii: ${targetSlot.category}!`, "POBRANO Z BAZY", true);
+      showToast(`Pobrano "${ex.name}" do Planu ${planTarget === 'ALL' ? 'A, B i C' : planTarget}!`, "POBRANO Z BAZY", true);
       renderWorkoutView();
     }
 
     function openAddExerciseModal() {
-      populateTargetSlotDropdowns();
+      currentModalPlan = activeTab || 'A';
+      selectModalPlan(currentModalPlan);
       document.getElementById('addExerciseModal').classList.remove('hidden');
       document.getElementById('newExName').value = '';
       document.getElementById('newExEquipment').value = '';
@@ -5422,6 +5495,7 @@
         id: exId,
         name: name,
         equipment: equipment,
+        category: category,
         iconType: "machine",
         targetReps: targetReps,
         recommendedSets: setsCount,
@@ -5435,49 +5509,33 @@
       if (tempNewExPhotoBase64) {
         customPhotos[exId] = tempNewExPhotoBase64;
         savePhotoToIDB(exId, tempNewExPhotoBase64);
-        try {
-          localStorage.setItem('fbw_custom_photos', JSON.stringify(customPhotos));
-        } catch(e) {}
+        try { localStorage.setItem('fbw_custom_photos', JSON.stringify(customPhotos)); } catch(e) {}
       }
 
-      if (targetSlotId && targetSlotId !== 'new_slot') {
-        // Dodaj jako zamiennik do istniejącej partii/slotu
-        try {
-          const varKey = `fbw_custom_variants_${currentProfile}_${activeTab}`;
-          const savedVars = JSON.parse(localStorage.getItem(varKey) || '{}');
-          if (!savedVars[targetSlotId]) savedVars[targetSlotId] = [];
-          savedVars[targetSlotId].push(newVariant);
-          localStorage.setItem(varKey, JSON.stringify(savedVars));
+      const planTarget = currentModalPlan || activeTab || 'A';
 
-          // Ustaw jako aktywny wybrany zamiennik
-          const plan = getActiveRoutine();
-          const targetSlot = plan.slots.find(s => s.slotId === targetSlotId);
-          const newIdx = targetSlot ? targetSlot.variants.length : 0;
-          const selKey = 'fbw_slot_selections';
-          const savedSel = JSON.parse(localStorage.getItem(selKey) || '{}');
-          savedSel[targetSlotId] = newIdx;
-          localStorage.setItem(selKey, JSON.stringify(savedSel));
-
-          showToast(`Dodano "${name}" jako ZAMIENNIK do partii: ${targetSlot ? targetSlot.category : ''}!`, "DODANO ZAMIENNIK", true);
-        } catch(e) {}
+      if (targetSlotId === 'new_slot') {
+        const plansToSave = (planTarget === 'ALL') ? ['A', 'B', 'C'] : [planTarget];
+        plansToSave.forEach(p => {
+          const slotId = 'slot_' + exId;
+          const newSlot = {
+            slotId: slotId,
+            category: category,
+            selectedIdx: 0,
+            isCustom: true,
+            variants: [newVariant]
+          };
+          try {
+            const key = `fbw_custom_slots_${currentProfile}_${p}`;
+            const saved = JSON.parse(localStorage.getItem(key) || '[]');
+            saved.push(newSlot);
+            localStorage.setItem(key, JSON.stringify(saved));
+          } catch(e) {}
+        });
+        showToast(`Dodano osobne ćwiczenie "${name}" do Planu ${planTarget}!`, "DODANO ĆWICZENIE", true);
       } else {
-        // Dodaj jako osobny blok na końcu treningu
-        const slotId = 'slot_' + exId;
-        const newSlot = {
-          slotId: slotId,
-          category: category,
-          selectedIdx: 0,
-          isCustom: true,
-          variants: [newVariant]
-        };
-
-        try {
-          const key = `fbw_custom_slots_${currentProfile}_${activeTab}`;
-          const saved = JSON.parse(localStorage.getItem(key) || '[]');
-          saved.push(newSlot);
-          localStorage.setItem(key, JSON.stringify(saved));
-          showToast(`Dodano osobne ćwiczenie "${name}" do Planu ${activeTab}!`, "DODANO ĆWICZENIE", true);
-        } catch(e) {}
+        saveVariantToSelectedPlans(newVariant, planTarget, targetSlotId);
+        showToast(`Dodano "${name}" jako zamiennik do Planu ${planTarget === 'ALL' ? 'A, B i C' : planTarget}!`, "DODANO ZAMIENNIK", true);
       }
 
       closeAddExerciseModal();
@@ -5951,6 +6009,22 @@
           <i data-lucide="edit-3" class="w-4 h-4"></i>
           ✏️ WPISZ WŁASNE ĆWICZENIE
         </button>
+      </div>
+
+      <!-- WYBÓR PLANU TRENINGOWEGO (A, B, C LUB WSZYSTKIE) -->
+      <div class="px-4 py-2.5 bg-slate-100 border-b border-slate-200 shrink-0">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] font-black text-slate-800 uppercase flex items-center gap-1 font-mono">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-600"></i> DO KTÓREGO PLANU DODAĆ TO ĆWICZENIE?
+          </span>
+          <span id="selectedPlanLabelBadge" class="text-[9px] font-mono text-amber-900 bg-amber-200 px-2 py-0.5 rounded font-black">PLAN A</span>
+        </div>
+        <div class="grid grid-cols-4 gap-1.5" id="modalPlanButtons">
+          <button type="button" onclick="selectModalPlan('A')" class="modal-plan-btn py-1.5 px-1 rounded-lg font-black text-xs transition border-2 text-center bg-amber-500 border-amber-600 text-slate-950 shadow-xs" data-plan="A">PLAN A</button>
+          <button type="button" onclick="selectModalPlan('B')" class="modal-plan-btn py-1.5 px-1 rounded-lg font-black text-xs transition border-2 text-center bg-white border-slate-300 text-slate-700 hover:bg-slate-50" data-plan="B">PLAN B</button>
+          <button type="button" onclick="selectModalPlan('C')" class="modal-plan-btn py-1.5 px-1 rounded-lg font-black text-xs transition border-2 text-center bg-white border-slate-300 text-slate-700 hover:bg-slate-50" data-plan="C">PLAN C</button>
+          <button type="button" onclick="selectModalPlan('ALL')" class="modal-plan-btn py-1.5 px-1 rounded-lg font-black text-xs transition border-2 text-center bg-white border-slate-300 text-slate-700 hover:bg-slate-50" data-plan="ALL">A, B i C</button>
+        </div>
       </div>
 
       <!-- CONTENT BODY (SCROLLABLE) -->
