@@ -3317,7 +3317,8 @@
       localStorage.setItem('fbw_active_profile', initialUserParam.toLowerCase());
     }
     let currentProfile = localStorage.getItem('fbw_active_profile') || 'rafal'; // 'rafal' | 'filip'
-    let activeTab = "A";
+    let activeTab = localStorage.getItem('fbw_active_tab') || "A";
+    if (!['A', 'B', 'C'].includes(activeTab)) activeTab = "A";
     let currentSessionData = {};
 
     function getProfileKey(baseKey) {
@@ -3446,11 +3447,26 @@
       try {
         const savedSelections = JSON.parse(localStorage.getItem('fbw_slot_selections') || '{}');
         slots.forEach(slot => {
-          if (savedSelections[slot.slotId] !== undefined) {
-            slot.selectedIdx = savedSelections[slot.slotId] % slot.variants.length;
-          } else {
-            slot.selectedIdx = 0;
+          const sel = savedSelections[slot.slotId];
+          if (sel !== undefined) {
+            if (typeof sel === 'object' && sel !== null) {
+              if (sel.exId) {
+                const fIdx = slot.variants.findIndex(v => v.id === sel.exId);
+                if (fIdx !== -1) {
+                  slot.selectedIdx = fIdx;
+                  return;
+                }
+              }
+              if (sel.index !== undefined) {
+                slot.selectedIdx = sel.index % slot.variants.length;
+                return;
+              }
+            } else if (typeof sel === 'number') {
+              slot.selectedIdx = sel % slot.variants.length;
+              return;
+            }
           }
+          slot.selectedIdx = 0;
         });
       } catch(e) {}
 
@@ -3501,6 +3517,7 @@
         if (wView) wView.classList.remove('hidden');
         if (currentProfile === 'rafal') {
           activeTab = tab.toUpperCase();
+          try { localStorage.setItem('fbw_active_tab', activeTab); } catch(e) {}
         }
         initSession();
       }
@@ -3526,13 +3543,18 @@
 
       const total = slot.variants.length;
       slot.selectedIdx = (slot.selectedIdx + dir + total) % total;
+      const curVar = slot.variants[slot.selectedIdx];
 
       try {
         const saved = JSON.parse(localStorage.getItem('fbw_slot_selections') || '{}');
-        saved[slot.slotId] = slot.selectedIdx;
+        saved[slot.slotId] = {
+          index: slot.selectedIdx,
+          exId: curVar ? curVar.id : null
+        };
         localStorage.setItem('fbw_slot_selections', JSON.stringify(saved));
       } catch(e) {}
 
+      saveActiveSession();
       renderWorkoutView();
       // Auto synchronizacja wybranej maszyny z chmurą
       pushWorkoutsToCloud().catch(() => {});
@@ -3570,8 +3592,8 @@
         const curEx = slot.variants[slot.selectedIdx];
         const totalVariants = slot.variants.length;
 
+        const lastWeights = getLastLoggedExerciseData(curEx.id);
         if (!currentSessionData[curEx.id]) {
-          const lastWeights = getLastLoggedExerciseData(curEx.id);
           currentSessionData[curEx.id] = [];
           for (let s = 1; s <= curEx.recommendedSets; s++) {
             const prev = lastWeights[s-1];
@@ -3579,19 +3601,22 @@
               setNum: s,
               weight: (prev && prev.weight !== undefined && prev.weight !== null && prev.weight !== '') ? prev.weight : '',
               reps: (prev && prev.reps !== undefined && prev.reps !== null && prev.reps !== '') ? prev.reps : '',
+              rir: (prev && prev.rir !== undefined && prev.rir !== null && prev.rir !== '') ? prev.rir : '',
               done: false
             });
           }
         } else {
           // Jeśli seria istnieje, ale pola są puste, wypełnij je danymi z poprzedniego treningu
-          const lastWeights = getLastLoggedExerciseData(curEx.id);
           if (lastWeights && lastWeights.length > 0) {
             currentSessionData[curEx.id].forEach((s, idx) => {
-              if ((s.weight === '' || s.weight === undefined || s.weight === null) && lastWeights[idx]?.weight !== undefined) {
+              if ((s.weight === '' || s.weight === undefined || s.weight === null) && lastWeights[idx]?.weight !== undefined && lastWeights[idx]?.weight !== '') {
                 s.weight = lastWeights[idx].weight;
               }
-              if ((s.reps === '' || s.reps === undefined || s.reps === null) && lastWeights[idx]?.reps !== undefined) {
+              if ((s.reps === '' || s.reps === undefined || s.reps === null) && lastWeights[idx]?.reps !== undefined && lastWeights[idx]?.reps !== '') {
                 s.reps = lastWeights[idx].reps;
+              }
+              if ((s.rir === '' || s.rir === undefined || s.rir === null) && lastWeights[idx]?.rir !== undefined && lastWeights[idx]?.rir !== '') {
+                s.rir = lastWeights[idx].rir;
               }
             });
           }
@@ -3603,7 +3628,7 @@
 
         const lastExData = getLastLoggedExerciseData(curEx.id);
         const lastHint = lastExData.length > 0 
-          ? `POPRZEDNIO: ${lastExData[0].weight || 0}KG x ${lastExData[0].reps || 0}` 
+          ? `POPRZEDNIO: ${lastExData[0].weight || 0}KG x ${lastExData[0].reps || 0}${lastExData[0].rir !== undefined && lastExData[0].rir !== '' ? ` (zapas: ${lastExData[0].rir === 0 || lastExData[0].rir === '0' ? 'MAX' : '+' + lastExData[0].rir})` : ''}` 
           : 'NOWE ĆWICZENIE';
 
         const userImg = customPhotos[curEx.id] || DEFAULT_MACHINE_PHOTOS[curEx.id];
@@ -3773,6 +3798,16 @@
       if (currentSessionData[exId] && currentSessionData[exId][setIdx]) {
         currentSessionData[exId][setIdx][field] = val;
         saveActiveSession();
+        // Zapisz na bieżąco do dedykowanego magazynu ćwiczenia
+        try {
+          const last = getLastLoggedExerciseData(exId);
+          const updated = Array.isArray(last) ? JSON.parse(JSON.stringify(last)) : [];
+          while (updated.length <= setIdx) {
+            updated.push({ setNum: updated.length + 1, weight: '', reps: '', rir: '' });
+          }
+          updated[setIdx][field] = val;
+          localStorage.setItem(`fbw_last_exercise_${exId}`, JSON.stringify(updated));
+        } catch(e) {}
       }
     }
 
@@ -3803,6 +3838,7 @@
           setNum: nextNum,
           weight: prev ? prev.weight : '',
           reps: prev ? prev.reps : '',
+          rir: prev ? prev.rir : '',
           done: false
         });
         saveActiveSession();
@@ -3815,16 +3851,31 @@
     }
 
     function getLastLoggedExerciseData(exId) {
-      const history = getHistory();
-      for (const entry of history) {
-        if (entry.exercises && entry.exercises[exId] && Array.isArray(entry.exercises[exId]) && entry.exercises[exId].length > 0) {
-          const valid = entry.exercises[exId].filter(s => (s.weight > 0 || s.reps > 0));
-          if (valid.length > 0) return entry.exercises[exId];
+      // 1. Sprawdź najszybszy dedykowany zapis per ćwiczenie
+      try {
+        const direct = localStorage.getItem(`fbw_last_exercise_${exId}`);
+        if (direct) {
+          const parsed = JSON.parse(direct);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const hasData = parsed.some(s => (s.weight > 0 || s.reps > 0 || (s.rir !== undefined && s.rir !== '')));
+            if (hasData) return parsed;
+          }
         }
-        if (entry.summaryList && Array.isArray(entry.summaryList)) {
-          const sum = entry.summaryList.find(s => s.sets && s.sets.length > 0 && (s.id === exId || s.exId === exId));
-          if (sum && sum.sets && sum.sets.length > 0) {
-            return sum.sets;
+      } catch(e) {}
+
+      // 2. Sprawdź historię treningów
+      const history = getHistory();
+      if (Array.isArray(history)) {
+        for (const entry of history) {
+          if (entry.exercises && entry.exercises[exId] && Array.isArray(entry.exercises[exId]) && entry.exercises[exId].length > 0) {
+            const valid = entry.exercises[exId].filter(s => (s.weight > 0 || s.reps > 0 || (s.rir !== undefined && s.rir !== '')));
+            if (valid.length > 0) return entry.exercises[exId];
+          }
+          if (entry.summaryList && Array.isArray(entry.summaryList)) {
+            const sum = entry.summaryList.find(s => s.sets && s.sets.length > 0 && (s.id === exId || s.exId === exId || s.name === exId));
+            if (sum && sum.sets && sum.sets.length > 0) {
+              return sum.sets;
+            }
           }
         }
       }
@@ -3956,10 +4007,10 @@
             const vIdx = slot.selectedIdx || 0;
             const curEx = slot.variants[vIdx] || slot.variants[0];
             let rawSets = (currentSessionData && currentSessionData[curEx.id]) ? currentSessionData[curEx.id] : [];
+            const lastWeights = getLastLoggedExerciseData(curEx.id);
 
             // Jeśli użytkownik nie dotknął ćwiczenia, weź rekomendowane serie
             if (!rawSets || rawSets.length === 0) {
-              const lastWeights = getLastLoggedExerciseData(curEx.id);
               rawSets = [];
               const recCount = curEx.recommendedSets || 3;
               for (let s = 1; s <= recCount; s++) {
@@ -3967,32 +4018,55 @@
                   setNum: s,
                   weight: lastWeights[s-1]?.weight || 0,
                   reps: lastWeights[s-1]?.reps || 8,
+                  rir: lastWeights[s-1]?.rir !== undefined ? lastWeights[s-1].rir : '',
                   done: true
                 });
               }
             }
 
-            // Przetwórz każdą serię – zapewnij ciężar i powtórzenia
+            // Przetwórz każdą serię – zapewnij ciężar, powtórzenia i zapas (RIR)
             const processedSets = rawSets.map((s, sIdx) => {
               let w = s.weight;
               if (w === undefined || w === null || w === '') {
-                const lastWeights = getLastLoggedExerciseData(curEx.id);
                 w = lastWeights[sIdx]?.weight || 0;
               }
               let r = s.reps;
               if (!r || r === '0' || r === 0) {
-                r = 8;
+                r = lastWeights[sIdx]?.reps || 8;
+              }
+              let rir = s.rir;
+              if (rir === undefined || rir === null) {
+                rir = lastWeights[sIdx]?.rir !== undefined ? lastWeights[sIdx].rir : '';
               }
               return {
                 setNum: s.setNum || (sIdx + 1),
                 weight: parseFloat(w) || 0,
                 reps: parseInt(r) || 8,
+                rir: rir !== undefined ? String(rir) : '',
                 done: true
               };
             });
 
+            // Zapisz natychmiast do dedykowanego magazynu per ćwiczenie
+            try {
+              localStorage.setItem(`fbw_last_exercise_${curEx.id}`, JSON.stringify(processedSets));
+            } catch(e) {}
+
+            // Przygotuj currentSessionData na następny trening: ZACHOWAJ CIĘŻARY I POWTÓRZENIA, zresetuj tylko done na false!
+            if (currentSessionData) {
+              currentSessionData[curEx.id] = processedSets.map(ps => ({
+                setNum: ps.setNum,
+                weight: ps.weight,
+                reps: ps.reps,
+                rir: ps.rir,
+                done: false
+              }));
+            }
+
             totalCompleted += processedSets.length;
             summaryList.push({
+              exId: curEx.id,
+              id: curEx.id,
               slotNum: slotIdx + 1,
               category: slot.category || ('ĆWICZENIE ' + (slotIdx + 1)),
               name: curEx.name,
@@ -4009,40 +4083,22 @@
           planType: activeTab,
           planTitle: (currentProfile === 'filip') ? 'FBW FILIP' : (plan ? plan.title : 'FBW'),
           exercises: (function() {
-          const map = {};
-          if (plan && plan.slots) {
-            plan.slots.forEach(slot => {
-              const curEx = slot.variants[slot.selectedIdx || 0];
-              const sets = (currentSessionData && currentSessionData[curEx.id]) || [];
-              map[curEx.id] = sets.map((s, idx) => ({
-                setNum: s.setNum || (idx + 1),
-                weight: parseFloat(s.weight) || 0,
-                reps: parseInt(s.reps) || 0,
-                done: true
-              }));
+            const map = {};
+            summaryList.forEach(item => {
+              map[item.exId] = item.sets;
             });
-          }
-          return map;
-        })(),
+            return map;
+          })(),
           summaryList: summaryList,
           completedSets: totalCompleted
         };
 
-        // 1. NATYCHMIASTOWY ZAPIS LOKALNY
+        // 1. ZAPIS DO HISTORII I DO AKTYWNEJ SESJI NA NASTĘPNY RAZ
         history.unshift(logEntry);
         localStorage.setItem(`clean_workout_history_${currentProfile}`, JSON.stringify(history));
+        localStorage.setItem(`clean_session_${currentProfile}_${activeTab}`, JSON.stringify(currentSessionData));
 
-        // ZACHOWAJ DANE W RUBRYKACH (ciężary i powtórzenia) na następny trening, odznacz tylko done: false!
-        if (currentSessionData) {
-          Object.keys(currentSessionData).forEach(exKey => {
-            if (Array.isArray(currentSessionData[exKey])) {
-              currentSessionData[exKey].forEach(s => { s.done = false; });
-            }
-          });
-          localStorage.setItem(`clean_session_${currentProfile}_${activeTab}`, JSON.stringify(currentSessionData));
-        }
-
-        // 2. NATYCHMIASTOWA REAKCJA PRZYCISKU (Zero czekania)
+        // 2. REAKCJA PRZYCISKU
         const btn = document.getElementById('saveWorkoutBtn');
         if (btn) {
           btn.innerHTML = `<span>✓ ZAPISANO PEŁNY TRENING (${summaryList.length} ĆWICZEŃ)!</span>`;
@@ -4052,7 +4108,7 @@
 
         showToast(`Zapisano pełny trening (${summaryList.length} ćwiczeń, ${totalCompleted} serii)!`, "SUKCES", true);
 
-        // Przejdź do historii po chwili
+        // Przejdź do historii po chwili, zachowując możliwość powrotu do tego samego planu
         setTimeout(() => {
           switchTab('history');
           if (btn) {
@@ -5669,7 +5725,8 @@
       initPhotoDB();
       initTheme();
       updateProfileUI();
-      initSession();
+      const savedTab = localStorage.getItem('fbw_active_tab') || 'A';
+      switchTab(savedTab);
       initCloudSync();
       updateTimerUI();
       lucide.createIcons();
