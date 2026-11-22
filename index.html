@@ -242,7 +242,7 @@
     <div id="workoutView" class="space-y-3">
       
       <!-- BANER INFORMACJI O DZISIEJSZYM ZAPISANYM TRENINGU -->
-      <div id="todayWorkoutBanner" class="hidden p-3 bg-emerald-50 border-2 border-emerald-500 rounded-xl shadow-sm flex items-center justify-between gap-3 transition">
+      <div id="todayWorkoutBanner" class="hidden p-3 bg-emerald-50 border-2 border-emerald-500 rounded-xl shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 transition">
         <div class="flex items-center gap-2.5">
           <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">✓</div>
           <div>
@@ -250,10 +250,16 @@
             <div class="text-[11px] text-emerald-700 font-mono mt-0.5" id="todayWorkoutBannerSub">...</div>
           </div>
         </div>
-        <button onclick="switchTab('history')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-heavy text-xs rounded-lg uppercase tracking-wider shadow-sm transition flex items-center gap-1.5 shrink-0 active:scale-95">
-          <i data-lucide="history" class="w-3.5 h-3.5"></i>
-          <span>HISTORIA</span>
-        </button>
+        <div class="flex items-center gap-2 shrink-0">
+          <button onclick="resendTodayWorkoutToTelegram()" class="flex-1 sm:flex-none px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-400 font-heavy text-xs rounded-lg uppercase tracking-wider shadow-sm transition flex items-center justify-center gap-1.5 active:scale-95 border border-slate-700">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            <span>WYŚLIJ RAPORT</span>
+          </button>
+          <button onclick="switchTab('history')" class="flex-1 sm:flex-none px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-heavy text-xs rounded-lg uppercase tracking-wider shadow-sm transition flex items-center justify-center gap-1.5 active:scale-95">
+            <i data-lucide="history" class="w-3.5 h-3.5"></i>
+            <span>HISTORIA</span>
+          </button>
+        </div>
       </div>
 
       <!-- BANER INFORMACYJNY -->
@@ -3750,6 +3756,32 @@
       } catch(err) {
         console.warn("Błąd wysyłki ćwiczenia na Telegram:", err);
       }
+
+      // Sprawdź czy wszystkie ćwiczenia w planie są zaliczone — jeśli tak, wyślij też automatycznie pełny raport!
+      try {
+        const plan = getActiveRoutine();
+        let allCompleted = true;
+        if (plan && plan.slots) {
+          for (const s of plan.slots) {
+            const ex = s.variants[s.selectedIdx || 0];
+            const setsOfEx = (currentSessionData && currentSessionData[ex.id]) ? currentSessionData[ex.id] : [];
+            if (!setsOfEx || setsOfEx.length === 0 || !setsOfEx.every(set => set.done)) {
+              allCompleted = false;
+              break;
+            }
+          }
+        }
+        if (allCompleted) {
+          const history = getHistory();
+          const todayDateStr = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+          const todayEntry = history.find(e => e.formattedDate && e.formattedDate.startsWith(todayDateStr) && e.planType === activeTab);
+          if (todayEntry) {
+            sendWorkoutToTelegram(todayEntry).then(sent => {
+              if (sent) showToast("Wszystkie ćwiczenia ukończone! Wysłano pełny raport na Telegram!", "RAPORT TELEGRAM", true);
+            }).catch(() => {});
+          }
+        }
+      } catch(e) {}
     }
 
     async function sendSingleExerciseToTelegram(curEx, slot, sets) {
@@ -3777,16 +3809,30 @@
       msg += `💪 Ćwiczenie zaliczone! Dane zapisane. Lecimy dalej z treningiem! 🔥`;
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
 
       try {
-        const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}`;
-        const res = await fetch(url, { signal: controller.signal });
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: msg
+          }),
+          signal: controller.signal
+        });
         clearTimeout(timeoutId);
-        return res.ok;
+        const data = await res.json();
+        return data && data.ok;
       } catch(e) {
         clearTimeout(timeoutId);
-        return false;
+        try {
+          const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}`;
+          const res2 = await fetch(url);
+          return res2.ok;
+        } catch(err2) {
+          return false;
+        }
       }
     }
 
@@ -3944,12 +3990,16 @@
       msg += `💪 Trening zapisany! Masz pełny podgląd na komputerze.`;
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
 
       try {
-        const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}`;
-        const res = await fetch(url, {
-          method: 'GET',
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: msg
+          }),
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -3958,13 +4008,31 @@
       } catch(e) {
         clearTimeout(timeoutId);
         try {
-          const imgUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}`;
-          const img = new Image();
-          img.src = imgUrl;
-          return true;
+          const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}`;
+          const res2 = await fetch(url);
+          return res2.ok;
         } catch(err2) {
           return false;
         }
+      }
+    }
+
+    async function resendTodayWorkoutToTelegram() {
+      const history = getHistory();
+      const todayDateStr = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const todayEntry = history.find(e => e.formattedDate && e.formattedDate.startsWith(todayDateStr));
+      if (!todayEntry) {
+        showToast("Brak dzisiejszego treningu do wysłania.", "INFO", false);
+        return;
+      }
+      showToast("Wysyłanie raportu na Telegram...", "TELEGRAM", true);
+      const ok = await sendWorkoutToTelegram(todayEntry);
+      if (ok) {
+        showToast("Pełny raport wysłany na Twój Telegram!", "SUKCES", true);
+        alert("✅ Raport z treningu został przesłany na Twój Telegram!");
+      } else {
+        showToast("Nie udało się wysłać na Telegram.", "BŁĄD", false);
+        alert("⚠️ Nie udało się wysłać na Telegram. Sprawdź połączenie z siecią.");
       }
     }
 
