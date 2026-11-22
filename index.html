@@ -233,14 +233,29 @@
         <span>ATLAS</span>
       </button>
       <button onclick="switchTab('history')" id="tabBtnHistory" class="py-2 text-xs font-heavy tracking-wider rounded uppercase transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1">
-        <i data-lucide="archive" class="w-3.5 h-3.5"></i>
-        <span>LOG</span>
+        <i data-lucide="history" class="w-3.5 h-3.5 text-amber-500"></i>
+        <span>HISTORIA</span>
       </button>
     </div>
 
     <!-- 1. WIDOK SESJI TRENINGOWEJ -->
     <div id="workoutView" class="space-y-3">
       
+      <!-- BANER INFORMACJI O DZISIEJSZYM ZAPISANYM TRENINGU -->
+      <div id="todayWorkoutBanner" class="hidden p-3 bg-emerald-50 border-2 border-emerald-500 rounded-xl shadow-sm flex items-center justify-between gap-3 transition">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs">✓</div>
+          <div>
+            <div class="text-xs font-heavy text-emerald-950 uppercase tracking-wide">Dzisiejszy trening został zapisany!</div>
+            <div class="text-[11px] text-emerald-700 font-mono mt-0.5" id="todayWorkoutBannerSub">...</div>
+          </div>
+        </div>
+        <button onclick="switchTab('history')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-heavy text-xs rounded-lg uppercase tracking-wider shadow-sm transition flex items-center gap-1.5 shrink-0 active:scale-95">
+          <i data-lucide="history" class="w-3.5 h-3.5"></i>
+          <span>HISTORIA</span>
+        </button>
+      </div>
+
       <!-- BANER INFORMACYJNY -->
       <div class="p-3 bg-white border-l-4 border-amber-500 border-y border-r border-slate-200 rounded-r shadow-sm flex items-center justify-between">
         <div>
@@ -3365,6 +3380,24 @@
       document.getElementById('planBadge').innerText = plan.badge;
       document.getElementById('planTitle').innerText = plan.title;
 
+      // Sprawdź czy dzisiaj jest zapisany trening w historii
+      const bannerEl = document.getElementById('todayWorkoutBanner');
+      const bannerSub = document.getElementById('todayWorkoutBannerSub');
+      if (bannerEl && bannerSub) {
+        const history = getHistory();
+        const todayDateStr = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const todayEntry = history.find(e => e.formattedDate && e.formattedDate.startsWith(todayDateStr));
+        if (todayEntry) {
+          bannerEl.classList.remove('hidden');
+          const planName = todayEntry.planType ? `PLAN ${todayEntry.planType}` : 'TRENING';
+          const setsCount = todayEntry.completedSets || (todayEntry.summaryList ? todayEntry.summaryList.reduce((acc, it) => acc + (it.sets ? it.sets.length : 0), 0) : 0);
+          const exCount = todayEntry.summaryList ? todayEntry.summaryList.length : (todayEntry.exercises ? Object.keys(todayEntry.exercises).length : 0);
+          bannerSub.innerText = `${planName} (${todayEntry.formattedDate || todayDateStr}) • ${exCount} ćwiczeń, ${setsCount} serii — kliknij, by otworzyć`;
+        } else {
+          bannerEl.classList.add('hidden');
+        }
+      }
+
       const delKey = `fbw_deleted_slots_${currentProfile}_${activeTab}`;
       const delVarKey = `fbw_deleted_variants_${currentProfile}_${activeTab}`;
       let hasDeleted = false;
@@ -3705,7 +3738,7 @@
       // Odśwież widok ćwiczenia, by zaznaczyć ptaszki
       renderWorkoutView();
 
-      showToast(`Wysłano "${exName}" (${processedSets.length} serii) na Telegram!`, "TELEGRAM", true);
+      showToast(`Wysłano "${exName}" (${processedSets.length} serii) — zapisano w zakładce HISTORIA!`, "ZAPISANO & WYSŁANO", true);
 
       // Uruchom stoper odpoczynku na 90 sekund
       resetTimerWith(90);
@@ -4069,7 +4102,7 @@
           btn.classList.add('bg-emerald-500', 'text-white');
         }
 
-        showToast(`Zapisano pełny trening (${summaryList.length} ćwiczeń, ${totalCompleted} serii)!`, "SUKCES", true);
+        showToast(`Zapisano pełny trening (${summaryList.length} ćwiczeń, ${totalCompleted} serii) w zakładce HISTORIA!`, "SUKCES", true);
 
         // Przejdź do historii po chwili, zachowując możliwość powrotu do tego samego planu
         setTimeout(() => {
@@ -5383,7 +5416,11 @@
             setsForSlot = [{weight: 0, reps: 8}, {weight: 0, reps: 8}, {weight: 0, reps: 8}];
           }
 
-          s.push(setsForSlot.map(set => [parseFloat(set.weight) || 0, parseInt(set.reps) || 8]));
+          s.push(setsForSlot.map(set => [
+            parseFloat(set.weight) || 0,
+            parseInt(set.reps) || 8,
+            (set.rir !== undefined && set.rir !== null && set.rir !== '') ? String(set.rir) : ''
+          ]));
         });
       }
 
@@ -5400,6 +5437,7 @@
       if (compact.summaryList) return compact; // Już rozpakowany
       const plan = FBW_ROUTINE[compact.p] || FBW_ROUTINE['A'];
       const summaryList = [];
+      const exercisesMap = {};
       let totalSets = 0;
 
       if (plan && plan.slots) {
@@ -5412,27 +5450,33 @@
             setNum: idx + 1,
             weight: s[0],
             reps: s[1],
+            rir: (s[2] !== undefined && s[2] !== null) ? String(s[2]) : '',
             done: true
           }));
 
           totalSets += sets.length;
-          summaryList.push({
+          const sumItem = {
+            id: curEx.id,
+            exId: curEx.id,
             slotNum: sIdx + 1,
             category: slot.category,
             name: curEx.name,
             equipment: curEx.equipment,
             sets: sets
-          });
+          };
+          summaryList.push(sumItem);
+          exercisesMap[curEx.id] = sets;
         });
       }
 
       return {
-        id: compact.id,
+        id: compact.id || Date.now(),
         date: compact.id ? new Date(compact.id).toISOString() : new Date().toISOString(),
         formattedDate: compact.dt,
         planType: compact.p,
         planTitle: plan ? plan.title : ('Plan ' + compact.p),
         completedSets: totalSets,
+        exercises: exercisesMap,
         summaryList: summaryList
       };
     }
@@ -5623,6 +5667,34 @@
 
             const merged = Array.from(map.values()).sort((a, b) => new Date(b.date || b.id) - new Date(a.date || a.id));
             localStorage.setItem(`clean_workout_history_${currentProfile}`, JSON.stringify(merged));
+
+            // Zaktualizuj pamięć ostatnich ciężarów i powtórzeń (fbw_last_exercise_...)
+            merged.forEach(entry => {
+              if (entry.exercises) {
+                Object.keys(entry.exercises).forEach(exId => {
+                  const s = entry.exercises[exId];
+                  if (Array.isArray(s) && s.length > 0) {
+                    try {
+                      if (!localStorage.getItem(`fbw_last_exercise_${exId}`)) {
+                        localStorage.setItem(`fbw_last_exercise_${exId}`, JSON.stringify(s));
+                      }
+                    } catch(e) {}
+                  }
+                });
+              }
+              if (entry.summaryList) {
+                entry.summaryList.forEach(item => {
+                  const eid = item.exId || item.id;
+                  if (eid && Array.isArray(item.sets) && item.sets.length > 0) {
+                    try {
+                      if (!localStorage.getItem(`fbw_last_exercise_${eid}`)) {
+                        localStorage.setItem(`fbw_last_exercise_${eid}`, JSON.stringify(item.sets));
+                      }
+                    } catch(e) {}
+                  }
+                });
+              }
+            });
           }
 
           renderWorkoutView();
