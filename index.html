@@ -3652,6 +3652,48 @@
         localStorage.setItem(`fbw_last_exercise_${exId}`, JSON.stringify(processedSets));
       } catch(e) {}
 
+      // Zaktualizuj lub utwórz wpis w historii dla dzisiejszego treningu od razu!
+      try {
+        const history = getHistory();
+        const todayDateStr = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        let todayEntry = history.find(e => e.formattedDate && e.formattedDate.startsWith(todayDateStr) && e.planType === activeTab);
+        if (!todayEntry) {
+          todayEntry = {
+            id: Date.now(),
+            date: new Date().toISOString(),
+            formattedDate: new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+            planType: activeTab,
+            planTitle: (currentProfile === 'filip') ? 'FBW FILIP' : (plan ? plan.title : ('PLAN ' + activeTab)),
+            exercises: {},
+            summaryList: [],
+            completedSets: 0
+          };
+          history.unshift(todayEntry);
+        }
+
+        todayEntry.exercises[exId] = processedSets;
+        const existingSumIdx = todayEntry.summaryList.findIndex(item => item.exId === exId || item.id === exId);
+        const sumItem = {
+          exId: exId,
+          id: exId,
+          slotNum: slot ? (plan.slots.indexOf(slot) + 1) : 1,
+          category: category,
+          name: exName,
+          equipment: curEx ? curEx.equipment : '',
+          sets: processedSets
+        };
+        if (existingSumIdx !== -1) {
+          todayEntry.summaryList[existingSumIdx] = sumItem;
+        } else {
+          todayEntry.summaryList.push(sumItem);
+        }
+        todayEntry.completedSets = todayEntry.summaryList.reduce((acc, it) => acc + (it.sets ? it.sets.length : 0), 0);
+        localStorage.setItem(`clean_workout_history_${currentProfile}`, JSON.stringify(history));
+      } catch(e) {}
+
+      // Automatyczna synchronizacja z chmurą w tle
+      pushWorkoutsToCloud().catch(() => {});
+
       // Zaktualizuj przycisk na karcie
       const btn = document.getElementById(`sendBtn_${exId}`);
       if (btn) {
@@ -5441,12 +5483,20 @@
       // Spakuj ostatnie treningi (kompaktowy format mieści się w limitach chmury)
       const packedHistory = localHistory.slice(0, 3).map(packWorkout);
 
+      let safePhotos = {};
+      try {
+        const pStr = JSON.stringify(customPhotos || {});
+        if (pStr.length < 25000) {
+          safePhotos = customPhotos;
+        }
+      } catch(e) {}
+
       const payload = {
         pin: pin,
         updatedAt: new Date().toISOString(),
         h: packedHistory,
         sel: slotSelections,
-        photos: customPhotos
+        photos: safePhotos
       };
 
       try {
