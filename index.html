@@ -3392,7 +3392,8 @@
       if (bannerEl && bannerSub) {
         const history = getHistory();
         const todayDateStr = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        const todayEntry = history.find(e => e.formattedDate && e.formattedDate.startsWith(todayDateStr));
+        const todayIsoStr = new Date().toISOString().split('T')[0];
+        const todayEntry = history.find(e => (e.formattedDate && e.formattedDate.includes(todayDateStr)) || (e.date && e.date.startsWith(todayIsoStr)));
         if (todayEntry) {
           bannerEl.classList.remove('hidden');
           const planName = todayEntry.planType ? `PLAN ${todayEntry.planType}` : 'TRENING';
@@ -4288,12 +4289,15 @@
                 <div class="text-xs font-heavy tracking-wider uppercase text-slate-900 leading-tight">
                   ${item.planTitle || 'SESJA FBW'}
                 </div>
-                <div class="text-[10px] font-mono text-slate-400 flex items-center gap-1.5 mt-0.5">
-                  <i data-lucide="calendar" class="w-3 h-3 text-amber-600"></i>
-                  <span>${item.formattedDate || item.date}</span>
-                  <span>•</span>
-                  <strong class="text-slate-700 font-bold">${item.completedSets || 0} serii</strong>
-                  <span>(${item.summaryList ? item.summaryList.length : 0} ćwiczeń)</span>
+                <div class="text-xs font-mono flex flex-wrap items-center gap-2 mt-1">
+                  <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-900 font-black flex items-center gap-1 shadow-xs text-[11px]">
+                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-600"></i>
+                    <span>${item.formattedDate || item.date}</span>
+                  </span>
+                  <span class="text-[10px] text-slate-500 font-bold">
+                    <strong class="text-slate-800 font-black">${item.completedSets || 0} serii</strong>
+                    <span>(${item.summaryList ? item.summaryList.length : 0} ćwiczeń)</span>
+                  </span>
                 </div>
               </div>
             </div>

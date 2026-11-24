@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FBW ANALYTICS // CENTRUM TRENERA RAFAL</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #0b0f19;
+      color: #f1f5f9;
+    }
+    .font-heavy {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.05em;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .glow-amber {
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.15);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 25px rgba(6, 182, 212, 0.15);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-black">
+
+  <!-- TOP HEADER -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-slate-950 shadow-lg shadow-amber-500/20 font-black text-xl">
+          <i data-lucide="activity" class="w-6 h-6 stroke-[2.5]"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl sm:text-2xl font-heavy tracking-wider text-white">FBW IRON // CENTRUM ANALIZY</h1>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold uppercase">PRO TRAINER</span>
+          </div>
+          <p class="text-xs text-slate-400 font-mono">Dziennik postępów • Analiza tonażu • Progresja siłowa</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 sm:gap-3">
+        <a href="https://dziennik-fbw.rafaldr4.workers.dev/" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-xs font-mono font-bold transition shadow-sm">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span class="hidden sm:inline">OTWÓRZ APLIKACJĘ</span>
+        </a>
+        <button onclick="syncWithAppStorage()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 text-xs font-mono font-bold transition shadow-sm active:scale-95">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          <span>SYNCHRONIZUJ</span>
+        </button>
+        <button onclick="openAddReportModal()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-mono font-extrabold shadow-md shadow-amber-500/20 transition active:scale-95">
+          <i data-lucide="plus-circle" class="w-4 h-4 stroke-[2.5]"></i>
+          <span>DODAJ RAPORT</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- KPI STATS CARDS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 glow-amber transition hover:border-slate-700">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-mono mb-2">
+          <span>ŁĄCZNIE SESJI</span>
+          <i data-lucide="calendar" class="w-4 h-4 text-amber-500"></i>
+        </div>
+        <div id="statTotalWorkouts" class="text-2xl sm:text-3xl font-heavy text-white">0</div>
+        <div class="text-[11px] font-mono text-emerald-400 mt-1 flex items-center gap-1">
+          <i data-lucide="trending-up" class="w-3 h-3"></i> Systematyczność: 100%
+        </div>
+      </div>
+
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 glow-cyan transition hover:border-slate-700">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-mono mb-2">
+          <span>ŁĄCZNY TONAŻ</span>
+          <i data-lucide="weight" class="w-4 h-4 text-cyan-400"></i>
+        </div>
+        <div id="statTotalVolume" class="text-2xl sm:text-3xl font-heavy text-white">0 kg</div>
+        <div class="text-[11px] font-mono text-slate-400 mt-1">Przerzucony ciężar (suma)</div>
+      </div>
+
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 transition hover:border-slate-700">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-mono mb-2">
+          <span>UKOŃCZONE SERIE</span>
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+        </div>
+        <div id="statTotalSets" class="text-2xl sm:text-3xl font-heavy text-white">0</div>
+        <div class="text-[11px] font-mono text-slate-400 mt-1">Serie robocze zrobione</div>
+      </div>
+
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 transition hover:border-slate-700">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-mono mb-2">
+          <span>ŚREDNI ZAPAS (RIR)</span>
+          <i data-lucide="gauge" class="w-4 h-4 text-amber-400"></i>
+        </div>
+        <div id="statAvgRir" class="text-2xl sm:text-3xl font-heavy text-white">~1.5 RIR</div>
+        <div class="text-[11px] font-mono text-amber-400 mt-1">Wzorowy bilans stymulacji</div>
+      </div>
+    </div>
+
+    <!-- NEXT WORKOUT BRIEF & COACH NOTES -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- NEXT SESSION TARGETS (PLAN A) -->
+      <div class="lg:col-span-1 bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <h2 class="text-lg font-heavy text-white tracking-wider">PLAN NA NASTĘPNY TRENING</h2>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">PLAN C (PUMP & MASZYNY)</span>
+        </div>
+
+        <div class="space-y-3 font-mono text-xs">
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80">
+            <div class="flex justify-between items-center text-slate-300 font-bold mb-1">
+              <span>1. NOGI (CZWÓRKI): Przysiad / Suwnica</span>
+              <span class="text-amber-400">80-85 kg</span>
+            </div>
+            <div class="text-[11px] text-slate-400">Cel: 4 serie po 6-8 powt. Po dzisiejszych wyprostach w Planie C, czwórki będą gotowe na solidny ciężar wielostawowy.</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80">
+            <div class="flex justify-between items-center text-slate-300 font-bold mb-1">
+              <span>2. PLECY: Ściąganie drążka wyciągu</span>
+              <span class="text-amber-400">65-75 kg</span>
+            </div>
+            <div class="text-[11px] text-slate-400">Cel: 4 serie po 8 powt. Prowadź drążek do górnej części mostka, ściągnij i zablokuj łopatki.</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80">
+            <div class="flex justify-between items-center text-slate-300 font-bold mb-1">
+              <span>3. KLATKA: Wyciskanie sztangi / Smith</span>
+              <span class="text-amber-400">65-75 kg</span>
+            </div>
+            <div class="text-[11px] text-slate-400">Cel: 4 serie po 8 powt. Kontrola 3 sekundy w dół, eksplozywne wyjście w górę.</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80">
+            <div class="flex justify-between items-center text-slate-300 font-bold mb-1">
+              <span>4. BARKI: Wyciskanie hantli siedząc (OHP)</span>
+              <span class="text-amber-400">10-12 kg</span>
+            </div>
+            <div class="text-[11px] text-slate-400">Cel: 3 serie po 10-12 powt. Ławka 80-85°, łokcie lekko przed tułowiem (płaszczyzna łopatki).</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80">
+            <div class="flex justify-between items-center text-slate-300 font-bold mb-1">
+              <span>5. BICEPS: Gryf łamany EZ stojąc</span>
+              <span class="text-amber-400">27.5 kg</span>
+            </div>
+            <div class="text-[11px] text-slate-400">Cel: 3 serie po 10-12 powt. Łokcie przyklejone do talii, brak kołysania tułowiem.</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80">
+            <div class="flex justify-between items-center text-slate-300 font-bold mb-1">
+              <span>6. TRICEPS: Wyciąg prosty gryf</span>
+              <span class="text-amber-400">35-40 kg</span>
+            </div>
+            <div class="text-[11px] text-slate-400">Cel: 3 serie po 10-12 powt. Mocne dociskanie gryfu w dół i dopięcie głowy bocznej i przyśrodkowej.</div>
+          </div>
+
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800/80">
+            <div class="flex justify-between items-center text-slate-300 font-bold mb-1">
+              <span>7. BRZUCH: Allahy na wyciągu klęcząc</span>
+              <span class="text-amber-400">35-40 kg</span>
+            </div>
+            <div class="text-[11px] text-slate-400">Cel: 3 serie po 12 powt. Zwijanie kręgosłupa w kulkę, nie siadaj na pięty.</div>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs leading-relaxed font-mono">
+          <i data-lucide="zap" class="w-4 h-4 inline mr-1 text-amber-400"></i>
+          <strong>Zasada Trenera:</strong> Zacznij pierwszą serię z zapasem 2 powtórzeń. Dopiero w ostatniej serii wyciśnij maksa!
+        </div>
+      </div>
+
+      <!-- RECENT WORKOUT REPORTS & CHARTS -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <!-- PROGRESS CHART -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl">
+          <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+              <i data-lucide="line-chart" class="w-5 h-5 text-cyan-400"></i>
+              <h2 class="text-lg font-heavy text-white tracking-wider">TONAŻ I POSTĘP SIŁOWY</h2>
+            </div>
+            <span class="text-xs font-mono text-slate-400">Ostatnie sesje treningowe</span>
+          </div>
+          <div class="h-64 w-full">
+            <canvas id="volumeChart"></canvas>
+          </div>
+        </div>
+
+        <!-- WORKOUT REPORTS FEED -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+              <i data-lucide="clipboard-list" class="w-5 h-5 text-amber-500"></i>
+              <h2 class="text-lg font-heavy text-white tracking-wider">RAPORTY Z TRENINGÓW</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-0.5 font-mono text-[11px]">
+                <button onclick="setAthleteFilter('all')" id="filterBtnAll" class="px-2.5 py-1 rounded font-bold bg-amber-500 text-slate-950 transition">WSZYSCY</button>
+                <button onclick="setAthleteFilter('rafal')" id="filterBtnRafal" class="px-2.5 py-1 rounded text-slate-400 hover:text-white transition">👤 RAFAŁ</button>
+                <button onclick="setAthleteFilter('filip')" id="filterBtnFilip" class="px-2.5 py-1 rounded text-slate-400 hover:text-white transition">⚡ FILIP</button>
+              </div>
+              <span id="reportCountBadge" class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">0 wpisów</span>
+            </div>
+          </div>
+
+          <div id="reportsList" class="space-y-4">
+            <!-- Dynamically populated reports -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: ADD / PASTE NEW REPORT -->
+  <div id="addReportModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="file-plus" class="w-5 h-5 text-amber-500"></i>
+          <h3 class="text-xl font-heavy text-white tracking-wider">DODAJ / WKLEJ NOWY RAPORT</h3>
+        </div>
+        <button onclick="closeAddReportModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 font-mono text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1 font-bold">ZAWODNIK</label>
+            <select id="newReportAthlete" onchange="handleAthleteChangeInModal()" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-amber-400 font-bold focus:border-amber-500 outline-none">
+              <option value="rafal">👤 RAFAŁ</option>
+              <option value="filip">⚡ FILIP</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1 font-bold">RODZAJ TRENINGU</label>
+            <select id="newReportPlanType" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white font-bold focus:border-amber-500 outline-none">
+              <option value="A">PLAN A (Baza Siłowa)</option>
+              <option value="B">PLAN B (Skosy & Grubość)</option>
+              <option value="C">PLAN C (Maszyny & Izolacja)</option>
+              <option value="FILIP">PLAN FILIPA (Zercher & Skosy)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1 font-bold">DATA TRENINGU</label>
+            <input type="date" id="newReportDate" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-white font-bold focus:border-amber-500 outline-none">
+          </div>
+        </div></div>
+
+        <div>
+          <label class="block text-slate-400 mb-1 font-bold">WKLEJ TEKST RAPORTU Z TELEGRAMA LUB ZAPISKI</label>
+          <textarea id="newReportRawText" rows="6" placeholder="Wklej tutaj raport z Telegrama lub spisz:
+1. Przysiad ze sztangą: 80kg x 8, 80kg x 8, 85kg x 6
+2. Wyciąg do klatki: 60kg x 8, 65kg x 8, 65kg x 8
+3. Wyciskanie sztangi: 70kg x 8, 75kg x 8, 75kg x 8
+4. Wznosy bokiem: 10kg x 12, 10kg x 12, 12kg x 10
+5. Triceps gryf: 27.5kg x 12, 27.5kg x 12, 27.5kg x 10
+6. Modlitewnik: 15kg x 12, 15kg x 12, 15kg x 12" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-slate-200 focus:border-amber-500 outline-none leading-relaxed"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1 font-bold">KOMENTARZ TRENERA / WRAŻENIA Z TRENINGU</label>
+          <textarea id="newReportNotes" rows="2" placeholder="Jak poszło? Czy był zapas? Jak samopoczucie?" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-slate-200 focus:border-amber-500 outline-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-3 border-t border-slate-800">
+        <button onclick="closeAddReportModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono text-xs font-bold">ANULUJ</button>
+        <button onclick="saveNewReport()" class="px-5 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-mono text-xs font-black shadow-lg shadow-amber-500/20">ZAPISZ I PRZEANALIZUJ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // INITIAL REPORTS DATA
+    const INITIAL_REPORTS = [
+      {
+        id: 1795518000000,
+        athlete: "rafal",
+        date: "2026-11-24",
+        time: "07:30 (Rano)",
+        formattedDate: "Wtorek, 24.11.2026 (Rano)",
+        planType: "B",
+        title: "Trening B // Skos Klatki, RDL & Potężne Ramiona + Brzuch",
+        notes: `🔥 <strong>ANALIZA TRENINGU B (WTOREK 24.11 - SESJA PORANNA):</strong><br>
+• <strong>Martwy ciąg rumuński (RDL) 75 kg × 8:</strong> Świetne utrzymanie siły z rana na czczo! Biodra cofane głęboko, tył uda i pośladki w pełnym napięciu izometrycznym.<br>
+• <strong>Wyciskanie hantli skos + (26 kg × 8, 8):</strong> Górna część klatki wzorowo przepracowana, stabilny tor ruchu hantli.<br>
+• <strong>Wiosłowanie hantlem & Rozpiętki bramy:</strong> Płynne ruchy i stabilizacja łopatek – klatka i plecy idealnie zbalansowane.<br>
+• <strong>Ramiona & Brzuch:</strong> Triceps zza głowy 22.5 kg oraz spięcia na maszynie 55 kg dopchnięte do załamania mięśniowego (RIR 0).<br><br>
+🎯 <strong>PLAN NA NASTĘPNY TRENING (PLAN C - MASZYNY & PUMP):</strong><br>
+1. <strong>Czworogłowe (Wyprosty na maszynie):</strong> Wejdź na 50-55 kg, 12 powtórzeń z dopięciem na górze.<br>
+2. <strong>Dwugłowe (Uginanie leżąc/siedząc):</strong> 40-45 kg × 10-12 powtórzeń wolnym tempem.<br>
+3. <strong>Brama & Superseria Ramion:</strong> Pompujące serie pod maksymalne ukrwienie bez obciążania stawów.`,
+        exercises: [
+          { name: "Martwy ciąg rumuński (RDL) ze sztangą", sets: [{ weight: 70, reps: 10, rir: "2" }, { weight: 75, reps: 8, rir: "1" }, { weight: 75, reps: 8, rir: "1" }] },
+          { name: "Wyciskanie hantli na ławce skośnej dodatniej", sets: [{ weight: 24, reps: 10, rir: "2" }, { weight: 26, reps: 8, rir: "1" }, { weight: 26, reps: 8, rir: "0" }] },
+          { name: "Rozpiętki na bramie / Pec Deck", sets: [{ weight: 35, reps: 12, rir: "2" }, { weight: 40, reps: 10, rir: "1" }, { weight: 40, reps: 10, rir: "0" }] },
+          { name: "Wiosłowanie hantlem w oparciu o ławkę", sets: [{ weight: 28, reps: 10, rir: "2" }, { weight: 30, reps: 8, rir: "1" }, { weight: 30, reps: 8, rir: "0" }] },
+          { name: "Wyciskanie żołnierskie sztangi stojąc (OHP)", sets: [{ weight: 40, reps: 8, rir: "2" }, { weight: 45, reps: 6, rir: "1" }, { weight: 45, reps: 6, rir: "0" }] },
+          { name: "Uginanie przedramion z hantlami z supinacją", sets: [{ weight: 14, reps: 10, rir: "2" }, { weight: 14, reps: 10, rir: "1" }, { weight: 16, reps: 8, rir: "0" }] },
+          { name: "Wyciskanie francuskie hantlem nad głowę na triceps", sets: [{ weight: 22.5, reps: 12, rir: "2" }, { weight: 22.5, reps: 12, rir: "2" }, { weight: 22.5, reps: 12, rir: "0" }] },
+          { name: "Spięcia brzucha na maszynie (Ab Crunch)", sets: [{ weight: 55, reps: 12, rir: "2" }, { weight: 55, reps: 10, rir: "1" }, { weight: 55, reps: 11, rir: "0" }] }
+        ]
+      },
+      {
+        id: 1795345176341,
+        athlete: "rafal",
+        date: "2026-11-22",
+        planType: "C",
+        title: "Trening C // Dół Klatki (Brama), Nogi (Maszyny) & Wyciągi (PUMP)",
+        notes: `🔥 <strong>ANALIZA TRENINGU C (NIEDZIELA 22.11 - NOWY PLAN PUMP):</strong><br>
+• <strong>Wyprosty nóg na maszynie (45 kg × 12, 50 kg × 12, 55 kg × 10 MAX):</strong> Perfekcyjna progresja piramidalna! Wejście na 55 kg w 3. serii i wyciągnięcie 10 powtórzeń do załamania dało potężne ukrwienie i napięcie w pozycji maksymalnego skrócenia mięśnia prostego uda (rectus femoris). Izolacja nóg bez obciążania kręgosłupa i kolan to wzorcowy sposób na budowę czwórek przed kolejnym cyklem bazy siłowej.<br>
+• <strong>Uginanie nóg na maszynie (40 kg × 12, 45 kg × 10 MAX, 45 kg × 10 MAX):</strong> 45 kg w dwóch ostatnich seriach do odcinki na dwugłowe uda gwarantuje idealny balans strukturalny z czworogłowymi i chroni więzadła krzyżowe.<br>
+• <strong>Narciarz na wyciągu (35 kg × 15, 40 kg × 12 MAX, 40 kg × 12 MAX):</strong> Wyśmienity wybór pod szerokość pleców – pełne rozciągnięcie mięśnia najszerszego grzbietu bez angażowania i przedwczesnego zmęczenia bicepsa.<br>
+• <strong>Brama z góry w dół / Dipsy (20 kg × 12, 25 kg × 10 MAX, 25 kg × 10 MAX):</strong> Precyzyjnie zaatakowany dół i zewnętrzny zarys klatki piersiowej. W połączeniu ze skosem dodatnim z Planu A i B tworzy to pełny, trójwymiarowy profil mięśni piersiowych.<br>
+• <strong>Face-pulls ze sznurem (25 kg × 15, 30 kg × 12 MAX, 30 kg × 12 MAX):</strong> Klucz do kulistych tylnych aktonów barków i prewencji kontuzji stożka rotatorów. 30 kg z zachowaniem czystej rotacji zewnętrznej ramion to znakomity wynik.<br>
+• <strong>Superseria ramion (Triceps sznur z góry + Biceps sznur z dołu 20-25 kg):</strong> Znakomity czas i gęstość treningowa! Połączenie antagonistów w superserii wywołało potężną pompę sarkoplazmatyczną, nie obciążając stawów łokciowych.<br>
+• <strong>Spięcia brzucha na maszynie (50 kg × 15, 15, 15 MAX):</strong> Równiutkie 3 serie po 15 powtórzeń z 50 kg – bezkompromisowa wytrzymałość i gęstość mięśnia prostego brzucha.<br>
+• <strong>Tonaż sesji:</strong> Ponad 10 100 kg przerzuconego ciężaru! Regeneracja przed kolejnym tygodniem przebiegnie wzorowo.<br><br>
+🎯 <strong>PLAN NA NASTĘPNY TRENING (PLAN A - BAZA SIŁOWA):</strong><br>
+1. <strong>Nogi (Suwnica 45° / Przysiady):</strong> Zacznij od 80 kg, po rozgrzewce zaatakuj 85-90 kg na 6-8 powtórzeń.<br>
+2. <strong>Plecy (Ściąganie pionowe do klatki):</strong> Wejdź na 70-75 kg, pilnuj zatrzymania drążka przy obojczykach na 0.5 sekundy.<br>
+3. <strong>Klatka (Wyciskanie płasko / Smith):</strong> Celuj w 65-70 kg na 8 powtórzeń z kontrolowaną fazą ekscentryczną (3 sekundy w dół).`,
+        exercises: [
+          { name: "Wyprosty nóg siedząc na maszynie (czworogłowe)", sets: [{ weight: 45, reps: 12, rir: "2" }, { weight: 50, reps: 12, rir: "1" }, { weight: 55, reps: 10, rir: "0" }] },
+          { name: "Uginanie nóg na maszynie (dwugłowe leżąc / siedząc)", sets: [{ weight: 40, reps: 12, rir: "1" }, { weight: 45, reps: 10, rir: "0" }, { weight: 45, reps: 10, rir: "0" }] },
+          { name: "'Narciarz' z prostym drążkiem na wyciągu (szerokość)", sets: [{ weight: 35, reps: 15, rir: "1" }, { weight: 40, reps: 12, rir: "0" }, { weight: 40, reps: 12, rir: "0" }] },
+          { name: "Ściąganie linek na bramie z góry w dół (Dół klatki & Rozpiętki)", sets: [{ weight: 20, reps: 12, rir: "1" }, { weight: 25, reps: 10, rir: "0" }, { weight: 25, reps: 10, rir: "0" }] },
+          { name: "Face-pulls na wyciągu ze sznurem (tył barku)", sets: [{ weight: 25, reps: 15, rir: "1" }, { weight: 30, reps: 12, rir: "0" }, { weight: 30, reps: 12, rir: "0" }] },
+          { name: "Superseria: Triceps sznur z góry + Biceps sznur z dołu", sets: [{ weight: 20, reps: 12, rir: "1" }, { weight: 25, reps: 10, rir: "0" }, { weight: 25, reps: 10, rir: "0" }] },
+          { name: "Spięcia na maszynie do brzucha (Abdominal Crunch)", sets: [{ weight: 50, reps: 15, rir: "0" }, { weight: 50, reps: 15, rir: "0" }, { weight: 50, reps: 15, rir: "0" }] }
+        ]
+      },
+      {
+        id: 1795258800000,
+        athlete: "rafal",
+        date: "2026-11-21",
+        planType: "B",
+        title: "Trening B // Skos Klatki, RDL & Potężne Ramiona + Brzuch",
+        notes: `🔥 <strong>ANALIZA TRENINGU B (SOBOTA 21.11):</strong><br>
+• <strong>Martwy ciąg rumuński (RDL) 75 kg × 8:</strong> Wzorowa kontrola bioder i mocne rozciągnięcie taśmy tylnej bez przeciążania odcinka lędźwiowego.<br>
+• <strong>Wyciskanie hantli skos + (26 kg × 8, 8):</strong> Płynny ruch i pełne dopięcie góry klatki.<br>
+• <strong>Ramiona & Brzuch:</strong> Triceps zza głowy 22.5 kg oraz brzuch na maszynie 55 kg dopięte do upadku mięśniowego.`,
+        exercises: [
+          { name: "Martwy ciąg rumuński (RDL) ze sztangą", sets: [{ weight: 70, reps: 10, rir: "2" }, { weight: 75, reps: 8, rir: "1" }, { weight: 75, reps: 8, rir: "1" }] },
+          { name: "Wyciskanie hantli na ławce skośnej dodatniej", sets: [{ weight: 24, reps: 10, rir: "2" }, { weight: 26, reps: 8, rir: "1" }, { weight: 26, reps: 8, rir: "0" }] },
+          { name: "Rozpiętki na bramie / Pec Deck", sets: [{ weight: 35, reps: 12, rir: "2" }, { weight: 40, reps: 10, rir: "1" }, { weight: 40, reps: 10, rir: "0" }] },
+          { name: "Wiosłowanie hantlem w oparciu o ławkę", sets: [{ weight: 28, reps: 10, rir: "2" }, { weight: 30, reps: 8, rir: "1" }, { weight: 30, reps: 8, rir: "0" }] },
+          { name: "Wyciskanie żołnierskie sztangi stojąc (OHP)", sets: [{ weight: 40, reps: 8, rir: "2" }, { weight: 45, reps: 6, rir: "1" }, { weight: 45, reps: 6, rir: "0" }] },
+          { name: "Uginanie przedramion z hantlami z supinacją", sets: [{ weight: 14, reps: 10, rir: "2" }, { weight: 14, reps: 10, rir: "1" }, { weight: 16, reps: 8, rir: "0" }] },
+          { name: "Wyciskanie francuskie hantlem nad głowę na triceps", sets: [{ weight: 22.5, reps: 12, rir: "2" }, { weight: 22.5, reps: 12, rir: "2" }, { weight: 22.5, reps: 12, rir: "0" }] },
+          { name: "Spięcia brzucha na maszynie (Ab Crunch)", sets: [{ weight: 55, reps: 12, rir: "2" }, { weight: 55, reps: 10, rir: "1" }, { weight: 55, reps: 11, rir: "0" }] }
+        ]
+      },
+      {
+        id: Date.now(),
+        athlete: "rafal",
+        date: "2026-11-18",
+        planType: "B",
+        title: "Trening B // Skos Klatki, RDL & Potężne Ramiona + Brzuch",
+        notes: `🔥 <strong>ANALIZA TRENINGU B (ŚRODA 18.11):</strong><br>
+• <strong>Triceps hantlem nad głowę (22.5 kg × 12, 12, 12 MAX):</strong> Wybitna robota! Wyciskanie francuskie hantlem zza karku w pozycji pionowej stawia głowę długą tricepsa w maksymalnym rozciągnięciu pod pełnym obciążeniem. Utrzymanie równej liczby 12 powtórzeń we wszystkich 3 seriach z 22.5 kg przy RIR 2, RIR 2 i finałowym RIR 0 (do upadku) to wzorcowy bodziec hipertroficzny. Taki zakres i kontrola budują masywną grubość ramienia widoczną z boku i z tyłu.<br>
+• <strong>Spięcia brzucha na maszynie (55 kg × 12, 10, 11 MAX):</strong> 55 kg na maszynie do spięć to potężna siła korpusu! Wyczerpanie w seriach (12 z zapasem 2, 10 z zapasem 1, 11 do odcięcia) świadczy o pełnej rekrutacji jednostek motorycznych mięśnia prostego brzucha bez oszukiwania pędem. Pamiętaj, aby nie ciągnąć za uchwyty dłońmi ani szyją – cała praca to zginanie kręgosłupa i zbliżanie mostka do spojenia łonowego.<br>
+• <strong>Balans góra-dół:</strong> Połączenie martwego ciągu rumuńskiego (RDL), klatki na skosie i izolacji ramion stworzyło kompletny, zbalansowany bodziec metaboliczny.<br><br>
+🎯 <strong>SUGESTIE I WSKAZÓWKI NA KOLEJNY TRENING (PLAN C - IZOLACJE & GRZBIET):</strong><br>
+1. <strong>Czworogłowe & Dwugłowe (Maszyny):</strong> Wyprosty na czwórki (c_quads_ext) i uginania leżąc (c_hams_curl) potraktuj pompująco – 12-15 powtórzeń z 1-sekundowym zatrzymaniem w szczycie napięcia.<br>
+2. <strong>Grzbiet (Ściąganie wyciągu poziomego / Wiosłowanie):</strong> Skup się na retrakcji łopatek i prowadzeniu łokci blisko tułowia.<br>
+3. <strong>Ramiona - Super-seria Biceps + Triceps:</strong> W Treningu C ramiona możesz połączyć w zwinny superset, by zaoszczędzić czas i wygenerować maksymalny obrzęk sarkoplazmatyczny (pompę mięśniową). Regeneracja przed weekendem będzie optymalna!`,
+        exercises: [
+          { name: "Martwy ciąg rumuński (RDL) ze sztangą", sets: [{ weight: 70, reps: 10, rir: "2" }, { weight: 75, reps: 8, rir: "1" }, { weight: 75, reps: 8, rir: "1" }] },
+          { name: "Wyciskanie hantli na ławce skośnej dodatniej", sets: [{ weight: 24, reps: 10, rir: "2" }, { weight: 26, reps: 8, rir: "1" }, { weight: 26, reps: 8, rir: "0" }] },
+          { name: "Rozpiętki na bramie / Pec Deck", sets: [{ weight: 35, reps: 12, rir: "2" }, { weight: 40, reps: 10, rir: "1" }, { weight: 40, reps: 10, rir: "0" }] },
+          { name: "Wiosłowanie hantlem w oparciu o ławkę", sets: [{ weight: 28, reps: 10, rir: "2" }, { weight: 30, reps: 8, rir: "1" }, { weight: 30, reps: 8, rir: "0" }] },
+          { name: "Wyciskanie żołnierskie sztangi stojąc (OHP)", sets: [{ weight: 40, reps: 8, rir: "2" }, { weight: 45, reps: 6, rir: "1" }, { weight: 45, reps: 6, rir: "0" }] },
+          { name: "Uginanie przedramion z hantlami z supinacją", sets: [{ weight: 14, reps: 10, rir: "2" }, { weight: 14, reps: 10, rir: "1" }, { weight: 16, reps: 8, rir: "0" }] },
+          { name: "Wyciskanie francuskie hantlem nad głowę na triceps", sets: [{ weight: 22.5, reps: 12, rir: "2" }, { weight: 22.5, reps: 12, rir: "2" }, { weight: 22.5, reps: 12, rir: "0" }] },
+          { name: "Spięcia brzucha na maszynie (Ab Crunch)", sets: [{ weight: 55, reps: 12, rir: "2" }, { weight: 55, reps: 10, rir: "1" }, { weight: 55, reps: 11, rir: "0" }] }
+        ]
+      },
+      {
+        id: 1, athlete: "rafal",
+        date: "2026-11-16",
+        planType: "A",
+        title: "Trening A // Baza Siłowa + Nowe Ramiona",
+        notes: `🔥 <strong>ANALIZA TRENINGU A (7:00 RANO NA CZCZO):</strong><br>
+• <strong>Modlitewnik (15 kg × 12, 12, 12):</strong> Idealna powtarzalność! Ciężar wzorowo trafiony pod czystą hipertrofię. Brak szarpania i stałe napięcie pozwoliły w 100% zaangażować głowę krótką bicepsa.<br>
+• <strong>Triceps prosty gryf (27.5 kg × 12, 12, 10):</strong> Podręcznikowe zmęczenie materiału – serie 1 i 2 zrobione z bezpiecznym zapasem 2 powtórzeń, seria 3 dopchnięta do 10 powt. (RIR 0). Taki bodziec buduje twardą masę ramion.<br>
+• <strong>Żywienie:</strong> Połączenie szejka białkowego z owsianką o 10:00 i masłem orzechowym idealnie zatrzymało potreningowy katabolizm.<br><br>
+🎯 <strong>SUGESTIE I PLAN DZIAŁANIA NA NASTĘPNY TRENING (PLAN B):</strong><br>
+1. <strong>RDL (Nogi):</strong> Zacznij spokojnie od 70 kg, skup się na cofaniu bioder w tył i rozciąganiu dwugłowych, nie zginaj za mocno kolan.<br>
+2. <strong>Klatka skos +:</strong> Weź hantle 22 kg lub 24 kg. Zostaw 1-2 powtórzenia zapasu w pierwszej serii.<br>
+3. <strong>Triceps sznur:</strong> Dobierz 20-22.5 kg – nie szarp ciężaru, na dole koniecznie rozszerz sznur na uda, by dopompować głowę boczną tricepsa!`,
+        exercises: [
+          { name: "Przysiad ze sztangą (klasyczny)", sets: [{ weight: 80, reps: 8, rir: "2" }, { weight: 80, reps: 8, rir: "2" }, { weight: 85, reps: 6, rir: "1" }, { weight: 85, reps: 6, rir: "0" }] },
+          { name: "Ściąganie drążka wyciągu do klatki", sets: [{ weight: 60, reps: 8, rir: "2" }, { weight: 65, reps: 8, rir: "1" }, { weight: 65, reps: 8, rir: "1" }, { weight: 65, reps: 8, rir: "0" }] },
+          { name: "Wyciskanie sztangi na ławce płaskiej", sets: [{ weight: 70, reps: 8, rir: "2" }, { weight: 75, reps: 8, rir: "1" }, { weight: 75, reps: 8, rir: "1" }, { weight: 75, reps: 8, rir: "0" }] },
+          { name: "Wznosy hantli bokiem stojąc", sets: [{ weight: 10, reps: 12, rir: "2" }, { weight: 10, reps: 12, rir: "1" }, { weight: 12, reps: 10, rir: "0" }] },
+          { name: "Prostowanie ramion gryfem prostym na triceps", sets: [{ weight: 27.5, reps: 12, rir: "2" }, { weight: 27.5, reps: 12, rir: "1" }, { weight: 27.5, reps: 10, rir: "0" }] },
+          { name: "Uginanie ramion na modlitewniku", sets: [{ weight: 15, reps: 12, rir: "2" }, { weight: 15, reps: 12, rir: "1" }, { weight: 15, reps: 12, rir: "1" }] },
+          { name: "Allahy (spięcia na wyciągu klęcząc)", sets: [{ weight: 35, reps: 12, rir: "2" }, { weight: 40, reps: 12, rir: "1" }, { weight: 40, reps: 12, rir: "0" }] }
+        ]
+      },
+      {
+        id: 2, athlete: "rafal",
+        date: "2026-11-13",
+        planType: "A",
+        title: "Trening A // Baza Siłowa (Rozruch)",
+        notes: "Pierwsza pełna sesja bazy siłowej. Bardzo dobre tempo, zrobione 23 serie robocze.",
+        exercises: [
+          { name: "Przysiad ze sztangą (klasyczny)", sets: [{ weight: 80, reps: 8 }, { weight: 80, reps: 8 }, { weight: 85, reps: 6 }, { weight: 85, reps: 6 }] },
+          { name: "Ściąganie drążka wyciągu do klatki", sets: [{ weight: 60, reps: 8 }, { weight: 65, reps: 8 }, { weight: 65, reps: 8 }, { weight: 65, reps: 8 }] },
+          { name: "Wyciskanie sztangi na ławce płaskiej", sets: [{ weight: 70, reps: 8 }, { weight: 75, reps: 8 }, { weight: 75, reps: 8 }, { weight: 75, reps: 8 }] },
+          { name: "Wznosy hantli bokiem stojąc", sets: [{ weight: 10, reps: 12 }, { weight: 10, reps: 12 }, { weight: 12, reps: 10 }] },
+          { name: "Wyciskanie leżąc ze sztangą prostą", sets: [{ weight: 30, reps: 10 }, { weight: 32.5, reps: 10 }, { weight: 35, reps: 8 }] },
+          { name: "Allahy (spięcia na wyciągu klęcząc)", sets: [{ weight: 35, reps: 12 }, { weight: 40, reps: 12 }, { weight: 40, reps: 12 }] }
+        ]
+      }
+    ];
+
+    let reports = [];
+    function initReports() {
+      // 1. Sprawdź czy są zapisane w fbw_coach_reports
+      let saved = null;
+      try {
+        const raw = localStorage.getItem('fbw_coach_reports');
+        if (raw) saved = JSON.parse(raw);
+      } catch(e) {}
+
+      // 2. Połącz z INITIAL_REPORTS (upewnij się że najnowsze INITIAL_REPORTS są zawsze obecne)
+      const map = new Map();
+      INITIAL_REPORTS.forEach(r => map.set(r.date + '_' + r.planType, r));
+      if (Array.isArray(saved)) {
+        saved.forEach(r => {
+          const k = r.date + '_' + r.planType;
+          if (!map.has(k)) map.set(k, r);
+        });
+      }
+
+      // 3. Połącz z historią aplikacji (clean_workout_history_rafal)
+      try {
+        const cleanH = JSON.parse(localStorage.getItem('clean_workout_history_rafal') || '[]');
+        if (Array.isArray(cleanH)) {
+          cleanH.forEach(ch => {
+            const dateStr = ch.date ? ch.date.split('T')[0] : (ch.formattedDate ? ch.formattedDate.split(',')[0].trim().split('.').reverse().join('-') : null);
+            if (dateStr) {
+              const k = dateStr + '_' + (ch.planType || 'A');
+              if (!map.has(k) && ch.summaryList && ch.summaryList.length > 0) {
+                map.set(k, {
+                  id: ch.id || Date.now(),
+                  athlete: 'rafal',
+                  date: dateStr,
+                  planType: ch.planType || 'A',
+                  title: `Trening ${ch.planType || 'A'} // ${ch.formattedDate || dateStr}`,
+                  notes: `Zarejestrowana sesja z aplikacji FBW Tracker (${ch.completedSets || ch.summaryList.length} serii).`,
+                  exercises: ch.summaryList.map(item => ({
+                    name: item.name,
+                    sets: (item.sets || []).map(s => ({ weight: s.weight, reps: s.reps, rir: s.rir }))
+                  }))
+                });
+              }
+            }
+          });
+        }
+      } catch(e) {}
+
+      reports = Array.from(map.values()).sort((a, b) => new Date(b.date) - new Date(a.date));
+      saveReportsToStorage();
+    }
+
+    function syncWithAppStorage() {
+      initReports();
+      calculateStats();
+      renderReportsFeed();
+      renderChart();
+      alert("✅ Zsynchronizowano raporty z bazą treningów!");
+    }
+
+    
+    let currentAthleteFilter = 'all'; // 'all' | 'rafal' | 'filip'
+
+    function setAthleteFilter(filter) {
+      currentAthleteFilter = filter;
+      ['All', 'Rafal', 'Filip'].forEach(f => {
+        const btn = document.getElementById(`filterBtn${f}`);
+        if (btn) {
+          if (f.toLowerCase() === filter) {
+            btn.className = "px-2.5 py-1 rounded font-bold bg-amber-500 text-slate-950 shadow-xs transition";
+          } else {
+            btn.className = "px-2.5 py-1 rounded text-slate-400 hover:text-white transition";
+          }
+        }
+      });
+      renderReportsFeed();
+      renderChart();
+    }
+
+    function handleAthleteChangeInModal() {
+      const a = document.getElementById('newReportAthlete').value;
+      const pt = document.getElementById('newReportPlanType');
+      if (a === 'filip') {
+        pt.value = 'FILIP';
+      } else {
+        pt.value = 'A';
+      }
+    }
+
+    function saveReportsToStorage() {
+      localStorage.setItem('fbw_coach_reports', JSON.stringify(reports));
+    }
+
+    function calculateStats() {
+      let totalVolume = 0;
+      let totalSets = 0;
+
+      reports.forEach(rep => {
+        rep.exercises.forEach(ex => {
+          ex.sets.forEach(s => {
+            totalSets++;
+            totalVolume += (Number(s.weight) || 0) * (Number(s.reps) || 0);
+          });
+        });
+      });
+
+      document.getElementById('statTotalWorkouts').innerText = reports.length;
+      document.getElementById('statTotalVolume').innerText = `${Math.round(totalVolume).toLocaleString('pl-PL')} kg`;
+      document.getElementById('statTotalSets').innerText = totalSets;
+      document.getElementById('reportCountBadge').innerText = `${reports.length} sesji zapisanych`;
+    }
+
+    function formatWorkoutDateBadge(rep) {
+      if (!rep) return '';
+      if (rep.formattedDate) return rep.formattedDate;
+      const raw = rep.date;
+      if (!raw) return 'Brak daty';
+      try {
+        const parts = raw.split('T')[0].split('-');
+        if (parts.length === 3) {
+          const y = parseInt(parts[0], 10);
+          const m = parseInt(parts[1], 10) - 1;
+          const d = parseInt(parts[2], 10);
+          const dt = new Date(y, m, d);
+          const days = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
+          const dayName = days[dt.getDay()];
+          const dd = String(d).padStart(2, '0');
+          const mm = String(m + 1).padStart(2, '0');
+          let res = `${dayName}, ${dd}.${mm}.${y}`;
+          if (rep.time) res += ` (${rep.time})`;
+          return res;
+        }
+      } catch(e) {}
+      return rep.date + (rep.time ? ` (${rep.time})` : '');
+    }
+
+    function renderReportsFeed() {
+      const container = document.getElementById('reportsList');
+      container.innerHTML = '';
+
+      const filtered = reports.filter(r => {
+        if (currentAthleteFilter === 'all') return true;
+        return (r.athlete || 'rafal') === currentAthleteFilter;
+      });
+
+      document.getElementById('reportCountBadge').innerText = `${filtered.length} sesji (${currentAthleteFilter.toUpperCase()})`;
+
+      filtered.forEach((rep, idx) => {
+        const isFilip = (rep.athlete === 'filip');
+        const athleteBadge = isFilip ? '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-400/20 text-cyan-300 border border-cyan-400/30">⚡ FILIP</span>' : '<span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">👤 RAFAŁ</span>';
+
+        let sessionVolume = 0;
+        let sessionSets = 0;
+
+        rep.exercises.forEach(ex => {
+          ex.sets.forEach(s => {
+            sessionSets++;
+            sessionVolume += (Number(s.weight) || 0) * (Number(s.reps) || 0);
+          });
+        });
+
+        let planBadgeColor = 'bg-blue-500/10 text-blue-400 border-blue-500/30';
+        if (rep.planType === 'B') planBadgeColor = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
+        if (rep.planType === 'C') planBadgeColor = 'bg-purple-500/10 text-purple-400 border-purple-500/30';
+
+        const card = document.createElement('div');
+        card.className = "p-4 sm:p-5 rounded-2xl bg-slate-950 border border-slate-800/90 space-y-4 hover:border-slate-700 transition";
+
+        card.innerHTML = `
+          <!-- HEADER -->
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+            <div class="flex flex-wrap items-center gap-2">
+              ${athleteBadge}
+              <span class="px-2.5 py-1 rounded-md text-xs font-heavy tracking-wider border ${planBadgeColor}">
+                ${rep.planType === 'FILIP' ? 'FBW FILIP' : 'PLAN ' + rep.planType}
+              </span>
+              <!-- BARDZO WYRAŹNA DATA I CZAS WYKONANIA SESJI -->
+              <span class="px-3 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 font-mono text-xs font-black flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span class="uppercase tracking-wide">${formatWorkoutDateBadge(rep)}</span>
+              </span>
+              <h3 class="text-base sm:text-lg font-heavy text-white tracking-wide ml-1">${rep.title}</h3>
+            </div>
+            <div class="flex items-center gap-3 text-xs font-mono text-slate-400">
+              <span class="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-amber-400 font-bold flex items-center gap-1.5 shadow-xs">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>${Math.round(sessionVolume).toLocaleString('pl-PL')} kg tonażu</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- EXERCISES LIST -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5 font-mono text-xs">
+            ${rep.exercises.map(ex => `
+              <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/60">
+                <div class="font-bold text-slate-200 mb-1.5 flex items-center justify-between">
+                  <span>${ex.name}</span>
+                </div>
+                <div class="flex flex-wrap gap-1.5">
+                  ${ex.sets.map((s, sidx) => `
+                    <span class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[11px] text-slate-300 font-bold inline-flex items-center gap-1">
+                      <span class="text-slate-500">S${sidx + 1}:</span>
+                      <strong class="text-amber-400">${s.weight}kg</strong>
+                      <span class="text-slate-500">×</span>
+                      <span>${s.reps}</span>
+                      ${s.rir !== undefined && s.rir !== '' ? `<span class="text-cyan-400 text-[10px]">(${s.rir === '0' || s.rir === 0 ? 'MAX' : '+' + s.rir})</span>` : ''}
+                    </span>
+                  `).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- COACH NOTES -->
+          ${rep.notes ? `
+            <div class="p-3 rounded-xl bg-amber-500/5 border border-amber-500/15 text-xs text-amber-200/90 font-mono flex items-start gap-2">
+              <i data-lucide="message-square" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+              <div>
+                <strong class="text-amber-400">Komentarz Trenera:</strong> ${rep.notes}
+              </div>
+            </div>
+          ` : ''}
+        `;
+
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    let chartInstance = null;
+    function renderChart() {
+      const ctx = document.getElementById('volumeChart').getContext('2d');
+      
+      // Calculate volume helper
+      function getSessionVolume(rep) {
+        let vol = 0;
+        if (rep.exercises) {
+          rep.exercises.forEach(ex => {
+            if (ex.sets) {
+              ex.sets.forEach(s => {
+                vol += (Number(s.weight) || 0) * (Number(s.reps) || 0);
+              });
+            }
+          });
+        }
+        return Math.round(vol);
+      }
+
+      // Gather chronologically unique dates / sessions
+      const reversed = [...reports].reverse();
+      
+      let datasets = [];
+      let labels = [];
+
+      if (currentAthleteFilter === 'all') {
+        // Obaj zawodnicy - dwie osobne linie na jednym wykresie!
+        const rafalReports = reversed.filter(r => (r.athlete || 'rafal') === 'rafal');
+        const filipReports = reversed.filter(r => r.athlete === 'filip');
+
+        // Labels can be timeline of all workout dates
+        const allDates = [...new Set(reversed.map(r => r.date))];
+        labels = allDates.map(d => { const p = d.split('-'); return p.length === 3 ? (p[2] + '.' + p[1]) : d; }); // DD.MM
+
+        // Map values per date
+        const rafalData = allDates.map(d => {
+          const match = rafalReports.find(r => r.date === d);
+          return match ? getSessionVolume(match) : null;
+        });
+
+        const filipData = allDates.map(d => {
+          const match = filipReports.find(r => r.date === d);
+          return match ? getSessionVolume(match) : null;
+        });
+
+        datasets = [
+          {
+            label: '👤 RAFAŁ (Złoty)',
+            data: rafalData,
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.08)',
+            borderWidth: 3,
+            tension: 0.35,
+            spanGaps: true,
+            pointBackgroundColor: '#0f172a',
+            pointBorderColor: '#f59e0b',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8
+          },
+          {
+            label: '⚡ FILIP (Cyjan / Neon)',
+            data: filipData,
+            borderColor: '#06b6d4',
+            backgroundColor: 'rgba(6, 182, 212, 0.08)',
+            borderWidth: 3,
+            tension: 0.35,
+            spanGaps: true,
+            pointBackgroundColor: '#0f172a',
+            pointBorderColor: '#06b6d4',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8
+          }
+        ];
+      } else if (currentAthleteFilter === 'rafal') {
+        const filtered = reversed.filter(r => (r.athlete || 'rafal') === 'rafal');
+        labels = filtered.map(r => `${r.date.substring(5)} (Plan ${r.planType})`);
+        const dataVolume = filtered.map(getSessionVolume);
+
+        datasets = [{
+          label: '👤 RAFAŁ [kg]',
+          data: dataVolume,
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245, 158, 11, 0.12)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.35,
+          pointBackgroundColor: '#0f172a',
+          pointBorderColor: '#f59e0b',
+          pointBorderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 8
+        }];
+      } else {
+        const filtered = reversed.filter(r => r.athlete === 'filip');
+        labels = filtered.map(r => `${r.date.substring(5)} (Filip)`);
+        const dataVolume = filtered.map(getSessionVolume);
+
+        datasets = [{
+          label: '⚡ FILIP [kg]',
+          data: dataVolume,
+          borderColor: '#06b6d4',
+          backgroundColor: 'rgba(6, 182, 212, 0.12)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.35,
+          pointBackgroundColor: '#0f172a',
+          pointBorderColor: '#06b6d4',
+          pointBorderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 8
+        }];
+      }
+
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels.length > 0 ? labels : ['Brak sesji'],
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { 
+              display: (currentAthleteFilter === 'all'),
+              position: 'top',
+              labels: {
+                color: '#cbd5e1',
+                font: { family: 'JetBrains Mono', size: 11, weight: 'bold' },
+                boxWidth: 14
+              }
+            },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              titleColor: '#f59e0b',
+              bodyFont: { family: 'JetBrains Mono' },
+              borderColor: '#334155',
+              borderWidth: 1,
+              padding: 12
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: '#1e293b' },
+              ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } }
+            },
+            y: {
+              grid: { color: '#1e293b' },
+              ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 }, callback: v => v + ' kg' }
+            }
+          }
+        }
+      });
+    }
+
+    // MODAL ACTIONS
+    function openAddReportModal() {
+      document.getElementById('newReportDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('addReportModal').classList.remove('hidden');
+    }
+
+    function closeAddReportModal() {
+      document.getElementById('addReportModal').classList.add('hidden');
+    }
+
+    function saveNewReport() {
+      const athlete = document.getElementById('newReportAthlete') ? document.getElementById('newReportAthlete').value : 'rafal';
+      const planType = document.getElementById('newReportPlanType').value;
+      const date = document.getElementById('newReportDate').value || new Date().toISOString().split('T')[0];
+      const rawText = document.getElementById('newReportRawText').value.trim();
+      const notes = document.getElementById('newReportNotes').value.trim();
+
+      if (!rawText) {
+        alert("Wpisz lub wklej treść raportu!");
+        return;
+      }
+
+      // Parser for exercises & sets
+      
+      let detectedAthlete = athlete;
+      if (rawText.toUpperCase().includes('FILIP')) detectedAthlete = 'filip';
+      if (rawText.toUpperCase().includes('RAFAŁ') || rawText.toUpperCase().includes('RAFAL')) detectedAthlete = 'rafal';
+
+      const lines = rawText.split('\n');
+      const exercises = [];
+
+      lines.forEach(line => {
+        line = line.trim();
+        if (!line) return;
+
+        // format: "Nazwa ćwiczenia: 80kg x 8, 85kg x 6"
+        const parts = line.split(':');
+        if (parts.length >= 2) {
+          const name = parts[0].replace(/^\d+[\.\)]\s*/, '').trim();
+          const setsStr = parts.slice(1).join(':').trim();
+          const setTokens = setsStr.split(',');
+
+          const sets = [];
+          setTokens.forEach(st => {
+            const match = st.match(/([\d\.]+)\s*kg\s*[x×]\s*(\d+)/i) || st.match(/([\d\.]+)\s*[x×]\s*(\d+)/i);
+            if (match) {
+              sets.push({
+                weight: parseFloat(match[1]),
+                reps: parseInt(match[2]),
+                rir: "1"
+              });
+            }
+          });
+
+          if (sets.length > 0) {
+            exercises.push({ name, sets });
+          }
+        } else {
+          // Alternative fallback
+          exercises.push({
+            name: line,
+            sets: [{ weight: 0, reps: 0 }]
+          });
+        }
+      });
+
+      const newReport = {
+        id: Date.now(),
+        athlete: detectedAthlete,
+        date,
+        planType,
+        title: `Trening ${planType} // ${new Date(date).toLocaleDateString('pl-PL', { weekday: 'long', day: '2-digit', month: '2-digit' })}`,
+        notes: notes || "Raport treningowy dodany do dziennika analiz.",
+        exercises: exercises.length > 0 ? exercises : [{ name: "Ogólny zapis treningu", sets: [{ weight: 0, reps: 0 }] }]
+      };
+
+      reports.unshift(newReport);
+      saveReportsToStorage();
+
+      calculateStats();
+      renderReportsFeed();
+      renderChart();
+
+      closeAddReportModal();
+      document.getElementById('newReportRawText').value = '';
+      document.getElementById('newReportNotes').value = '';
+    }
+
+    // INIT
+    document.addEventListener('DOMContentLoaded', () => {
+      initReports();
+      calculateStats();
+      renderReportsFeed();
+      renderChart();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
