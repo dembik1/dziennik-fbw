@@ -3614,6 +3614,69 @@
     // ==========================================
     // PRZESUWANIE KOLEJNOŚCI ĆWICZEŃ W TRENINGU
     // ==========================================
+    
+    // ==========================================================
+    // WYODRĘBNIENIE ZAMIENNIKA DO OSOBNEGO KAFELKA W TRENINGU
+    // ==========================================================
+    function splitVariantToSeparateSlot(slotId, exId) {
+      try {
+        const plan = getActiveRoutine();
+        const slot = plan.slots.find(s => s.slotId === slotId);
+        if (!slot) return;
+        const curEx = slot.variants.find(v => v.id === exId);
+        if (!curEx) return;
+
+        // Utwórz nowy osobny slot
+        const newSlotId = 'slot_' + exId + '_' + Date.now();
+        const newSlot = {
+          slotId: newSlotId,
+          category: slot.category + ' (DODATKOWE)',
+          selectedIdx: 0,
+          isCustom: true,
+          variants: [{ ...curEx }]
+        };
+
+        const key = `fbw_custom_slots_${currentProfile}_${activeTab}`;
+        const saved = JSON.parse(localStorage.getItem(key) || '[]');
+        saved.push(newSlot);
+        localStorage.setItem(key, JSON.stringify(saved));
+
+        // Usuń ten wariant ze starego slotu
+        const varKey = `fbw_custom_variants_${currentProfile}_${activeTab}`;
+        let savedVars = JSON.parse(localStorage.getItem(varKey) || '{}');
+        if (savedVars[slotId]) {
+          savedVars[slotId] = savedVars[slotId].filter(v => v.id !== exId);
+          localStorage.setItem(varKey, JSON.stringify(savedVars));
+        }
+
+        // Zresetuj indeks starego slotu na pierwsze ćwiczenie
+        const selKey = 'fbw_slot_selections';
+        const savedSel = JSON.parse(localStorage.getItem(selKey) || '{}');
+        savedSel[slotId] = { index: 0, exId: slot.variants[0] ? slot.variants[0].id : null };
+        localStorage.setItem(selKey, JSON.stringify(savedSel));
+
+        renderWorkoutView();
+        showToast(`Wyodrębniono "${curEx.name}" jako osobne ćwiczenie! Oba ćwiczenia są teraz widoczne.`, "WYODRĘBNIONO", true);
+      } catch(e) {
+        console.warn(e);
+      }
+    }
+
+    function resetSlotVariantsToDefault() {
+      if (!confirm("Czy chcesz przywrócić domyślne maszyny i ćwiczenia dla wszystkich partii tego planu?")) return;
+      try {
+        const selKey = 'fbw_slot_selections';
+        const savedSel = JSON.parse(localStorage.getItem(selKey) || '{}');
+        const plan = getActiveRoutine();
+        plan.slots.forEach(s => {
+          savedSel[s.slotId] = { index: 0, exId: (s.variants && s.variants[0]) ? s.variants[0].id : null };
+        });
+        localStorage.setItem(selKey, JSON.stringify(savedSel));
+        renderWorkoutView();
+        showToast("Przywrócono domyślne ćwiczenia dla każdej partii!", "PRZYWRÓCONO", true);
+      } catch(e) {}
+    }
+
     function moveSlotUp(slotId) {
       try {
         const orderKey = `fbw_slot_order_${currentProfile}_${activeTab}`;
@@ -3810,12 +3873,18 @@
                 ${totalVariants > 1 ? `
                   <!-- KAFELEK PRZESUWANIA ZAMIENNIKÓW (DUŻY) -->
                   <div class="flex items-center bg-slate-900 text-white rounded-xl border border-slate-800 shadow-sm overflow-hidden">
-                    <button onclick="cycleSlotVariant('${slot.slotId}', -1)" class="px-3 py-2 text-amber-400 hover:bg-slate-800 active:bg-slate-700 font-black text-sm transition" title="Poprzedni zamiennik maszyny">‹</button>
+                    <button onclick="cycleSlotVariant('${slot.slotId}', -1)" class="px-3 py-2 text-amber-400 hover:bg-slate-800 active:bg-slate-700 font-black text-sm transition" title="Przełącz na poprzednie ćwiczenie tej partii">‹</button>
                     <span class="px-2.5 py-1.5 text-[11px] font-mono font-black text-amber-300 border-x border-slate-800 tracking-wider">
                       ${slot.selectedIdx + 1}/${totalVariants} ZAMIENNIK
                     </span>
-                    <button onclick="cycleSlotVariant('${slot.slotId}', 1)" class="px-3 py-2 text-amber-400 hover:bg-slate-800 active:bg-slate-700 font-black text-sm transition" title="Następny zamiennik maszyny">›</button>
+                    <button onclick="cycleSlotVariant('${slot.slotId}', 1)" class="px-3 py-2 text-amber-400 hover:bg-slate-800 active:bg-slate-700 font-black text-sm transition" title="Przełącz na kolejne ćwiczenie tej partii">›</button>
                   </div>
+                  <!-- PRZYCISK ROZDZIEL NA OSOBNE ĆWICZENIE -->
+                  <button onclick="splitVariantToSeparateSlot('${slot.slotId}', '${curEx.id}')"
+                    class="px-2.5 py-2 rounded-xl bg-cyan-50 hover:bg-cyan-100 active:bg-cyan-200 text-cyan-800 border border-cyan-300 text-[11px] font-mono font-black flex items-center gap-1 transition active:scale-95 shadow-2xs"
+                    title="Pokaż to ćwiczenie jako osobną kartę w treningu (oba ćwiczenia będą widoczne naraz)">
+                    <span>➕ ROZDZIEL</span>
+                  </button>
                 ` : ''}
 
                 <!-- KAFELKI PRZESUWANIA KOLEJNOŚCI (GÓRA / DÓŁ) -->
@@ -5530,11 +5599,14 @@
       const atlasSel = document.getElementById('atlasTargetSlot');
       const customSel = document.getElementById('newExTargetSlot');
 
-      let atlasOptions = '';
-      let customOptions = '';
+      // DOMYŚLNA I PIERWSZA OPCJA: OSOBNE DODATKOWE ĆWICZENIE W TRENINGU!
+      let customOptions = `<option value="new_slot" selected>⭐ OSOBNE KOLEJNE ĆWICZENIE (Nowy kafelek w planie ${chosenPlan})</option>`;
+      let atlasOptions = `<option value="new_slot" selected>⭐ DODAJ JAKO OSOBNE ĆWICZENIE DO PLANU ${chosenPlan}</option>`;
+
+      customOptions += `<optgroup label="--- LUB DODAJ JAKO ZAMIENNIK DO ISTNIEJĄCEJ PARTII ---">`;
+      atlasOptions += `<optgroup label="--- LUB DODAJ JAKO ZAMIENNIK DO ISTNIEJĄCEJ PARTII ---">`;
 
       if (chosenPlan === 'ALL') {
-        // Kategorie uniwersalne
         const universalCats = [
           { key: "NOGI", label: "🦵 NOGI (Czwórki / Przysiady / Wykroki)" },
           { key: "KLATKA", label: "🛡️ KLATKA PIERSIOWA (Płaska / Skosy / Maszyny)" },
@@ -5546,8 +5618,8 @@
         ];
 
         universalCats.forEach(c => {
-          atlasOptions += `<option value="all_${c.key}">${c.label} (w planach A, B, C)</option>`;
-          customOptions += `<option value="all_${c.key}">➕ Jako zamiennik do partii: ${c.key} (we wszystkich planach)</option>`;
+          atlasOptions += `<option value="all_${c.key}">${c.label} (zamiennik A, B, C)</option>`;
+          customOptions += `<option value="all_${c.key}">⇄ Zamiennik do partii: ${c.key} (A, B, C)</option>`;
         });
       } else {
         let pRoutine = FBW_ROUTINE[chosenPlan];
@@ -5559,13 +5631,14 @@
             const cat = slot.category;
             const currentVariant = slot.variants[slot.selectedIdx || 0];
             const varName = currentVariant ? currentVariant.name : 'ćwiczenie';
-            atlasOptions += `<option value="${slot.slotId}">[${chosenPlan}] ${cat} (jako zamiennik do: ${varName})</option>`;
-            customOptions += `<option value="${slot.slotId}">[${chosenPlan}] Jako ZAMIENNIK do partii: ${cat}</option>`;
+            atlasOptions += `<option value="${slot.slotId}">⇄ Zamiennik do: ${cat} (zamiast ${varName})</option>`;
+            customOptions += `<option value="${slot.slotId}">⇄ ZAMIENNIK do: ${cat} (zamiast ${varName})</option>`;
           });
         }
       }
 
-      customOptions += `<option value="new_slot">⭐ OSOBNE DODATKOWE ĆWICZENIE (na końcu planu ${chosenPlan})</option>`;
+      customOptions += `</optgroup>`;
+      atlasOptions += `</optgroup>`;
 
       if (atlasSel) atlasSel.innerHTML = atlasOptions;
       if (customSel) customSel.innerHTML = customOptions;
