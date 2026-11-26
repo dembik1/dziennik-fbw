@@ -3674,6 +3674,7 @@
 
     function renderWorkoutView() {
       const plan = getActiveRoutine();
+      const todayDateStr = new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' });
       document.getElementById('planBadge').innerText = plan.badge;
       document.getElementById('planTitle').innerText = plan.title;
 
@@ -3771,6 +3772,7 @@
           : 'NOWE ĆWICZENIE';
 
         const userImg = customPhotos[curEx.id] || DEFAULT_MACHINE_PHOTOS[curEx.id];
+        const dateBadgeText = (lastExInfo && lastExInfo.date) ? `OSTATNIO: ${lastExInfo.date}` : `DZISIAJ: ${todayDateStr}`;
 
         const card = document.createElement('div');
         card.className = "bg-white border border-slate-200 rounded p-3.5 shadow-sm swap-fade transition";
@@ -3790,7 +3792,7 @@
               </span>
               <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-950 font-mono text-[11px] font-extrabold flex items-center gap-1 shadow-2xs shrink-0">
                 <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-600"></i>
-                <span>${lastExInfo && lastExInfo.date ? `OSTATNIO: ${lastExInfo.date}` : `SESJA: ${todayDateStr}`}</span>
+                <span>${dateBadgeText}</span>
               </span>
             </div>
 
@@ -3836,7 +3838,7 @@
           <!-- DUŻE ZDJĘCIE MASZYNY NAD ĆWICZENIEM -->
           ${userImg ? `
             <div class="relative w-full h-48 sm:h-56 md:h-64 rounded-xl overflow-hidden mb-3 bg-slate-950 border border-slate-200/80 shadow-sm cursor-pointer group" onclick="openTechModal('${curEx.id}')" title="Kliknij, aby otworzyć podgląd i technikę">
-              <img src="${userImg}" class="w-full h-full object-contain p-1 group-hover:scale-102 transition duration-300">
+              <img src="${userImg}" onerror="this.onerror=null; this.closest('.relative').style.display='none';" class="w-full h-full object-contain p-1 group-hover:scale-102 transition duration-300">
               <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none"></div>
               
               <div class="absolute bottom-2 left-3 right-3 flex items-center justify-between pointer-events-none">
