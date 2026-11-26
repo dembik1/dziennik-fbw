@@ -3801,7 +3801,76 @@
       } catch(e) {}
     }
 
+    
+    // ==========================================
+    // AUTOMATYCZNA CHMURA SYNCHRONIZACJI (NTFY)
+    // ==========================================
+    const NTFY_SYNC_TOPIC = 'dziennik_fbw_rafal_sync_9255845790_iron';
+
+    async function publishWorkoutToCloud(logEntry) {
+      if (!logEntry) return false;
+      try {
+        const payload = {
+          type: 'full_workout',
+          id: logEntry.id || Date.now(),
+          date: logEntry.date || new Date().toISOString(),
+          formattedDate: logEntry.formattedDate || new Date().toLocaleString('pl-PL'),
+          planType: logEntry.planType || activeTab,
+          planTitle: logEntry.planTitle || (currentProfile === 'filip' ? 'FBW FILIP' : 'FBW IRON'),
+          athlete: currentProfile === 'filip' ? 'filip' : 'rafal',
+          completedSets: logEntry.completedSets || 0,
+          summaryList: logEntry.summaryList || [],
+          exercises: logEntry.exercises || {}
+        };
+
+        const res = await fetch(https://ntfy.sh/, {
+          method: 'POST',
+          headers: {
+            'Title': Trening  - ,
+            'Tags': 'muscle,barbell',
+            'Priority': 'default'
+          },
+          body: JSON.stringify(payload)
+        });
+        console.log('Opublikowano raport treningu do chmury ntfy');
+        return res.ok;
+      } catch(e) {
+        console.warn('Błąd publikacji treningu do chmury:', e);
+        return false;
+      }
+    }
+
+    async function publishSingleExerciseToCloud(exerciseData) {
+      if (!exerciseData) return false;
+      try {
+        const payload = {
+          type: 'single_exercise',
+          timestamp: Date.now(),
+          athlete: currentProfile === 'filip' ? 'filip' : 'rafal',
+          planType: activeTab,
+          ...exerciseData
+        };
+        await fetch(https://ntfy.sh/, {
+          method: 'POST',
+          headers: {
+            'Title': Ćwiczenie: ,
+            'Tags': 'flexed_biceps',
+            'Priority': 'low'
+          },
+          body: JSON.stringify(payload)
+        });
+      } catch(e) {
+        console.warn('Błąd publikacji ćwiczenia do chmury:', e);
+      }
+    }
+
     async function sendSingleExerciseToTelegram(curEx, slot, sets) {
+      publishSingleExerciseToCloud({
+        category: slot ? slot.category : 'ĆWICZENIE',
+        exerciseName: curEx ? curEx.name : '',
+        equipment: curEx ? curEx.equipment : '',
+        sets: sets
+      });
       const botToken = '9255845790:AAGTTE9-HllXitYiIb0AyCwhHaLAPXBEckk';
       const chatId = '8829738364';
 
@@ -4118,6 +4187,7 @@
     }
 
     async function sendWorkoutToTelegram(logEntry) {
+      publishWorkoutToCloud(logEntry);
       const botToken = '9255845790:AAGTTE9-HllXitYiIb0AyCwhHaLAPXBEckk';
       const chatId = '8829738364';
 
@@ -4340,6 +4410,7 @@
         }, 500);
 
         // 3. AUTOMATYCZNA SYNCHRONIZACJA Z CHMURĄ PC
+        publishWorkoutToCloud(logEntry);
         pushWorkoutsToCloud().then(synced => {
           if (synced) console.log('Pełny trening zsynchronizowany z chmurą PC');
         }).catch(err => console.warn('Błąd chmury:', err));
@@ -5746,6 +5817,10 @@
     }
 
     async function pushWorkoutsToCloud(customPin) {
+      try {
+        const h = getHistory();
+        if (h && h.length > 0) publishWorkoutToCloud(h[0]);
+      } catch(e) {}
       const pin = (customPin || getSyncPin()).trim();
       const localHistory = getHistory();
       const slotSelections = JSON.parse(localStorage.getItem('fbw_slot_selections') || '{}');

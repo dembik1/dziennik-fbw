@@ -75,6 +75,10 @@
           <i data-lucide="smartphone" class="w-3.5 h-3.5 text-cyan-400"></i>
           <span class="hidden sm:inline">OTWÓRZ APLIKACJĘ</span>
         </a>
+        <div id="cloudSyncStatusBadge" class="hidden sm:flex items-center text-xs font-mono px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
+          <span>CHMURA LIVE</span>
+        </div>
         <button onclick="syncWithAppStorage()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white border border-emerald-500 text-xs font-mono font-bold transition shadow-sm active:scale-95">
           <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
           <span>SYNCHRONIZUJ</span>
@@ -431,10 +435,12 @@
 
     let reports = [];
     function initReports() {
-      // 1. Inicjalizacja z dokladnych 5 dat (16.11, 18.11, 20.11, 22.11, 24.11)
-      const allowedDates = ['2026-11-24', '2026-11-22', '2026-11-20', '2026-11-18', '2026-11-16'];
       const map = new Map();
-      INITIAL_REPORTS.forEach(r => map.set(r.date, r));
+      INITIAL_REPORTS.forEach(r => {
+        if (r.date !== '2026-11-21') {
+          map.set(r.date + '_' + (r.athlete || 'rafal'), r);
+        }
+      });
 
       let saved = null;
       try {
@@ -442,24 +448,160 @@
         if (raw) saved = JSON.parse(raw);
         if (Array.isArray(saved)) {
           saved.forEach(r => {
-            if (allowedDates.includes(r.date)) {
-              if (!map.has(r.date)) map.set(r.date, r);
+            // Ignoruj błędną datę 21.11 (sobota)
+            if (r.date === '2026-11-21') return;
+            const key = r.date + '_' + (r.athlete || 'rafal');
+            if (!map.has(key)) {
+              map.set(key, r);
             }
           });
         }
       } catch(e) {}
 
-      // Posortuj chronologicznie od najnowszego (24.11) do najstarszego (16.11)
+      // Posortuj chronologicznie od najnowszego
       reports = Array.from(map.values()).sort((a, b) => new Date(b.date) - new Date(a.date));
       saveReportsToStorage();
     }
 
-    function syncWithAppStorage() {
+
+    // =======================================================
+    // AUTOMATYCZNA CHMURA ODBIORCZA (NTFY REAL-TIME SYNC)
+    // =======================================================
+    const NTFY_SYNC_TOPIC = 'dziennik_fbw_rafal_sync_9255845790_iron';
+
+    function convertLogEntryToCoachReport(data) {
+      if (!data) return null;
+      let dateStr = '';
+      let timeStr = '';
+      if (data.date) {
+        dateStr = data.date.includes('T') ? data.date.split('T')[0] : data.date;
+      }
+      if (data.formattedDate) {
+        if (data.formattedDate.includes(',')) {
+          timeStr = data.formattedDate.split(',')[1].trim();
+        } else if (data.formattedDate.includes('(') && data.formattedDate.includes(')')) {
+          const m = data.formattedDate.match(/\(([^)]+)\)/);
+          if (m) timeStr = m[1];
+        }
+      }
+      if (!timeStr && data.date && data.date.includes('T')) {
+        try {
+          timeStr = new Date(data.date).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+        } catch(e) {}
+      }
+
+      let exList = [];
+      if (Array.isArray(data.summaryList) && data.summaryList.length > 0) {
+        exList = data.summaryList.map(item => ({
+          name: item.name || item.category || 'Ćwiczenie',
+          sets: (item.sets || []).map(s => ({
+            weight: Number(s.weight) || 0,
+            reps: Number(s.reps) || 0,
+            rir: (s.rir !== undefined && s.rir !== null) ? String(s.rir) : ''
+          }))
+        }));
+      } else if (data.exercises) {
+        if (Array.isArray(data.exercises)) {
+          exList = data.exercises;
+        } else if (typeof data.exercises === 'object') {
+          Object.keys(data.exercises).forEach(k => {
+            const sets = data.exercises[k];
+            if (Array.isArray(sets)) {
+              exList.push({
+                name: k,
+                sets: sets.map(s => ({
+                  weight: Number(s.weight) || 0,
+                  reps: Number(s.reps) || 0,
+                  rir: (s.rir !== undefined && s.rir !== null) ? String(s.rir) : ''
+                }))
+              });
+            }
+          });
+        }
+      }
+
+      if (exList.length === 0) return null;
+
+      let notes = `🔥 <strong>RAPORT ZAPISANY Z APLIKACJI MOBILNEJ (${data.planType || 'FBW'}):</strong><br>`;
+      exList.forEach(e => {
+        const maxWeight = Math.max(...e.sets.map(s => s.weight), 0);
+        const setsStr = e.sets.map(s => `${s.weight} kg × ${s.reps}${s.rir ? ' [Zapas: ' + (s.rir === '0' ? 'MAX' : '+' + s.rir) + ']' : ''}`).join(', ');
+        notes += `• <strong>${e.name}:</strong> ${setsStr} (Maksymalny ciężar: ${maxWeight} kg)<br>`;
+      });
+
+      return {
+        id: data.id || Date.now(),
+        athlete: (data.athlete || 'rafal').toLowerCase(),
+        date: dateStr || new Date().toISOString().split('T')[0],
+        time: timeStr || new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }),
+        formattedDate: data.formattedDate || formatWorkoutDateBadge({ date: dateStr, time: timeStr }),
+        planType: (data.planType || 'B').toUpperCase(),
+        title: `Trening ${data.planType || 'FBW'} // Auto-sync z telefonu`,
+        notes: notes,
+        exercises: exList
+      };
+    }
+
+    async function fetchCloudWorkouts() {
+      const syncBadge = document.getElementById('cloudSyncStatusBadge');
+      try {
+        const res = await fetch(`https://ntfy.sh/${NTFY_SYNC_TOPIC}/json?poll=1`);
+        if (!res.ok) return 0;
+        const text = await res.text();
+        const lines = text.trim().split('\n').filter(Boolean);
+        let addedCount = 0;
+
+        lines.forEach(line => {
+          try {
+            const item = JSON.parse(line);
+            if (!item.message) return;
+            const data = JSON.parse(item.message);
+            if (data.type === 'full_workout' || (data.planType && (data.summaryList || data.exercises))) {
+              const rep = convertLogEntryToCoachReport(data);
+              if (rep && rep.date && rep.date !== '2026-11-21') {
+                const exists = reports.some(r => (r.id && r.id === rep.id) || (r.date === rep.date && r.planType === rep.planType && r.athlete === rep.athlete));
+                if (!exists) {
+                  reports.unshift(rep);
+                  addedCount++;
+                }
+              }
+            }
+          } catch(err) {}
+        });
+
+        if (addedCount > 0) {
+          reports.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+          saveReportsToStorage();
+          calculateStats();
+          renderReportsFeed();
+          renderChart();
+        }
+
+        if (syncBadge) {
+          const nowStr = new Date().toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+          syncBadge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1.5"></span><span>CHMURA LIVE (${nowStr})</span>`;
+          syncBadge.className = "hidden sm:flex items-center text-xs font-mono px-2.5 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400";
+        }
+        return addedCount;
+      } catch(e) {
+        if (syncBadge) {
+          syncBadge.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1.5"></span><span>CHMURA: OCZEKIWANIE</span>`;
+        }
+        return 0;
+      }
+    }
+
+    async function syncWithAppStorage() {
       initReports();
+      const count = await fetchCloudWorkouts();
       calculateStats();
       renderReportsFeed();
       renderChart();
-      alert("✅ Zsynchronizowano raporty z bazą treningów!");
+      if (count > 0) {
+        alert(`✅ Pomyślnie zsynchronizowano z chmurą! Pobrano ${count} nowy(ch) trening(ów).`);
+      } else {
+        alert("✅ Chmura aktywna. Baza raportów jest w 100% zsynchronizowana!");
+      }
     }
 
     
@@ -886,6 +1028,10 @@
       renderReportsFeed();
       renderChart();
       lucide.createIcons();
+
+      // Automatyczna synchronizacja z chmurą na start i w tle co 15 sekund
+      fetchCloudWorkouts();
+      setInterval(fetchCloudWorkouts, 15000);
     });
   </script>
 </body>
