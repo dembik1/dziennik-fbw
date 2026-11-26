@@ -3915,15 +3915,43 @@
           : 'NOWE ĆWICZENIE';
 
         const userImg = customPhotos[curEx.id] || DEFAULT_MACHINE_PHOTOS[curEx.id];
-        const dateBadgeText = (lastExInfo && lastExInfo.date) ? `OSTATNIO: ${lastExInfo.date}` : `DZISIAJ: ${todayDateStr}`;
+        const hasDoneSets = sets.some(s => s.done);
+        const allDoneSets = sets.length > 0 && sets.every(s => s.done);
+        const exerciseDoneTime = localStorage.getItem(`fbw_exercise_done_time_${curEx.id}`);
+
+        let dateBadgeHtml = '';
+        if (allDoneSets) {
+          dateBadgeHtml = `
+            <span class="px-2.5 py-1 rounded-lg bg-emerald-500/20 border-2 border-emerald-500/50 text-emerald-950 font-mono text-[11px] font-black flex items-center gap-1 shadow-2xs shrink-0" title="Zrobione dzisiaj!">
+              <i data-lucide="check-check" class="w-3.5 h-3.5 text-emerald-600 stroke-[3]"></i>
+              <span>✓ ZALICZONE DZISIAJ (${todayDateStr}${exerciseDoneTime ? ', ' + exerciseDoneTime : ''})</span>
+            </span>
+          `;
+        } else if (hasDoneSets) {
+          dateBadgeHtml = `
+            <span class="px-2.5 py-1 rounded-lg bg-amber-500/25 border-2 border-amber-500/50 text-amber-950 font-mono text-[11px] font-black flex items-center gap-1 shadow-2xs shrink-0" title="W trakcie wykonywania dzisiaj">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-700 stroke-[2.5]"></i>
+              <span>DZISIAJ W TRAKCIE (${todayDateStr}${exerciseDoneTime ? ', ' + exerciseDoneTime : ''})</span>
+            </span>
+          `;
+        } else {
+          let prevDate = (lastExInfo && lastExInfo.date) ? lastExInfo.date : null;
+          if (prevDate && prevDate.includes(',')) prevDate = prevDate.split(',')[0].trim();
+          dateBadgeHtml = `
+            <span class="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-300 text-slate-800 font-mono text-[11px] font-extrabold flex items-center gap-1 shadow-2xs shrink-0" title="Data kiedy ostatnio wykonywałeś to ćwiczenie">
+              <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-600"></i>
+              <span>${prevDate ? 'OSTATNIO: ' + prevDate : 'NOWE ĆWICZENIE'}</span>
+            </span>
+          `;
+        }
+
+        let prevDateLabel = (lastExInfo && lastExInfo.date) ? lastExInfo.date : null;
+        if (prevDateLabel && prevDateLabel.includes(',')) prevDateLabel = prevDateLabel.split(',')[0].trim();
+        const prevTrainingLabel = prevDateLabel ? `POPRZEDNI TRENING (${prevDateLabel}):` : `POPRZEDNI TRENING:`;
 
         const card = document.createElement('div');
         card.className = "bg-white border border-slate-200 rounded p-3.5 shadow-sm swap-fade transition";
         card.id = `card_${slot.slotId}`;
-
-        // Gesty przesunięcia (swipe) po całej karcie zostały wyłączone,
-        // aby przewijanie ekranu w telefonie nie powodowało przypadkowej zmiany ćwiczenia na zamiennik.
-        // Zmiana zamiennika odbywa się wyłącznie celowo przyciskami ‹ i › na pasku ZAMIENNIK.
 
         card.innerHTML = `
           <!-- PASEK WYBORU ZAMIENNIKA, DATY I EDYCJI (POWIĘKSZONE KAFELKI) -->
@@ -3933,10 +3961,7 @@
               <span class="text-[10px] font-mono uppercase font-black text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200 flex items-center gap-1 shadow-2xs">
                 ${slot.category} ${slot.isCustom ? '<span class="text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded border border-amber-300 font-bold text-[9px] ml-1">WŁASNE</span>' : ''}
               </span>
-              <span class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-950 font-mono text-[11px] font-extrabold flex items-center gap-1 shadow-2xs shrink-0">
-                <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-600"></i>
-                <span>${dateBadgeText}</span>
-              </span>
+              ${dateBadgeHtml}
             </div>
 
             <!-- RZĄD 2: POWIĘKSZONE KAFELKI AKCJI (EDYTUJ + DODAJ ZAMIENNIK + ZAMIENNIKI + PRZESUWANIE GÓRA/DÓŁ + USUŃ) -->
@@ -4037,7 +4062,7 @@
             ${lastExData && lastExData.length > 0 ? `
               <div class="mb-2 px-2.5 py-1.5 rounded-lg bg-amber-50/90 border border-amber-200/90 text-amber-950 font-mono text-[11px] flex flex-wrap items-center justify-between gap-1 shadow-xs">
                 <span class="font-bold flex items-center gap-1.5 text-amber-900">
-                  <i data-lucide="history" class="w-3.5 h-3.5 text-amber-600"></i> POPRZEDNI TRENING:
+                  <i data-lucide="history" class="w-3.5 h-3.5 text-amber-600"></i> ${prevTrainingLabel}
                 </span>
                 <span class="font-extrabold text-slate-800 text-[11px] tracking-tight">
                   ${lastExData.map((ls, lidx) => `<span class="bg-white/80 px-1 py-0.5 rounded border border-amber-200 text-slate-900">S${lidx+1}: <strong>${ls.weight || 0}kg</strong> × <strong>${ls.reps || 0}</strong>${ls.rir !== undefined && ls.rir !== '' ? ` <span class="text-amber-700 text-[10px]">(${ls.rir === 0 || ls.rir === '0' ? 'MAX' : '+' + ls.rir})</span>` : ''}</span>`).join(' ')}
@@ -4419,8 +4444,37 @@
         const set = currentSessionData[exId][setIdx];
         set.done = !set.done;
         
-        if (set.done && !set.reps) {
+        if (set.done && (!set.reps || set.reps === '0' || set.reps === 0)) {
           set.reps = 8;
+        }
+
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const timeStr = now.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+
+        if (set.done) {
+          try {
+            localStorage.setItem(`fbw_exercise_done_date_${exId}`, dateStr);
+            localStorage.setItem(`fbw_exercise_done_time_${exId}`, timeStr);
+            localStorage.setItem(`fbw_last_exercise_date_${currentProfile}_${exId}`, dateStr);
+            localStorage.setItem(`fbw_last_exercise_date_${exId}`, dateStr);
+
+            const currentSets = currentSessionData[exId].map(s => ({
+              setNum: s.setNum,
+              weight: parseFloat(s.weight) || 0,
+              reps: parseInt(s.reps) || 8,
+              rir: (s.rir !== undefined && s.rir !== null) ? String(s.rir) : '',
+              done: Boolean(s.done)
+            }));
+            localStorage.setItem(`fbw_last_exercise_${exId}`, JSON.stringify(currentSets));
+          } catch(e) {}
+        } else {
+          const hasAny = currentSessionData[exId].some(s => s.done);
+          if (!hasAny) {
+            try {
+              localStorage.removeItem(`fbw_exercise_done_time_${exId}`);
+            } catch(e) {}
+          }
         }
 
         saveActiveSession();
@@ -4455,7 +4509,11 @@
 
     function getLastLoggedExerciseInfo(exId) {
       let cachedSets = null;
+      let cachedDate = null;
       try {
+        const directDate = localStorage.getItem(`fbw_last_exercise_date_${currentProfile}_${exId}`) || localStorage.getItem(`fbw_last_exercise_date_${exId}`);
+        if (directDate) cachedDate = directDate;
+
         const direct = localStorage.getItem(`fbw_last_exercise_${exId}`);
         if (direct) {
           const parsed = JSON.parse(direct);
@@ -4473,21 +4531,21 @@
             if (sum && sum.sets && sum.sets.length > 0) {
               const dStr = entry.formattedDate || (entry.date ? entry.date.split('T')[0] : null);
               return {
-                date: dStr,
-                sets: sum.sets
+                date: cachedDate || dStr,
+                sets: (cachedSets && cachedSets.length > 0) ? cachedSets : sum.sets
               };
             }
           }
           if (entry.exercises && entry.exercises[exId] && Array.isArray(entry.exercises[exId]) && entry.exercises[exId].length > 0) {
             const dStr = entry.formattedDate || (entry.date ? entry.date.split('T')[0] : null);
             return {
-              date: dStr,
-              sets: entry.exercises[exId]
+              date: cachedDate || dStr,
+              sets: (cachedSets && cachedSets.length > 0) ? cachedSets : entry.exercises[exId]
             };
           }
         }
       }
-      return { date: null, sets: cachedSets || [] };
+      return { date: cachedDate || null, sets: cachedSets || [] };
     }
 
     function applyExerciseOverrides() {
@@ -4815,6 +4873,8 @@
             // Zapisz natychmiast do dedykowanego magazynu per ćwiczenie
             try {
               localStorage.setItem(`fbw_last_exercise_${curEx.id}`, JSON.stringify(processedSets));
+              localStorage.setItem(`fbw_last_exercise_date_${currentProfile}_${curEx.id}`, new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' }));
+              localStorage.setItem(`fbw_last_exercise_date_${curEx.id}`, new Date().toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit', year: 'numeric' }));
             } catch(e) {}
 
             // Przygotuj currentSessionData na następny trening: ZACHOWAJ CIĘŻARY I POWTÓRZENIA, zresetuj tylko done na false!

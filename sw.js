@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fbw-photos-v23';
+const CACHE_NAME = 'fbw-photos-v24';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
