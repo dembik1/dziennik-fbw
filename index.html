@@ -3466,7 +3466,8 @@
         totalSetsCount += sets.length;
         completedSetsCount += sets.filter(s => s.done).length;
 
-        const lastExData = getLastLoggedExerciseData(curEx.id);
+        const lastExInfo = getLastLoggedExerciseInfo(curEx.id);
+        const lastExData = (lastExInfo && lastExInfo.sets && lastExInfo.sets.length > 0) ? lastExInfo.sets : getLastLoggedExerciseData(curEx.id);
         const lastHint = lastExData.length > 0 
           ? `POPRZEDNIO: ${lastExData[0].weight || 0}KG x ${lastExData[0].reps || 0}${lastExData[0].rir !== undefined && lastExData[0].rir !== '' ? ` (zapas: ${lastExData[0].rir === 0 || lastExData[0].rir === '0' ? 'MAX' : '+' + lastExData[0].rir})` : ''}` 
           : 'NOWE ĆWICZENIE';
@@ -3482,18 +3483,33 @@
         // Zmiana zamiennika odbywa się wyłącznie celowo przyciskami ‹ i › na pasku ZAMIENNIK.
 
         card.innerHTML = `
-          <!-- PASEK WYBORU ZAMIENNIKA I USUWANIA -->
-          <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
-            <span class="text-[9px] font-mono uppercase font-bold text-slate-500 flex items-center gap-1">
-              ${slot.category} ${slot.isCustom ? '<span class="text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 font-bold text-[8px]">WŁASNE</span>' : ''}
-            </span>
+          <!-- PASEK WYBORU ZAMIENNIKA, DATY I EDYCJI -->
+          <div class="flex flex-wrap items-center justify-between gap-1.5 pb-2 mb-2 border-b border-slate-100">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="text-[9px] font-mono uppercase font-bold text-slate-500 flex items-center gap-1">
+                ${slot.category} ${slot.isCustom ? '<span class="text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 font-bold text-[8px]">WŁASNE</span>' : ''}
+              </span>
+              <!-- DATA OSTATNIEJ SESJI TEGO ĆWICZENIA -->
+              <span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/25 text-amber-900 font-mono text-[10px] font-extrabold flex items-center gap-1 shadow-2xs">
+                <i data-lucide="calendar" class="w-3 h-3 text-amber-600"></i>
+                <span>${lastExInfo && lastExInfo.date ? `OSTATNIO: ${lastExInfo.date}` : `SESJA: ${todayDateStr}`}</span>
+              </span>
+            </div>
             
             <div class="flex items-center gap-1.5">
+              <!-- PRZYCISK EDYCJI ĆWICZENIA -->
+              <button onclick="openEditExerciseModal('${slot.slotId}', '${curEx.id}')" 
+                class="px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 text-[10px] font-mono font-black flex items-center gap-1 transition active:scale-95 shadow-2xs" 
+                title="Edytuj to ćwiczenie (nazwa, sprzęt, cel, liczba serii)">
+                <i data-lucide="edit-3" class="w-3 h-3 text-amber-700"></i>
+                <span>EDYTUJ</span>
+              </button>
+
               ${totalVariants > 1 ? `
                 <div class="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                   <button onclick="cycleSlotVariant('${slot.slotId}', -1)" class="text-slate-600 hover:text-slate-900 px-1 font-bold text-xs">‹</button>
                   <span class="text-[9px] font-mono text-amber-700 font-bold uppercase">
-                    ZAMIENNIK ${slot.selectedIdx + 1}/${totalVariants}
+                    ${slot.selectedIdx + 1}/${totalVariants}
                   </span>
                   <button onclick="cycleSlotVariant('${slot.slotId}', 1)" class="text-slate-600 hover:text-slate-900 px-1 font-bold text-xs">›</button>
                 </div>
@@ -3501,7 +3517,7 @@
               <button onclick="deleteExercise('${slot.slotId}', '${curEx.id}', ${Boolean(slot.isCustom)})" 
                 class="px-2 py-0.5 rounded bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-700 border border-rose-300 text-[10px] font-mono font-bold flex items-center gap-1 transition active:scale-95 shadow-2xs" 
                 title="Usuń to ćwiczenie z treningu">
-                <span>🗑️ USUŃ ZAMIENNIK</span>
+                <span>🗑️</span>
               </button>
             </div>
           </div>
@@ -3891,6 +3907,145 @@
 
     function saveActiveSession() {
       localStorage.setItem(`clean_session_${currentProfile}_${activeTab}`, JSON.stringify(currentSessionData));
+    }
+
+    function getLastLoggedExerciseInfo(exId) {
+      let cachedSets = null;
+      try {
+        const direct = localStorage.getItem(`fbw_last_exercise_${exId}`);
+        if (direct) {
+          const parsed = JSON.parse(direct);
+          if (Array.isArray(parsed) && parsed.length > 0 && parsed.some(s => s.weight > 0 || s.reps > 0 || (s.rir !== undefined && s.rir !== ''))) {
+            cachedSets = parsed;
+          }
+        }
+      } catch(e) {}
+
+      const history = getHistory();
+      if (Array.isArray(history)) {
+        for (const entry of history) {
+          if (entry.summaryList && Array.isArray(entry.summaryList)) {
+            const sum = entry.summaryList.find(s => s.sets && s.sets.length > 0 && (s.id === exId || s.exId === exId || s.name === exId));
+            if (sum && sum.sets && sum.sets.length > 0) {
+              const dStr = entry.formattedDate || (entry.date ? entry.date.split('T')[0] : null);
+              return {
+                date: dStr,
+                sets: sum.sets
+              };
+            }
+          }
+          if (entry.exercises && entry.exercises[exId] && Array.isArray(entry.exercises[exId]) && entry.exercises[exId].length > 0) {
+            const dStr = entry.formattedDate || (entry.date ? entry.date.split('T')[0] : null);
+            return {
+              date: dStr,
+              sets: entry.exercises[exId]
+            };
+          }
+        }
+      }
+      return { date: null, sets: cachedSets || [] };
+    }
+
+    function applyExerciseOverrides() {
+      try {
+        const overrides = JSON.parse(localStorage.getItem(`fbw_exercise_overrides_${currentProfile}`) || '{}');
+        ['A', 'B', 'C'].forEach(p => {
+          if (FBW_ROUTINE[p] && FBW_ROUTINE[p].slots) {
+            FBW_ROUTINE[p].slots.forEach(slot => {
+              if (slot.variants) {
+                slot.variants.forEach(v => {
+                  if (overrides[v.id]) {
+                    Object.assign(v, overrides[v.id]);
+                  }
+                });
+              }
+            });
+          }
+        });
+      } catch(e) {}
+    }
+
+    let currentEditingSlotId = null;
+    let currentEditingExId = null;
+
+    function openEditExerciseModal(slotId, exId) {
+      currentEditingSlotId = slotId;
+      currentEditingExId = exId;
+      const plan = getActiveRoutine();
+      const slot = plan.slots.find(s => s.slotId === slotId);
+      if (!slot) return;
+      const curEx = slot.variants.find(v => v.id === exId) || slot.variants[slot.selectedIdx] || slot.variants[0];
+      if (!curEx) return;
+
+      document.getElementById('editExModalTitle').innerText = `EDYTUJ: ${curEx.name}`;
+      document.getElementById('editExName').value = curEx.name;
+      document.getElementById('editExEquipment').value = curEx.equipment || '';
+      document.getElementById('editExTargetReps').value = curEx.targetReps || '8–10 powt.';
+      document.getElementById('editExSets').value = curEx.recommendedSets || 3;
+      document.getElementById('editExNotes').value = curEx.proTip || curEx.technique || '';
+
+      const modal = document.getElementById('editExerciseModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeEditExerciseModal() {
+      const modal = document.getElementById('editExerciseModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function saveEditedExercise() {
+      if (!currentEditingSlotId || !currentEditingExId) return;
+      const newName = document.getElementById('editExName').value.trim();
+      if (!newName) {
+        alert("Wpisz nazwę ćwiczenia!");
+        return;
+      }
+      const newEquip = document.getElementById('editExEquipment').value.trim() || 'Sprzęt na siłowni';
+      const newReps = document.getElementById('editExTargetReps').value.trim() || '8–10 powt.';
+      const newSets = parseInt(document.getElementById('editExSets').value, 10) || 3;
+      const newNotes = document.getElementById('editExNotes').value.trim();
+
+      const plan = getActiveRoutine();
+      const slot = plan.slots.find(s => s.slotId === currentEditingSlotId);
+      if (slot) {
+        const curEx = slot.variants.find(v => v.id === currentEditingExId);
+        if (curEx) {
+          curEx.name = newName;
+          curEx.equipment = newEquip;
+          curEx.targetReps = newReps;
+          curEx.recommendedSets = newSets;
+          if (newNotes) curEx.proTip = newNotes;
+
+          // Zapisz do localStorage
+          try {
+            const key = `fbw_exercise_overrides_${currentProfile}`;
+            const overrides = JSON.parse(localStorage.getItem(key) || '{}');
+            overrides[currentEditingExId] = {
+              name: newName,
+              equipment: newEquip,
+              targetReps: newReps,
+              recommendedSets: newSets,
+              proTip: newNotes
+            };
+            localStorage.setItem(key, JSON.stringify(overrides));
+          } catch(e) {}
+
+          // Dostosuj liczbę serii w bieżącej sesji jeśli trzeba
+          if (currentSessionData[currentEditingExId]) {
+            const curSets = currentSessionData[currentEditingExId];
+            while (curSets.length < newSets) {
+              curSets.push({ setNum: curSets.length + 1, weight: '', reps: '', rir: '', done: false });
+            }
+          }
+        }
+      }
+
+      closeEditExerciseModal();
+      renderWorkoutView();
+      showToast(`Zaktualizowano ćwiczenie: ${newName}`, "EDYCJA ZAPISANA", true);
     }
 
     function getLastLoggedExerciseData(exId) {
@@ -5837,6 +5992,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      applyExerciseOverrides();
       initPhotoDB();
       initTheme();
       updateProfileUI();
@@ -6050,6 +6206,71 @@
           </div>
         </div>
 
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDYCJI ĆWICZENIA -->
+  <div id="editExerciseModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white border-2 border-slate-300 rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl">
+      <!-- HEADER -->
+      <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-base shadow-xs">
+            ✏️
+          </div>
+          <div>
+            <h3 id="editExModalTitle" class="text-sm font-heavy tracking-wide text-slate-900 uppercase">EDYTUJ ĆWICZENIE</h3>
+            <span class="text-[10px] font-mono text-slate-500">Zmień nazwę, maszynę, serie lub cel powtórzeń</span>
+          </div>
+        </div>
+        <button onclick="closeEditExerciseModal()" class="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-700 font-bold transition">
+          ✕
+        </button>
+      </div>
+
+      <!-- BODY -->
+      <div class="p-5 overflow-y-auto space-y-3.5 text-xs font-mono">
+        <div>
+          <label class="block text-slate-700 font-bold mb-1 uppercase text-[11px]">Nazwa ćwiczenia</label>
+          <input type="text" id="editExName" class="w-full bg-slate-50 border-2 border-slate-300 rounded-lg p-2.5 text-slate-950 font-bold text-sm focus:border-amber-500 focus:bg-white outline-none">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-700 font-bold mb-1 uppercase text-[11px]">Sprzęt / Maszyna</label>
+            <input type="text" id="editExEquipment" class="w-full bg-slate-50 border-2 border-slate-300 rounded-lg p-2.5 text-slate-950 font-bold focus:border-amber-500 focus:bg-white outline-none">
+          </div>
+          <div>
+            <label class="block text-slate-700 font-bold mb-1 uppercase text-[11px]">Cel powtórzeń</label>
+            <input type="text" id="editExTargetReps" placeholder="np. 8–10 powt." class="w-full bg-slate-50 border-2 border-slate-300 rounded-lg p-2.5 text-slate-950 font-bold focus:border-amber-500 focus:bg-white outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-700 font-bold mb-1 uppercase text-[11px]">Liczba zalecanych serii</label>
+          <select id="editExSets" class="w-full bg-slate-50 border-2 border-slate-300 rounded-lg p-2.5 text-slate-950 font-bold focus:border-amber-500 focus:bg-white outline-none">
+            <option value="2">2 serie</option>
+            <option value="3">3 serie</option>
+            <option value="4">4 serie</option>
+            <option value="5">5 serii</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-700 font-bold mb-1 uppercase text-[11px]">Wskazówka trenera / Notatka</label>
+          <textarea id="editExNotes" rows="2" placeholder="Własna notatka techniczna..." class="w-full bg-slate-50 border-2 border-slate-300 rounded-lg p-2.5 text-slate-950 font-mono text-xs focus:border-amber-500 focus:bg-white outline-none"></textarea>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="p-3.5 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-2.5">
+        <button onclick="closeEditExerciseModal()" class="px-4 py-2 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs uppercase transition">
+          ANULUJ
+        </button>
+        <button onclick="saveEditedExercise()" class="px-5 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase shadow-sm active:scale-95 transition">
+          ZAPISZ ZMIANY
+        </button>
       </div>
     </div>
   </div>
