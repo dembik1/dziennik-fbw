@@ -3711,6 +3711,26 @@
       }
     }
 
+    
+    function openAddVariantForSlot(slotId) {
+      const plan = getActiveRoutine();
+      const slot = plan.slots.find(s => s.slotId === slotId);
+      if (!slot) return;
+      const curEx = slot.variants[slot.selectedIdx || 0] || slot.variants[0];
+      const catShort = getShortCategoryName(slot.category);
+
+      window.activeInsertContext = {
+        type: 'variant',
+        slotId: slot.slotId,
+        category: slot.category,
+        catShort: catShort,
+        exName: curEx ? curEx.name : '',
+        plan: activeTab || 'A'
+      };
+
+      openAddExerciseModal();
+    }
+
     function openAddExerciseNextToSlot(slotId) {
       const plan = getActiveRoutine();
       const slot = plan.slots.find(s => s.slotId === slotId);
@@ -3919,7 +3939,7 @@
               </span>
             </div>
 
-            <!-- RZĄD 2: POWIĘKSZONE KAFELKI AKCJI (EDYTUJ + ZAMIENNIKI + PRZESUWANIE GÓRA/DÓŁ + USUŃ) -->
+            <!-- RZĄD 2: POWIĘKSZONE KAFELKI AKCJI (EDYTUJ + DODAJ ZAMIENNIK + ZAMIENNIKI + PRZESUWANIE GÓRA/DÓŁ + USUŃ) -->
             <div class="flex items-center justify-between gap-2 flex-wrap">
               <div class="flex items-center gap-1.5 flex-wrap">
                 <!-- PRZYCISK EDYCJI ĆWICZENIA (DUŻY I WYGODNY) -->
@@ -3930,12 +3950,12 @@
                   <span>EDYTUJ</span>
                 </button>
 
-                <!-- PRZYCISK DODAJ ĆWICZENIE OBOK / DO TEJ SAMEJ PARTII -->
-                <button onclick="openAddExerciseNextToSlot('${slot.slotId}')"
+                <!-- PRZYCISK DODAJ ZAMIENNIK DO TEGO ĆWICZENIA -->
+                <button onclick="openAddVariantForSlot('${slot.slotId}')"
                   class="px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 border border-emerald-600/40 text-xs font-mono font-black flex items-center gap-1.5 transition shadow-sm"
-                  title="Dodaj kolejne ćwiczenie zaraz obok tego w treningu (np. ${getShortCategoryName(slot.category)})">
+                  title="Dodaj zamiennik / alternatywne ćwiczenie do tej partii (${slot.category})">
                   <i data-lucide="plus-circle" class="w-4 h-4 text-slate-950"></i>
-                  <span>+ ĆWICZENIE</span>
+                  <span>+ ZAMIENNIK</span>
                 </button>
               </div>
 
@@ -3949,12 +3969,6 @@
                     </span>
                     <button onclick="cycleSlotVariant('${slot.slotId}', 1)" class="px-3 py-2 text-amber-400 hover:bg-slate-800 active:bg-slate-700 font-black text-sm transition" title="Przełącz na kolejne ćwiczenie tej partii">›</button>
                   </div>
-                  <!-- PRZYCISK ROZDZIEL NA OSOBNE ĆWICZENIE -->
-                  <button onclick="splitVariantToSeparateSlot('${slot.slotId}', '${curEx.id}')"
-                    class="px-2.5 py-2 rounded-xl bg-cyan-50 hover:bg-cyan-100 active:bg-cyan-200 text-cyan-800 border border-cyan-300 text-[11px] font-mono font-black flex items-center gap-1 transition active:scale-95 shadow-2xs"
-                    title="Pokaż to ćwiczenie jako osobną kartę w treningu (oba ćwiczenia będą widoczne naraz)">
-                    <span>➕ ROZDZIEL</span>
-                  </button>
                 ` : ''}
 
                 <!-- KAFELKI PRZESUWANIA KOLEJNOŚCI (GÓRA / DÓŁ) -->
@@ -4095,16 +4109,7 @@
               <span>${sets.length > 0 && sets.every(s => s.done) ? `✓ ZALICZONE & WYSŁANE (${sets.length} SERII)` : `WYŚLIJ ${slot.category} NA TELEGRAM`}</span>
             </button>
 
-            <!-- DEDYKOWANA BELKA: DODAJ KOLEJNE ĆWICZENIE DO TEJ PARTII -->
-            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-1.5 bg-slate-50/90 p-2 rounded-xl border border-slate-200/80">
-              <div class="flex items-center gap-1.5 min-w-0">
-                <span class="w-5 h-5 rounded-md bg-emerald-100 border border-emerald-300 flex items-center justify-center shrink-0">
-                  <i data-lucide="dumbbell" class="w-3 h-3 text-emerald-800"></i>
-                </span>
-                <span class="text-[11px] font-mono font-bold text-slate-700 truncate">
-                  Partia: <strong class="text-slate-950 uppercase">${getShortCategoryName(slot.category)}</strong>
-                </span>
-              </div>
+            
               <button onclick="openAddExerciseNextToSlot('${slot.slotId}')"
                 class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-mono font-black text-[11px] flex items-center gap-1 transition shadow-xs shrink-0"
                 title="Dodaj kolejne ćwiczenie zaraz obok w planie (np. ${getShortCategoryName(slot.category)})">
@@ -5692,17 +5697,24 @@
       let atlasOptions = '';
 
       if (ctx && ctx.slotId) {
-        const afterVal = `after_${ctx.slotId}`;
-        const exLabel = ctx.exName ? `ZARAZ ZA: ${ctx.exName} (${ctx.catShort})` : `ZARAZ PRZY: ${ctx.catShort}`;
-        customOptions += `<option value="${afterVal}" selected>⭐ OSOBNE KOLEJNE ĆWICZENIE — ${exLabel}</option>`;
-        atlasOptions += `<option value="${afterVal}" selected>⭐ OSOBNE KOLEJNE ĆWICZENIE — ${exLabel}</option>`;
+        if (ctx.type === 'variant') {
+          const varLabel = ctx.exName ? `⇄ ZAMIENNIK do: ${ctx.category} (${ctx.exName})` : `⇄ ZAMIENNIK do: ${ctx.category}`;
+          customOptions += `<option value="${ctx.slotId}" selected>${varLabel}</option>`;
+          atlasOptions += `<option value="${ctx.slotId}" selected>${varLabel}</option>`;
 
-        customOptions += `<option value="${ctx.slotId}">⇄ ZAMIENNIK do: ${ctx.category} (w tej samej karcie)</option>`;
-        atlasOptions += `<option value="${ctx.slotId}">⇄ ZAMIENNIK do: ${ctx.category} (w tej samej karcie)</option>`;
+          customOptions += `<option value="new_slot">⭐ Dodaj jako osobne kolejne ćwiczenie (nowy kafelek na końcu)</option>`;
+          atlasOptions += `<option value="new_slot">⭐ Dodaj jako osobne kolejne ćwiczenie (nowy kafelek na końcu)</option>`;
+        } else {
+          const afterVal = `after_${ctx.slotId}`;
+          const exLabel = ctx.exName ? `ZARAZ ZA: ${ctx.exName} (${ctx.catShort})` : `ZARAZ PRZY: ${ctx.catShort}`;
+          customOptions += `<option value="${afterVal}" selected>⭐ OSOBNE KOLEJNE ĆWICZENIE — ${exLabel}</option>`;
+          atlasOptions += `<option value="${afterVal}" selected>⭐ OSOBNE KOLEJNE ĆWICZENIE — ${exLabel}</option>`;
 
-        customOptions += `<option value="new_slot">➕ Na samym końcu planu ${chosenPlan}</option>`;
-        atlasOptions += `<option value="new_slot">➕ Na samym końcu planu ${chosenPlan}</option>`;
+          customOptions += `<option value="${ctx.slotId}">⇄ ZAMIENNIK do: ${ctx.category} (w tej samej karcie)</option>`;
+          atlasOptions += `<option value="${ctx.slotId}">⇄ ZAMIENNIK do: ${ctx.category} (w tej samej karcie)</option>`;
+        }
       } else {
+        // Domyślnie z przycisku na dole strony: OSOBNE KOLEJNE ĆWICZENIE
         customOptions += `<option value="new_slot" selected>⭐ OSOBNE KOLEJNE ĆWICZENIE (Nowy kafelek w planie ${chosenPlan})</option>`;
         atlasOptions += `<option value="new_slot" selected>⭐ DODAJ JAKO OSOBNE ĆWICZENIE DO PLANU ${chosenPlan}</option>`;
       }
@@ -5933,14 +5945,11 @@
           }
           localStorage.setItem(varKey, JSON.stringify(savedVars));
 
-          // Jeśli to aktywny plan, ustaw ten wariant jako wybrany
+          // Jeśli to aktywny plan, ustaw ten wariant jako wybrany natychmiast
           if (p === activeTab) {
-            const routine = getActiveRoutine();
-            const slot = routine.slots.find(s => s.slotId === finalSlotId);
-            const newIdx = slot ? (slot.variants.length - 1) : 0;
             const selKey = 'fbw_slot_selections';
             const savedSel = JSON.parse(localStorage.getItem(selKey) || '{}');
-            savedSel[finalSlotId] = newIdx;
+            savedSel[finalSlotId] = { index: 0, exId: variantObj.id };
             localStorage.setItem(selKey, JSON.stringify(savedSel));
           }
         } catch(e) {}
@@ -6035,8 +6044,13 @@
 
       if (ctx && ctx.slotId) {
         if (banner) banner.classList.remove('hidden');
-        if (titleEl) titleEl.innerText = `DODAJESZ ĆWICZENIE PRZY: ${ctx.exName.toUpperCase() || ctx.catShort} (${ctx.catShort})`;
-        if (subEl) subEl.innerText = `Nowe ćwiczenie pojawi się w treningu zaraz za tym ćwiczeniem (${ctx.catShort})`;
+        if (ctx.type === 'variant') {
+          if (titleEl) titleEl.innerText = `DODAJESZ ZAMIENNIK DO: ${ctx.exName.toUpperCase() || ctx.catShort} (${ctx.catShort})`;
+          if (subEl) subEl.innerText = `Nowe ćwiczenie od razu pojawi się na kafelku tej maszyny (${ctx.catShort}) jako aktywny zamiennik!`;
+        } else {
+          if (titleEl) titleEl.innerText = `DODAJESZ ĆWICZENIE PRZY: ${ctx.exName.toUpperCase() || ctx.catShort} (${ctx.catShort})`;
+          if (subEl) subEl.innerText = `Nowe ćwiczenie pojawi się w treningu zaraz za tym ćwiczeniem (${ctx.catShort})`;
+        }
 
         const atlasCat = (ctx.catShort === 'BICEPS' || ctx.catShort === 'TRICEPS' || ctx.catShort === 'RAMIONA') ? 'RAMIONA' : ctx.catShort;
         setAtlasCategoryFilter(atlasCat);
