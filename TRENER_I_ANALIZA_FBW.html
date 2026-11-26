@@ -320,7 +320,33 @@
   <!-- SCRIPT LOGIC -->
   <script>
     // INITIAL REPORTS DATA
-    const INITIAL_REPORTS = [
+        const INITIAL_REPORTS = [
+      {
+        id: 1795713600000,
+        athlete: "rafal",
+        date: "2026-11-26",
+        time: "10:30",
+        formattedDate: "Czwartek, 26.11.2026 (10:30)",
+        planType: "C",
+        title: "Trening C // Ściąganie Gryfu na Triceps & Unoszenie Gryfu na Barki",
+        notes: `🔥 <strong>ANALIZA TRENINGU C (CZWARTEK 26.11):</strong><br>
+• <strong>Wyprosty nóg na maszynie (czworogłowe):</strong> 50 kg × 12, 55 kg × 10, 55 kg × 10 MAX.<br>
+• <strong>Uginanie nóg na maszynie (dwugłowe):</strong> 45 kg × 12, 45 kg × 10, 45 kg × 10 MAX.<br>
+• <strong>'Narciarz' z prostym drążkiem na wyciągu:</strong> 40 kg × 12, 40 kg × 12, 40 kg × 10 MAX.<br>
+• <strong>Ściąganie linek na bramie z góry w dół:</strong> 25 kg × 12, 25 kg × 10, 30 kg × 10 MAX.<br>
+• <strong>Unoszenie gryfu na lince (Barki) [NOWOŚĆ]:</strong> 25 kg × 12, 30 kg × 10, 30 kg × 10 MAX – znakomite stałe napięcie aktonów barków na wyciągu dolnym.<br>
+• <strong>Ściąganie gryfu na lince w dół (Triceps) [NOWOŚĆ]:</strong> 30 kg × 12, 35 kg × 10, 35 kg × 10 MAX – pełny wyprost ramion i dopięcie tricepsa sztywnym gryfem.<br>
+• <strong>Spięcia brzucha na maszynie:</strong> 55 kg × 15, 55 kg × 13, 55 kg × 14 MAX.`,
+        exercises: [
+          { name: "Wyprosty nóg siedząc na maszynie (czworogłowe)", sets: [{ weight: 50, reps: 12, rir: "2" }, { weight: 55, reps: 10, rir: "1" }, { weight: 55, reps: 10, rir: "0" }] },
+          { name: "Uginanie nóg na maszynie (dwugłowe leżąc / siedząc)", sets: [{ weight: 45, reps: 12, rir: "1" }, { weight: 45, reps: 10, rir: "0" }, { weight: 45, reps: 10, rir: "0" }] },
+          { name: "'Narciarz' z prostym drążkiem na wyciągu (szerokość)", sets: [{ weight: 40, reps: 12, rir: "1" }, { weight: 40, reps: 12, rir: "0" }, { weight: 40, reps: 10, rir: "0" }] },
+          { name: "Ściąganie linek na bramie z góry w dół (Dół klatki & Rozpiętki)", sets: [{ weight: 25, reps: 12, rir: "1" }, { weight: 25, reps: 10, rir: "0" }, { weight: 30, reps: 10, rir: "0" }] },
+          { name: "Unoszenie gryfu na lince (Barki)", sets: [{ weight: 25, reps: 12, rir: "2" }, { weight: 30, reps: 10, rir: "1" }, { weight: 30, reps: 10, rir: "0" }] },
+          { name: "Ściąganie gryfu na lince w dół (Triceps)", sets: [{ weight: 30, reps: 12, rir: "2" }, { weight: 35, reps: 10, rir: "1" }, { weight: 35, reps: 10, rir: "0" }] },
+          { name: "Spięcia na maszynie do brzucha (Abdominal Crunch)", sets: [{ weight: 55, reps: 15, rir: "2" }, { weight: 55, reps: 13, rir: "1" }, { weight: 55, reps: 14, rir: "0" }] }
+        ]
+      },
       {
         id: 1795552140000,
         athlete: "rafal",
