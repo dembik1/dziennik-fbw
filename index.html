@@ -3858,7 +3858,7 @@
             <div class="flex items-start gap-2.5">
               <div class="w-10 h-10 rounded bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden relative cursor-pointer" onclick="openTechModal('${curEx.id}')">
                 ${userImg 
-                  ? `<img src="${userImg}" class="w-full h-full object-cover">` 
+                  ? `<img src="${userImg}" onerror="this.style.display='none';" class="w-full h-full object-cover">` 
                   : (EQUIPMENT_ICONS[curEx.iconType] || EQUIPMENT_ICONS.barbell)}
               </div>
 
