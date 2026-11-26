@@ -3823,10 +3823,10 @@
           exercises: logEntry.exercises || {}
         };
 
-        const res = await fetch(https://ntfy.sh/, {
+        const res = await fetch('https://ntfy.sh/' + NTFY_SYNC_TOPIC, {
           method: 'POST',
           headers: {
-            'Title': Trening  - ,
+            'Title': 'Trening ' + payload.planType + ' - ' + payload.athlete.toUpperCase(),
             'Tags': 'muscle,barbell',
             'Priority': 'default'
           },
@@ -3850,10 +3850,10 @@
           planType: activeTab,
           ...exerciseData
         };
-        await fetch(https://ntfy.sh/, {
+        await fetch('https://ntfy.sh/' + NTFY_SYNC_TOPIC, {
           method: 'POST',
           headers: {
-            'Title': Ćwiczenie: ,
+            'Title': 'Ćwiczenie: ' + (payload.exerciseName || ''),
             'Tags': 'flexed_biceps',
             'Priority': 'low'
           },
