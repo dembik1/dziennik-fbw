@@ -145,7 +145,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
             <h2 class="text-lg font-heavy text-white tracking-wider">PLAN NA NASTĘPNY TRENING</h2>
           </div>
-          <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">PLAN C (PUMP & MASZYNY)</span>
+          <span class="px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">PLAN A (SUWNICA & SKOS)</span>
         </div>
 
         <div class="space-y-3 font-mono text-xs">
@@ -327,29 +327,33 @@
     // INITIAL REPORTS DATA
         const INITIAL_REPORTS = [
       {
-        id: 1795713600000,
+        id: 1795726080000,
         athlete: "rafal",
         date: "2026-11-26",
-        time: "10:30",
-        formattedDate: "Czwartek, 26.11.2026 (10:30)",
+        time: "20:48",
+        formattedDate: "Czwartek, 26.11.2026 (20:48)",
         planType: "C",
-        title: "Trening C // Ściąganie Gryfu na Triceps & Unoszenie Gryfu na Barki",
+        title: "Trening C // Wiosłowanie Szeroko 70kg, Face-Pulls & Gryf na Triceps",
         notes: `🔥 <strong>ANALIZA TRENINGU C (CZWARTEK 26.11):</strong><br>
-• <strong>Wyprosty nóg na maszynie (czworogłowe):</strong> 50 kg × 12, 55 kg × 10, 55 kg × 10 MAX.<br>
-• <strong>Uginanie nóg na maszynie (dwugłowe):</strong> 45 kg × 12, 45 kg × 10, 45 kg × 10 MAX.<br>
-• <strong>'Narciarz' z prostym drążkiem na wyciągu:</strong> 40 kg × 12, 40 kg × 12, 40 kg × 10 MAX.<br>
-• <strong>Ściąganie linek na bramie z góry w dół:</strong> 25 kg × 12, 25 kg × 10, 30 kg × 10 MAX.<br>
-• <strong>Unoszenie gryfu na lince (Barki) [NOWOŚĆ]:</strong> 25 kg × 12, 30 kg × 10, 30 kg × 10 MAX – znakomite stałe napięcie aktonów barków na wyciągu dolnym.<br>
-• <strong>Ściąganie gryfu na lince w dół (Triceps) [NOWOŚĆ]:</strong> 30 kg × 12, 35 kg × 10, 35 kg × 10 MAX – pełny wyprost ramion i dopięcie tricepsa sztywnym gryfem.<br>
-• <strong>Spięcia brzucha na maszynie:</strong> 55 kg × 15, 55 kg × 13, 55 kg × 14 MAX.`,
+• <strong>Wyprosty nóg na maszynie (Plate-Loaded):</strong> Potężne 70 kg w seriach roboczych! Serie: 12, 12 oraz brutalne 16 powtórzeń w serii do załamania (RIR 0). Czworogłowe dostały potężny bodziec hipertroficzny.<br>
+• <strong>Uginanie nóg na maszynie (dwugłowe):</strong> 35 kg × 12, 12 i 13 MAX. Bardzo dobra kontrola ruchu i pełne napięcie kulszowo-goleniowych.<br>
+• <strong>Wiosłowanie szeroko (Plecy):</strong> 70 kg w aż 4 twardych seriach (10, 9, 9 i 12 MAX w ostatniej serii!). Znakomite ściąganie łopatek i praca górnej oraz środkowej części grzbietu zamiast narciarza.<br>
+• <strong>Ściąganie linek na bramie z góry w dół (Dół klatki & Rozpiętki):</strong> 25 kg × 12, 10, 10, 11 MAX. 4 serie na stałym napięciu – rewelacyjna pompa dołu klatki piersiowej.<br>
+• <strong>Face-pulls na wyciągu ze sznurem (Tył barku):</strong> 40 kg × 15, 13, 15 MAX. Kluczowe ćwiczenie dla zdrowia stożka rotatorów i kulistości tylnego aktonu barku zrobione z dużym zapasem siły.<br>
+• <strong>Unoszenie gryfu na lince (Barki):</strong> 12.5 kg × 12, 10, 12 MAX. Ciągłe napięcie na lince wyciągu dolnego idealnie dopala boczny i przedni akton.<br>
+• <strong>Uginanie przedramion ze sznurem (Biceps linki):</strong> 20 kg × 12, 12, 12 MAX. Wzorowa stałość powtórzeń we wszystkich trzech seriach z potężnym dopięciem szczytowym.<br>
+• <strong>Ściąganie gryfu na lince w dół (Triceps):</strong> 25 kg × 13, 12, 10 MAX. Sztywny gryf daje doskonałą stabilizację łokci i potężną izolację głowy bocznej tricepsa.<br>
+• <strong>Spięcia brzucha:</strong> 3 serie do pełnego upadku mięśniowego: 15, 15 i aż 19 powtórzeń na dobitkę. Kapitalne zakończenie sesji!`,
         exercises: [
-          { name: "Wyprosty nóg siedząc na maszynie (czworogłowe)", sets: [{ weight: 50, reps: 12, rir: "2" }, { weight: 55, reps: 10, rir: "1" }, { weight: 55, reps: 10, rir: "0" }] },
-          { name: "Uginanie nóg na maszynie (dwugłowe leżąc / siedząc)", sets: [{ weight: 45, reps: 12, rir: "1" }, { weight: 45, reps: 10, rir: "0" }, { weight: 45, reps: 10, rir: "0" }] },
-          { name: "'Narciarz' z prostym drążkiem na wyciągu (szerokość)", sets: [{ weight: 40, reps: 12, rir: "1" }, { weight: 40, reps: 12, rir: "0" }, { weight: 40, reps: 10, rir: "0" }] },
-          { name: "Ściąganie linek na bramie z góry w dół (Dół klatki & Rozpiętki)", sets: [{ weight: 25, reps: 12, rir: "1" }, { weight: 25, reps: 10, rir: "0" }, { weight: 30, reps: 10, rir: "0" }] },
-          { name: "Unoszenie gryfu na lince (Barki)", sets: [{ weight: 25, reps: 12, rir: "2" }, { weight: 30, reps: 10, rir: "1" }, { weight: 30, reps: 10, rir: "0" }] },
-          { name: "Ściąganie gryfu na lince w dół (Triceps)", sets: [{ weight: 30, reps: 12, rir: "2" }, { weight: 35, reps: 10, rir: "1" }, { weight: 35, reps: 10, rir: "0" }] },
-          { name: "Spięcia na maszynie do brzucha (Abdominal Crunch)", sets: [{ weight: 55, reps: 15, rir: "2" }, { weight: 55, reps: 13, rir: "1" }, { weight: 55, reps: 14, rir: "0" }] }
+          { name: "Wyprosty nóg siedząc na maszynie (Plate-Loaded)", sets: [{ weight: 70, reps: 12, rir: "2" }, { weight: 70, reps: 12, rir: "1" }, { weight: 70, reps: 16, rir: "0" }] },
+          { name: "Uginanie nóg na maszynie (dwugłowe leżąc / siedząc)", sets: [{ weight: 35, reps: 12, rir: "3" }, { weight: 35, reps: 12, rir: "2" }, { weight: 35, reps: 13, rir: "0" }] },
+          { name: "Wiosłowanie szeroko (Plecy)", sets: [{ weight: 70, reps: 10, rir: "2" }, { weight: 70, reps: 9, rir: "2" }, { weight: 70, reps: 9, rir: "2" }, { weight: 70, reps: 12, rir: "0" }] },
+          { name: "Ściąganie linek na bramie z góry w dół (Dół klatki & Rozpiętki)", sets: [{ weight: 25, reps: 12, rir: "3" }, { weight: 25, reps: 10, rir: "2" }, { weight: 25, reps: 10, rir: "1" }, { weight: 25, reps: 11, rir: "0" }] },
+          { name: "Face-pulls na wyciągu ze sznurem (Tył barku)", sets: [{ weight: 40, reps: 15, rir: "2" }, { weight: 40, reps: 13, rir: "2" }, { weight: 40, reps: 15, rir: "0" }] },
+          { name: "Unoszenie gryfu na lince (Barki)", sets: [{ weight: 12.5, reps: 12, rir: "2" }, { weight: 12.5, reps: 10, rir: "1" }, { weight: 12.5, reps: 12, rir: "0" }] },
+          { name: "Uginanie przedramion ze sznurem na wyciągu dolnym (Biceps linki)", sets: [{ weight: 20, reps: 12, rir: "2" }, { weight: 20, reps: 12, rir: "1" }, { weight: 20, reps: 12, rir: "0" }] },
+          { name: "Ściąganie gryfu na lince w dół (Triceps)", sets: [{ weight: 25, reps: 13, rir: "2" }, { weight: 25, reps: 12, rir: "1" }, { weight: 25, reps: 10, rir: "0" }] },
+          { name: "Spięcia brzucha", sets: [{ weight: 0, reps: 15, rir: "0" }, { weight: 0, reps: 15, rir: "0" }, { weight: 0, reps: 19, rir: "0" }] }
         ]
       },
       {
